@@ -1,0 +1,5 @@
+Name: Azure
+Version: 0.0.1
+Depends: monitoring
+Description: Azure Cloud module for Icinga Web 2
+This module provides an Azure import source for Icinga Director
