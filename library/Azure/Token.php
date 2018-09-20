@@ -41,21 +41,22 @@ class Token {
 
 
         
-    public function __construct($tenant, $subscription, $client, $secret)
+    public function __construct( $tenant_id, $subscription_id,
+                                 $client_id, $client_secret)
     {
         
-        $this->tenant_id       = $tenant;
-        $this->subscription_id = $subscription;
-        $this->client_id       = $client;
-        $this->client_secret   = $secret;
+        $this->tenant_id       = $tenant_id;
+        $this->subscription_id = $subscription_id;
+        $this->client_id       = $client_id;
+        $this->client_secret   = $client_secret;
 
         $api = new RestClient([
             'base_url' => API_LOGIN,
             'format'   => 'json',
             'headers'  => [
                 'grant_type'    => 'client_credentials',
-                'client_id'     => $client,
-                'client_secret' => $secret,
+                'client_id'     => $client_id,
+                'client_secret' => $client_secret,
                 'resource'      => API_ENDPT,
             ],
         ]);
