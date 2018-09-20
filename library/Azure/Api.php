@@ -33,10 +33,10 @@ class Api
                                  $client_id, $client_secret )
     {
         // get bearer token for API access with given credentials 
-        $this->token = new Token( tenant_id,
-                                  subscription_id,
-                                  client_id,
-                                  client_secret );
+        $this->token = new Token( $tenant_id,
+                                  $subscription_id,
+                                  $client_id,
+                                  $client_secret );
     }
 
 }
