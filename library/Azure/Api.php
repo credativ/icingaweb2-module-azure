@@ -24,16 +24,16 @@ class Api
     /**
      * Api constructor.
      *
-     * @param string $tenant
-     * @param string $subscription
-     * @param string $client
-     * @param string $secret
+     * @param string $tenant_id
+     * @param string $subscription_id
+     * @param string $client_id
+     * @param string $client_secret
      */
     public function __construct( $tenant_id, $subscription_id,
                                  $client_id, $client_secret )
     {
         // get bearer token for API access with given credentials 
-        $this->token = new Token( tenant,
+        $this->token = new Token( tenant_id,
                                   subscription_id,
                                   client_id,
                                   client_secret );
