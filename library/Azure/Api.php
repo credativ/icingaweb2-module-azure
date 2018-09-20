@@ -18,20 +18,9 @@ use restclient\restclient;
 
 class Api
 {
-    /** @var token */
+    /** @var token stores the current token object if initialized */
     private $token;
 
-    /** @var string tenant_id */
-    private $tenant_id;
-    
-    /** @var string subscription_id */
-    private $subscription_id;
-
-    /** @var string client_id */
-    private $client_id;
-
-    /** @var string client_secret */
-    private $client_secret;
 
     /**
      * Api constructor.
@@ -43,26 +32,11 @@ class Api
      */
     public function __construct($tenant, $subscription, $client, $secret)
     {
-        $this->tenant_id       = $tenant;
-        $this->subscription_id = $subscription;
-        $this->client_id       = $client;
-        $this->client_secret   = $secret;
-
-        $this->token = null;
-        
-        $this->getToken();
-    }
-
-    private function getToken()
-    {
-        if (($this->token = null) or ($this->token->expired()))
-        {
-            $this->token = new Token( $this->tenant,
-                                      $this->subscription_id,
-                                      $this->client_id,
-                                      $this->client_secret );
-        }
-        return $this->token->getBearer();
+        // get bearer token for API access with given credentials 
+        $this->token = new Token( $this->tenant,
+                                  $this->subscription_id,
+                                  $this->client_id,
+                                  $this->client_secret );
     }
 
 }

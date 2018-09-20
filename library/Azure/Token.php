@@ -12,21 +12,43 @@ use restclient\restclient;
  * Class Token
  *
  * This keeps track of the bearer token generation mechanism and
- * its expiring.
+ * its expiring. Renews token if it expires.
  *
  */
 
 class Token {
 
+    /** var api  stores rest client api handling object*/
+    private $api;
+    
     /** var string bearer */
     private $bearer;
 
     /** var int expires */
     private $expires;
+
+    /** @var string tenant_id */
+    private $tenant_id;
     
+    /** @var string subscription_id */
+    private $subscription_id;
+
+    /** @var string client_id */
+    private $client_id;
+
+    /** @var string client_secret */
+    private $client_secret;
+
+
         
     public function __construct($tenant, $subscription, $client, $secret)
     {
+        
+        $this->tenant_id       = $tenant;
+        $this->subscription_id = $subscription;
+        $this->client_id       = $client;
+        $this->client_secret   = $secret;
+
         $api = new RestClient([
             'base_url' => API_LOGIN,
             'format'   => 'json',
@@ -37,7 +59,21 @@ class Token {
                 'resource'      => API_ENDPT,
             ],
         ]);
-        $result = $api->post($tenant+"/oauth2/token");
+
+        // no need for assertions as the RestClient constructor
+        // cannot fail. 
+        
+        $this->requestToken();
+    }
+
+    /****************************************************
+     * call the login api and generate a new bearer token
+     * may throw exceptions if login api is unwilling. 
+     * @return void
+     */
+    private function requestToken()
+    {
+        $result = $this->api->post($this->tenant_id+"/oauth2/token");
 
 
         // check if HTTP result code was 200 - OK
@@ -63,15 +99,28 @@ class Token {
         // store bearer token and expirery in object
         $this->bearer  = $result['access_token'];
         $this->expires = $result['expires_on'];
-        return;
     }
 
-    public getBearer() {
+    
+    /****************************************************
+     * tests if token has expired, true if invalid
+     * @return bool
+     */
+    private function expired() {
+        return ($this->expires <= time());
+    }
+
+    
+    /****************************************************
+     * Returns the current bearer token string 
+     * @return string
+     */
+    public function getBearer() {
+        if ($this->expired())
+        {
+            $this->requestToken();
+        }
         return $this->bearer;
-    }
-
-    public expired() {
-        return $this->expires <= time();
     }
 }
 
