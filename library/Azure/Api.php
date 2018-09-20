@@ -21,7 +21,6 @@ class Api
     /** @var token stores the current token object if initialized */
     private $token;
 
-
     /**
      * Api constructor.
      *
@@ -40,4 +39,3 @@ class Api
     }
 
 }
-

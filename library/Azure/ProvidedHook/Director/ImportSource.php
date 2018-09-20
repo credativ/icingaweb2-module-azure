@@ -26,14 +26,65 @@ class ImportSource extends ImportSourceHook
     public function fetchData()
     {
         $api = $this->api();
-        $api->login();
-        $objects = $this->callOnManagedObject('fetchWithDefaults', $api);
-        $api->idLookup()->enrichObjects($objects);
-        $api->logout();
+
+        //        $objects = $this->callOnManagedObject('fetchWithDefaults', $api);
+        //        $api->idLookup()->enrichObjects($objects);
+
         return Util::createNestedObjects($objects);
     }
 
     
+    protected function api()
+    {
+        if ($this->api === null) {
+            $this->api = new Api(
+                $this->getSetting('tenant_id'),
+                $this->getSetting('subscription_id'),
+                $this->getSetting('client_id'),
+                $this->getSetting('client_secret')
+            );
+        }
+
+        return $this->api;
+    }
+
+
+    public function listColumns()
+    {
+        // TODO: Taken from AWS, must adapted to Azure
+        return array(
+            'name',
+            'image',
+            'architecture',
+            'root_device_type',
+            'root_device_name',
+            'hypervisor',
+            'instance_type',
+            'virt_type',
+            'public_ip',
+            'public_dns',
+            'private_ip',
+            'private_dns',
+            'monitoring_state',
+            'security_groups',
+            'tags',
+            'tags.Name',
+            'tags.aws:autoscaling:groupName',
+            'tags.aws:cloudformation:logical-id',
+            'tags.aws:cloudformation:stack-id',
+            'tags.aws:cloudformation:stack-name',
+        );
+
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function getDefaultKeyColumnName()
+    {
+        return 'name';
+    }
+
     
     public static function addSettingsFormFields(QuickForm $form)
     {
