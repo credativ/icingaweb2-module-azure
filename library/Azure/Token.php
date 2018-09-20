@@ -4,7 +4,8 @@ namespace Icinga\Module\Azure;
 
 use Icinga\Module\Azure\Constants;
 
-use restclient\restclient;
+use Icinga\Module\Azure\restclient\restclient;
+
 
 
 
@@ -18,7 +19,7 @@ use restclient\restclient;
 
 class Token {
 
-    /** var api  stores rest client api handling object*/
+    /** var api  stores rest client api handling object */
     private $api;
     
     /** var string bearer */

@@ -6,7 +6,7 @@ use Icinga\Exception\ConfigurationError;
 use Icinga\Module\Azure\Constants;
 use Icinga\Module\Azure\Token;
 
-use restclient\restclient;
+use Icinga\Module\Azure\restclient\restclient;
 
 
 /**
