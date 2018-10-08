@@ -4,10 +4,10 @@ namespace Icinga\Module\Azure;
 
 use Icinga\Module\Azure\Constants;
 
-use Icinga\Module\Azure\restclient\restclient;
+use Icinga\Module\Azure\restclient\RestClient;
 
-
-
+use Icinga\Application\Logger;
+use Icinga\Exception\QueryException;
 
 /**
  * Class Token
@@ -19,8 +19,11 @@ use Icinga\Module\Azure\restclient\restclient;
 
 class Token {
 
-    /** var api  stores rest client api handling object */
-    private $api;
+    const API_LOGIN = "https://login.microsoftonline.com";
+    const API_TOKEN_TYPE = "Bearer";
+        
+    /** var restc  stores rest client api handling object */
+    private $restc;
     
     /** var string bearer */
     private $bearer;
@@ -40,67 +43,86 @@ class Token {
     /** @var string client_secret */
     private $client_secret;
 
+    /** @var string client_secret */
+    private $endpoint;
 
         
     public function __construct( $tenant_id, $subscription_id,
-                                 $client_id, $client_secret)
-    {
-        
+                                 $client_id, $client_secret,
+                                 $endpoint)
+    {       
         $this->tenant_id       = $tenant_id;
         $this->subscription_id = $subscription_id;
         $this->client_id       = $client_id;
         $this->client_secret   = $client_secret;
-
-        $api = new RestClient([
-            'base_url' => API_LOGIN,
-            'format'   => 'json',
-            'headers'  => [
+        $this->endpoint        = $endpoint;
+        
+        $this->restc = new RestClient([ 
+            'base_url' => self::API_LOGIN,
+            'format'   => "json",
+            'parameters'  => [
                 'grant_type'    => 'client_credentials',
                 'client_id'     => $client_id,
                 'client_secret' => $client_secret,
-                'resource'      => API_ENDPT,
+                'resource'      => $endpoint,
             ],
         ]);
-
+        
         // no need for assertions as the RestClient constructor
         // cannot fail. 
-        
+
         $this->requestToken();
     }
 
     /****************************************************
      * call the login api and generate a new bearer token
-     * may throw exceptions if login api is unwilling. 
+     * may throw exceptions if login api is unwilling.
+     *
      * @return void
      */
     private function requestToken()
-    {
-        $result = $this->api->post($this->tenant_id+"/oauth2/token");
-
+    {       
+        $result = $this->restc->post($this->tenant_id."/oauth2/token");
 
         // check if HTTP result code was 200 - OK
         if ($result->info->http_code != 200)
         {
-            throw new Exception("Could not get bearer token. HTTP: " +
-                                $result->info->http_code);
+            Logger::error("Azure Token: Could not get bearer token. HTTP: ".
+                          $result->info->http_code);
+            throw new QueryException("Could not get bearer token. HTTP: ".
+                                     $result->info->http_code);
         }
 
+        // get result data from JSON into object $decoded
+        $decoded = $result->decode_response();      
+        
         // check some assertions on the returned API data
-        if ((not ( key_exists('token_type', $result) and
-                   key_exists('access_token', $result) and
-                   key_exists('expires_on', $result) and
-                   key_exists('resource', $result))) or
-            ( $result['token_type'] != API_TOKEN_TYPE ) or
-            ( $result['resource']   != API_ENDPT))
-                       
+        // i.e. do we have every property and are these resulst plausible?
+        if (
+            (
+                !(
+                    property_exists( $decoded, "token_type" ) and
+                    property_exists( $decoded, "access_token" ) and
+                    property_exists( $decoded, "expires_on" ) and
+                    property_exists( $decoded, "resource" )
+                )
+            ) or
+            ( strcmp($decoded->token_type, self::API_TOKEN_TYPE) != 0 ) or
+            ( strcmp($decoded->resource, $this->endpoint) != 0 )
+        )            
         {
-            throw new Exception("Malformed result on token access " +
-                                $result->response);
+            // if assertion fails, report an error and bail out
+            Logger::error("Azure Token: Malformed result on token access ".
+                          print_r($decoded,true));
+            throw new QueryException("Malformed result on token access ".
+                                     print_r($decoded,true));
         }
 
         // store bearer token and expirery in object
-        $this->bearer  = $result['access_token'];
-        $this->expires = $result['expires_on'];
+        $this->bearer  = $decoded->access_token;
+        $this->expires = $decoded->expires_on;
+
+        return $this->bearer;
     }
 
     
