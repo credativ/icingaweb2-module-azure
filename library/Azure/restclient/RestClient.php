@@ -32,9 +32,7 @@ class RestClient implements Iterator, ArrayAccess {
     // Populated as-needed.
     public $decoded_response; // Decoded response body. 
     
-    public function __construct($options=[]){
-        Logger::error("Azure RestClient constructed");
-     
+    public function __construct($options=[]){  
         
         $default_options = [
             'headers' => [], 
