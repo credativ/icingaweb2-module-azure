@@ -1,13 +1,21 @@
 <?php
-namespace Icinga\Module\Azure\restclient\restclient;
+namespace Icinga\Module\Azure\restclient;
 
 /**
+ * based on 
+ *
  * PHP REST Client
  * https://github.com/tcdent/php-restclient
  * (c) 2013-2017 Travis Dent <tcdent@gmail.com>
  */
 
-class RestClientException extends Exception {}
+
+use Icinga\Exception\QueryException;
+use Icinga\Application\Logger;
+use \Iterator;
+use \ArrayAccess;
+
+class RestClientException extends QueryException {}
 
 class RestClient implements Iterator, ArrayAccess {
     
@@ -25,6 +33,9 @@ class RestClient implements Iterator, ArrayAccess {
     public $decoded_response; // Decoded response body. 
     
     public function __construct($options=[]){
+        Logger::error("Azure RestClient constructed");
+     
+        
         $default_options = [
             'headers' => [], 
             'parameters' => [], 
@@ -154,8 +165,8 @@ class RestClient implements Iterator, ArrayAccess {
             }
         }
         
-        if($client->options['format'])
-            $client->url .= '.'.$client->options['format'];
+        //if($client->options['format'])
+        //    $client->url .= '.'.$client->options['format'];
         
         // Allow passing parameters as a pre-encoded string (or something that
         // allows casting to a string). Parameters passed as strings will not be
