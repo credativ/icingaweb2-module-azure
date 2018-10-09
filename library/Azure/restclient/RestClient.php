@@ -162,7 +162,9 @@ class RestClient implements Iterator, ArrayAccess {
                 }
             }
         }
-        
+
+        // for Azure API calls, we don't need the .json extension but the JSON
+        // decode format.
         //if($client->options['format'])
         //    $client->url .= '.'.$client->options['format'];
         
