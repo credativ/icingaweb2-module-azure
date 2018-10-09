@@ -56,6 +56,9 @@ class Token {
         $this->client_id       = $client_id;
         $this->client_secret   = $client_secret;
         $this->endpoint        = $endpoint;
+
+        $this->bearer  = NULL;
+        $this->expires = NULL;
         
         $this->restc = new RestClient([ 
             'base_url' => self::API_LOGIN,
@@ -74,6 +77,7 @@ class Token {
         $this->requestToken();
     }
 
+    
     /****************************************************
      * call the login api and generate a new bearer token
      * may throw exceptions if login api is unwilling.
@@ -88,7 +92,7 @@ class Token {
         if ($result->info->http_code != 200)
         {
             Logger::error("Azure Token: Could not get bearer token. HTTP: ".
-                          $result->info->http_code);
+                          $result->info->http_code);           
             throw new QueryException("Could not get bearer token. HTTP: ".
                                      $result->info->http_code);
         }
@@ -122,7 +126,7 @@ class Token {
         $this->bearer  = $decoded->access_token;
         $this->expires = $decoded->expires_on;
 
-        return $this->bearer;
+        return;
     }
 
     
@@ -131,7 +135,7 @@ class Token {
      * @return bool
      */
     private function expired() {
-        return ($this->expires <= time());
+        return (($this->expires === NULL) or ($this->expires <= time()));
     }
 
     
@@ -144,7 +148,7 @@ class Token {
         {
             $this->requestToken();
         }
-        return $this->bearer;
+        return self::API_TOKEN_TYPE ." ". $this->bearer;
     }
 }
 
