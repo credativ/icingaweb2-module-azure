@@ -4,19 +4,26 @@ namespace Icinga\Module\Azure\ProvidedHook\Director;
 use Icinga\Module\Director\Hook\ImportSourceHook;
 use Icinga\Module\Director\Web\Form\QuickForm;
 
+use Icinga\Exception\ConfigurationError;
+use Icinga\Exception\AuthenticationException;
+
 use Icinga\Module\Azure\Api;
 
-
-use restclient\restclient;
+use Icinga\Application\Logger;
 
 
 class ImportSource extends ImportSourceHook
 {
 
     /** @var Api */
-    protected $api;
-    
+    private $api;   // stores API object
 
+    public function __construct( )
+    {
+    }
+              
+
+        
     public function getName()
     {
         return 'Microsoft Azure';
@@ -25,18 +32,20 @@ class ImportSource extends ImportSourceHook
 
     public function fetchData()
     {
-        $api = $this->api();
+        // make shure, we are connected to the Azure API
+        // preload api credentials and generate bearer token      
+        $objects = $this->api()->getAll();
 
-        //        $objects = $this->callOnManagedObject('fetchWithDefaults', $api);
-        //        $api->idLookup()->enrichObjects($objects);
-
-        return Util::createNestedObjects($objects);
+        Logger::info("fetchData called 2");
+        
+        return $objects;
     }
 
     
     protected function api()
     {
         if ($this->api === null) {
+            // api is uninitialized, create it.
             $this->api = new Api(
                 $this->getSetting('tenant_id'),
                 $this->getSetting('subscription_id'),
@@ -44,37 +53,27 @@ class ImportSource extends ImportSourceHook
                 $this->getSetting('client_secret')
             );
         }
-
         return $this->api;
     }
 
 
     public function listColumns()
     {
-        // TODO: Taken from AWS, must adapted to Azure
         return array(
             'name',
-            'image',
-            'architecture',
-            'root_device_type',
-            'root_device_name',
-            'hypervisor',
-            'instance_type',
-            'virt_type',
-            'public_ip',
-            'public_dns',
-            'private_ip',
-            'private_dns',
-            'monitoring_state',
-            'security_groups',
-            'tags',
-            'tags.Name',
-            'tags.aws:autoscaling:groupName',
-            'tags.aws:cloudformation:logical-id',
-            'tags.aws:cloudformation:stack-id',
-            'tags.aws:cloudformation:stack-name',
+            'id',
+            'osType',
+            'osDiskName',
+            'dataDisks',
+            'publicIP',
+            'privateIP',
+            'cores',
+            'osDiskSizeInMB',
+            'resourceDiskSizeInMB',
+            'memoryInMB',
+            'maxdataDiscCount',
         );
-
+        
     }
 
     /**
