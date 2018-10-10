@@ -32,9 +32,15 @@ class ImportSource extends ImportSourceHook
 
     public function fetchData()
     {
-        // make shure, we are connected to the Azure API
-        // preload api credentials and generate bearer token      
-        $objects = $this->api()->getAll();
+        switch($this->getObjectType())
+        {
+        case 'vm':
+            $objects = $this->api()->getAllVM();
+            break;
+        case 'lb':
+            $objects = $this->api()->getAllLB();
+            break;
+        }
 
         return $objects;
     }
@@ -57,21 +63,34 @@ class ImportSource extends ImportSourceHook
 
     public function listColumns()
     {
-        return array(
-            'name',
-            'id',
-            'location',
-            'osType',
-            'osDiskName',
-            'dataDisks',
-            'network_interfaces_count',
-            'publicIP',
-            'privateIP',
-            'cores',
-            'resourceDiskSizeInMB',
-            'memoryInMB',
-            'maxDataDiscCount',
-        );
+        switch($this->getObjectType())
+        {
+        case 'vm':
+            return array(
+                'name',
+                'id',
+                'location',
+                'osType',
+                'osDiskName',
+                'dataDisks',
+                'network_interfaces_count',
+                'publicIP',
+                'privateIP',
+                'cores',
+                'resourceDiskSizeInMB',
+                'memoryInMB',
+                'maxDataDiscCount',
+            );
+        case 'lb':
+            return array(
+                'name',
+                'id',
+                'location',
+                'frontEndPublicIP',
+                
+                
+            );
+        }
         
     }
 
@@ -81,6 +100,24 @@ class ImportSource extends ImportSourceHook
     public static function getDefaultKeyColumnName()
     {
         return 'name';
+    }
+
+
+    
+    protected function getObjectType()
+    {
+        // Compat for old configs, vm used to be the only available type:
+        $type = $this->getSetting('object_type', 'vm');
+        if (! in_array($type, array('vm', 'lb'))) {
+            Logger::error('Azure API: Got invalid Azure object type: "%s"',
+                          $type);
+            throw new ConfigurationError(
+                'Azure API: Got invalid Azure object type: "%s"',
+                $type
+            );
+        }
+
+        return $type;
     }
 
     
@@ -112,6 +149,27 @@ class ImportSource extends ImportSourceHook
             'description'  => $form->translate('This is the secret you got when creating the Client ID.'),
             'required'     => true,
         ));
+        $form->addElement('select', 'object_type', array(
+            'label'        => 'Object type',
+            'required'     => true,
+            'description'  => $form->translate(
+                'Object type to import. This Azure API importer can deal with one object type only. '.
+                'To have multiple object types, e.g. VM and LoadBalancers in your import, you need to '.
+                'add this Azure API importer multiple times.'
+            ),
+            'multiOptions' => $form->optionalEnum(
+                static::enumObjectTypes($form)
+            ),
+            'class'        => 'autosubmit',
+        ));
     }
 
+    protected static function enumObjectTypes($form)
+    {
+        return array(
+            'vm'          => $form->translate('Virtual Machines'),
+            'lb'          => $form->translate('Load Balancers'),
+        );
+    }
+    
 }

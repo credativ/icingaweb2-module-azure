@@ -283,7 +283,7 @@ class Api
     {
         $resource_group = $group->name;
         
-        Logger::info("Azure API: network interfaces from resource group ".$resource_group);
+        Logger::info("Azure API: retrieving network interfaces from resource group ".$resource_group);
 
         $result = $this->call_get('subscriptions/'.
                                   $this->subscription_id.
@@ -316,7 +316,7 @@ class Api
     {
         $resource_group = $group->name;
         
-        Logger::info("Azure API: public IP addresses from resource group ".$resource_group);
+        Logger::info("Azure API: retrieving public IP addresses from resource group ".$resource_group);
 
         $result = $this->call_get('subscriptions/'.
                                   $this->subscription_id.
@@ -338,16 +338,49 @@ class Api
         return $result->decode_response()->value;       
     }
 
+     /** ***********************************************************************
+     * queries all load balancers from a resource group and returns a list
+     *
+     * @return array of objects
+     *
+     */   
+   
+    public function getLoadBalancers($group)
+    {
+        $resource_group = $group->name;
+        
+        Logger::info("Azure API: querying load balancers from resource group ".$resource_group);
+
+        $result = $this->call_get('subscriptions/'.
+                                  $this->subscription_id.
+                                  '/resourceGroups/'.
+                                  $resource_group.
+                                  '/providers/Microsoft.Network/loadBalancers',
+                                  "2018-07-01");
+        // check if things have gone wrong
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get load balancers for resource group '%s'. HTTP: %d",
+                $resource_group, $result->info->http_code);
+            Logger::error( $error );           
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;       
+    }
+
     
     /** ***********************************************************************
-     * takes all information from a resource group and returns it in the forma
-     * IcingaWeb2 Director expects
+     * takes all information on virtual machines from a resource group and 
+     * returns it in the format IcingaWeb2 Director expects
      *
      * @return array of objects
      *
      */
 
-    public function scanResource($group)
+    public function scanVMResource($group)
     {
         // only items that have a valid provisioning state
         if ($group->properties->provisioningState != "Succeeded")
@@ -367,95 +400,155 @@ class Api
 
         foreach($virtual_machines as $current)
         {
-            $object = (object) [
-                'name'           => $current->name,
-                'id'             => $current->id,
-                'location'       => $current->location,
-                'osType'         => (
-                    property_exists($current->properties->storageProfile->osDisk,
-                                    'osType')?
-                    $current->properties->storageProfile->osDisk->osType : ""
-                ),
-                'osDiskName'     => (
-                    property_exists($current->properties->storageProfile->osDisk,'name')?
-                    $current->properties->storageProfile->osDisk->name : ""
-                ),
-                'dataDisks'      => count($current->properties->storageProfile->dataDisks),
-            ];
-
-            // scan network interfaces and fint the ones belonging to
-            // the current vm
-
-            $object->privateIP = "";
-            $object->network_interfaces_count = 0;
-            
-            foreach($network_interfaces as $interf)
+            // skip anything not provisioned.
+            if ($current->properties->provisioningState == "Succeeded")
             {
-                // In Azure, a network interface may not have a VM attached :-(
-                // and make shure, we match the current vm
-                if (
-                    property_exists($interf->properties, 'virtualMachine') and
-                    $interf->properties->virtualMachine->id == $current->id )
+                $object = (object) [
+                    'name'           => $current->name,
+                    'id'             => $current->id,
+                    'location'       => $current->location,
+                    'osType'         => (
+                        property_exists($current->properties->storageProfile->osDisk,
+                                        'osType')?
+                        $current->properties->storageProfile->osDisk->osType : ""
+                    ),
+                    'osDiskName'     => (
+                        property_exists($current->properties->storageProfile->osDisk,'name')?
+                        $current->properties->storageProfile->osDisk->name : ""
+                    ),
+                    'dataDisks'      => count($current->properties->storageProfile->dataDisks),
+                    'privateIP'      => "",
+                    'network_interfaces_count' => 0,
+                ];
+
+                // scan network interfaces and fint the ones belonging to
+                // the current vm
+
+                foreach($network_interfaces as $interf)
                 {
-
-                    $object->network_interfaces_count++;
-
-                    $object->privateIP =
-                                       $interf->properties->
-                                       ipConfigurations[0]->properties->
-                                       privateIPAddress;
-                    // check, if this interface has got a public IP address
-                    if (property_exists(
-                        $interf->properties->ipConfigurations[0]->properties,
-                        'publicIPAddress'))
+                    // In Azure, a network interface may not have a VM attached :-(
+                    // and make shure, we match the current vm
+                    if (
+                        property_exists($interf->properties, 'virtualMachine') and
+                        $interf->properties->virtualMachine->id == $current->id )
                     {
-                        foreach($public_ip as $pubip)
+                        
+                        $object->network_interfaces_count++;
+                        
+                        $object->privateIP =
+                                           $interf->properties->
+                                           ipConfigurations[0]->properties->
+                                           privateIPAddress;
+                        // check, if this interface has got a public IP address
+                        if (property_exists(
+                            $interf->properties->ipConfigurations[0]->properties,
+                            'publicIPAddress'))
                         {
-                            if (($interf->properties->ipConfigurations[0]->properties->publicIPAddress->id ==
-                                $pubip->id) and
-                                (property_exists($pubip->properties,'ipAddress')))
+                            foreach($public_ip as $pubip)
                             {
-                                $object->publicIP = $pubip->properties->ipAddress;
+                                if (($interf->properties->ipConfigurations[0]->properties->publicIPAddress->id ==
+                                     $pubip->id) and
+                                    (property_exists($pubip->properties,'ipAddress')))
+                                {
+                                    $object->publicIP = $pubip->properties->ipAddress;
+                                }
+                                else
+                                    if (!property_exists($object, 'publicIP'))
+                                        $object->publicIP = "";
                             }
-                            else
-                                if (!property_exists($object, 'publicIP'))
-                                    $object->publicIP = "";
                         }
                     }
+                }  // end foreach network interfaces
+
+
+                // get the sizing done
+                $vmsize =  $this->getVirtualMachineSizing($current);
+
+                if ($vmsize == NULL)
+                {
+                    $object->cores = NULL;
+                    $object->resourceDiskSizeInMB = NULL;
+                    $object->memoryInMB = NULL;
+                    $object->maxdataDiscCount = NULL;
                 }
-            }  // end foreach network interfaces
+                else
+                {
+                    $object->cores = $vmsize->numberOfCores;
+                    $object->resourceDiskSizeInMB = $vmsize->resourceDiskSizeInMB;
+                    $object->memoryInMB = $vmsize->memoryInMB;
+                    $object->maxDataDiscCount = $vmsize->maxDataDiskCount;
+                }
 
-
-            // get the sizing done
-            $vmsize =  $this->getVirtualMachineSizing($current);
- 
-            if ($vmsize == NULL)
-            {
-                $object->cores = NULL;
-                $object->resourceDiskSizeInMB = NULL;
-                $object->memoryInMB = NULL;
-                $object->maxdataDiscCount = NULL;
+                // add this VM to the list.
+                $objects[] = $object;
             }
-            else
-            {
-                $object->cores = $vmsize->numberOfCores;
-                $object->resourceDiskSizeInMB = $vmsize->resourceDiskSizeInMB;
-                $object->memoryInMB = $vmsize->memoryInMB;
-                $object->maxDataDiscCount = $vmsize->maxDataDiskCount;
-            }
-
-            // add this VM to the list.
-            $objects[] = $object;
         }
         
         return $objects;
     }
 
-    
 
-    public function getAll()
+    /** ***********************************************************************
+     * takes all information on load balancers from a resource group and 
+     * returns it in the format IcingaWeb2 Director expects
+     *
+     * @return array of objects
+     *
+     */
+
+    public function scanLBResource($group)
     {
-        Logger::info("Azure API: querying anything available");
+        // only items that have a valid provisioning state
+        if ($group->properties->provisioningState != "Succeeded")
+        {
+            Logger::info("Azure API: Resoure group ".$group->name.
+                         " invalid provisioning state.");
+            return array();
+        }
+
+        // get data needed
+        $load_balancers = $this->getLoadBalancers($group);
+        $public_ip      = $this->getPublicIpAddresses($group);
+
+        
+        $objects = array();
+
+        foreach($load_balancers as $current)
+        {
+            // skip anything not provisioned.
+            if ($current->properties->provisioningState == "Succeeded")
+            {
+                $object = (object) [
+                    'name'             => $current->name,
+                    'id'               => $current->id,
+                    'location'         => $current->location,
+                    'frontEndPublicIP' => NULL,
+                ];
+
+                // search for the public ip               
+                foreach($public_ip as $pubip)
+                {
+                    if (($current->properties->frontendIPConfigurations[0]->
+                         properties->publicIPAddress->id == $pubip->id)
+                        and
+                        (property_exists($pubip->properties,'ipAddress')))
+                    {
+                        $object->frontEndPublicIP = $pubip->properties->ipAddress;
+                    }
+                }
+
+                
+                // add this VM to the list.
+                $objects[] = $object;
+            }
+        }
+        return $objects;
+    }
+
+    
+    public function getAllVM()
+    {
+        Logger::info("Azure API: querying any VM available");
         $rgs =  $this->getResourceGroups();
 
         $objects = array();
@@ -463,10 +556,25 @@ class Api
         // walk through any resourceGroups
         foreach( $rgs as $group )  
         {          
-            $objects = $objects + $this->scanResource( $group );
+            $objects = $objects + $this->scanVMResource( $group );
         }
         return $objects;
     }
+
     
+    public function getAllLB()
+    {
+        Logger::info("Azure API: querying any LoadBalancer available");
+        $rgs =  $this->getResourceGroups();
+
+        $objects = array();
+
+        // walk through any resourceGroups
+        foreach( $rgs as $group )  
+        {          
+            $objects = $objects + $this->scanLBResource( $group );
+        }
+        return $objects;
+    }
 
 }
