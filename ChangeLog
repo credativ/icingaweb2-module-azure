@@ -1,0 +1,13 @@
+2018-10-10  Peter Dreuw  <peter.dreuw@credativ.de>
+
+	* module.info (Description): Changed version to v0.1.0
+
+	This is the initial alpha state release which can
+	query an Azure API account, gathering all resourceGroups and
+	any VM inside all these resourceGroups.
+	No other objects and no distinction between resourceGroups. 
+
+2018-09-04  Peter Dreuw  <peter.dreuw@credativ.de>
+
+        * module.info (Description): Initial version  v0.0.1
+
