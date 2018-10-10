@@ -163,6 +163,294 @@ class Api
     }
 
 
+
+    /** ***********************************************************************
+     * queries all VM from a resource group and returns a list
+     *
+     * @return array of objects
+     *
+     */   
+   
+    public function getVirtualMachines($group)
+    {
+        $resource_group = $group->name;
+        
+        Logger::info("Azure API: querying virtual machines from resource group ".$resource_group);
+
+        $result = $this->call_get('subscriptions/'.
+                                  $this->subscription_id.
+                                  '/resourceGroups/'.
+                                  $resource_group.
+                                  '/providers/Microsoft.Compute/virtualMachines',
+                                  "2018-06-01");
+        // check if things have gone wrong
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get virtual machines for resource group '%s'. HTTP: %d",
+                $resource_group, $result->info->http_code);
+            Logger::error( $error );           
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;       
+    }
+    
+
+    /** ***********************************************************************
+     * queries all VM from a resource group and returns a list
+     *
+     * @return array of objects
+     *
+     */   
+   
+    public function getVirtualMachineSizing($vm)
+    {   
+        Logger::info("Azure API: querying virtual machine sizing for vm ".
+                     $vm->name);
+
+        $result = $this->call_get($vm->id.'/vmSizes',"2018-06-01");
+        
+        // check if things have gone wrong
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get virtual machine sizes for vm '%s'. HTTP: %d",
+                $vm->name, $result->info->http_code);
+            Logger::error( $error );           
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        $vmsizes =  $result->decode_response()->value;
+      
+        foreach($vmsizes as $s)
+        {
+            if ($s->name == $vm->properties->hardwareProfile->vmSize)
+            {
+                return $s;
+            }
+        }
+        Logger::info("Azure API: querying virtual machine sizing for vm ".
+                     $vm->name. "was not successfull.");
+        return NULL;
+    }
+    
+
+    
+     /** ***********************************************************************
+     * queries all disks from a resource group and returns a list
+     *
+     * @return array of objects
+     *
+     */   
+   
+    public function getDisks($group)
+    {
+        $resource_group = $group->name;
+        
+        Logger::info("Azure API: querying disks from resource group ".$resource_group);
+
+        $result = $this->call_get('subscriptions/'.
+                                  $this->subscription_id.
+                                  '/resourceGroups/'.
+                                  $resource_group.
+                                  '/providers/Microsoft.Compute/disks',
+                                  "2017-03-30");
+        // check if things have gone wrong
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get disks for resource group '%s'. HTTP: %d",
+                $resource_group, $result->info->http_code);
+            Logger::error( $error );           
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;       
+    }
+    
+     /** ***********************************************************************
+     * queries all network interfaces from a resource group and returns a list
+     *
+     * @return array of objects
+     *
+     */   
+   
+    public function getNetworkInterfaces($group)
+    {
+        $resource_group = $group->name;
+        
+        Logger::info("Azure API: network interfaces from resource group ".$resource_group);
+
+        $result = $this->call_get('subscriptions/'.
+                                  $this->subscription_id.
+                                  '/resourceGroups/'.
+                                  $resource_group.
+                                  '/providers/Microsoft.Network/networkInterfaces',
+                                  "2018-07-01");
+        // check if things have gone wrong
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get network interfaces for resource group '%s'. HTTP: %d",
+                $resource_group, $result->info->http_code);
+            Logger::error( $error );           
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;       
+    }
+
+     /** ***********************************************************************
+     * queries all public IP adresses from a resource group and returns a list
+     *
+     * @return array of objects
+     *
+     */   
+   
+    public function getPublicIpAddresses($group)
+    {
+        $resource_group = $group->name;
+        
+        Logger::info("Azure API: public IP addresses from resource group ".$resource_group);
+
+        $result = $this->call_get('subscriptions/'.
+                                  $this->subscription_id.
+                                  '/resourceGroups/'.
+                                  $resource_group.
+                                  '/providers/Microsoft.Network/publicIPAddresses',
+                                  "2018-07-01");
+        // check if things have gone wrong
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get public IP adresses for resource group '%s'. HTTP: %d",
+                $resource_group, $result->info->http_code);
+            Logger::error( $error );           
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;       
+    }
+
+    
+    /** ***********************************************************************
+     * takes all information from a resource group and returns it in the forma
+     * IcingaWeb2 Director expects
+     *
+     * @return array of objects
+     *
+     */
+
+    public function scanResource($group)
+    {
+        // only items that have a valid provisioning state
+        if ($group->properties->provisioningState != "Succeeded")
+        {
+            Logger::info("Azure API: Resoure group ".$group->name.
+                         " invalid provisioning state.");
+            return array();
+        }
+
+        // get data needed
+        $virtual_machines   = $this->getVirtualMachines($group);
+        // $disks              = $this->getDisks($group);
+        $network_interfaces = $this->getNetworkInterfaces($group);
+        $public_ip          = $this->getPublicIpAddresses($group);
+
+        $objects = array();
+
+        foreach($virtual_machines as $current)
+        {
+            $object = (object) [
+                'name'           => $current->name,
+                'id'             => $current->id,
+                'location'       => $current->location,
+                'osType'         => (
+                    property_exists($current->properties->storageProfile->osDisk,
+                                    'osType')?
+                    $current->properties->storageProfile->osDisk->osType : ""
+                ),
+                'osDiskName'     => (
+                    property_exists($current->properties->storageProfile->osDisk,'name')?
+                    $current->properties->storageProfile->osDisk->name : ""
+                ),
+                'dataDisks'      => count($current->properties->storageProfile->dataDisks),
+            ];
+
+            // scan network interfaces and fint the ones belonging to
+            // the current vm
+
+            $object->privateIP = "";
+            $object->network_interfaces_count = 0;
+            
+            foreach($network_interfaces as $interf)
+            {
+                // In Azure, a network interface may not have a VM attached :-(
+                // and make shure, we match the current vm
+                if (
+                    property_exists($interf->properties, 'virtualMachine') and
+                    $interf->properties->virtualMachine->id == $current->id )
+                {
+
+                    $object->network_interfaces_count++;
+
+                    $object->privateIP =
+                                       $interf->properties->
+                                       ipConfigurations[0]->properties->
+                                       privateIPAddress;
+                    // check, if this interface has got a public IP address
+                    if (property_exists(
+                        $interf->properties->ipConfigurations[0]->properties,
+                        'publicIPAddress'))
+                    {
+                        foreach($public_ip as $pubip)
+                        {
+                            if (($interf->properties->ipConfigurations[0]->properties->publicIPAddress->id ==
+                                $pubip->id) and
+                                (property_exists($pubip->properties,'ipAddress')))
+                            {
+                                $object->publicIP = $pubip->properties->ipAddress;
+                            }
+                            else
+                                if (!property_exists($object, 'publicIP'))
+                                    $object->publicIP = "";
+                        }
+                    }
+                }
+            }  // end foreach network interfaces
+
+
+            // get the sizing done
+            $vmsize =  $this->getVirtualMachineSizing($current);
+ 
+            if ($vmsize == NULL)
+            {
+                $object->cores = NULL;
+                $object->resourceDiskSizeInMB = NULL;
+                $object->memoryInMB = NULL;
+                $object->maxdataDiscCount = NULL;
+            }
+            else
+            {
+                $object->cores = $vmsize->numberOfCores;
+                $object->resourceDiskSizeInMB = $vmsize->resourceDiskSizeInMB;
+                $object->memoryInMB = $vmsize->memoryInMB;
+                $object->maxDataDiscCount = $vmsize->maxDataDiskCount;
+            }
+
+            // add this VM to the list.
+            $objects[] = $object;
+        }
+        
+        return $objects;
+    }
+
     
 
     public function getAll()
@@ -170,18 +458,14 @@ class Api
         Logger::info("Azure API: querying anything available");
         $rgs =  $this->getResourceGroups();
 
-        $objects = (object) array();
-        
-        foreach( $rgs as $group)
-        {
-            // only items that have a valid provisioning state
-            if ($group->properties->provisioningState == "Succeeded")
-            {
-                Logger::info("blablabla");
-                $content = $this->getResGroupResources($group->name);
-                Logger::info(print_r($content,true));
-            }
+        $objects = array();
+
+        // walk through any resourceGroups
+        foreach( $rgs as $group )  
+        {          
+            $objects = $objects + $this->scanResource( $group );
         }
+        return $objects;
     }
     
 
