@@ -86,8 +86,22 @@ class ImportSource extends ImportSourceHook
                 'name',
                 'id',
                 'location',
+                'provisioningState',
+                'frontEndPublicIP',              
+            );
+        case 'appgw':
+            return array(
+                'name',
+                'id',
+                'location',
+                'provisioningState',
                 'frontEndPublicIP',
-                
+                'operationalState',
+                'frontEndPort',
+                'httpFrontEndPort',
+                'httpFrontEndIP',
+                'enabledHTTP2',
+                'enabledWAF',
                 
             );
         }
@@ -169,6 +183,7 @@ class ImportSource extends ImportSourceHook
         return array(
             'vm'          => $form->translate('Virtual Machines'),
             'lb'          => $form->translate('Load Balancers'),
+            'appgw'       => $form->translate('Application Gateways'),
         );
     }
     

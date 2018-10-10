@@ -515,32 +515,28 @@ class Api
 
         foreach($load_balancers as $current)
         {
-            // skip anything not provisioned.
-            if ($current->properties->provisioningState == "Succeeded")
+            $object = (object) [
+                'name'              => $current->name,
+                'id'                => $current->id,
+                'location'          => $current->location,
+                'provisioningState' => $current->properties->provisioningState,
+                'frontEndPublicIP'  => NULL,
+            ];
+
+            // search for the public ip               
+            foreach($public_ip as $pubip)
             {
-                $object = (object) [
-                    'name'             => $current->name,
-                    'id'               => $current->id,
-                    'location'         => $current->location,
-                    'frontEndPublicIP' => NULL,
-                ];
-
-                // search for the public ip               
-                foreach($public_ip as $pubip)
+                if (($current->properties->frontendIPConfigurations[0]->
+                     properties->publicIPAddress->id == $pubip->id)
+                    and
+                    (property_exists($pubip->properties,'ipAddress')))
                 {
-                    if (($current->properties->frontendIPConfigurations[0]->
-                         properties->publicIPAddress->id == $pubip->id)
-                        and
-                        (property_exists($pubip->properties,'ipAddress')))
-                    {
-                        $object->frontEndPublicIP = $pubip->properties->ipAddress;
-                    }
+                    $object->frontEndPublicIP = $pubip->properties->ipAddress;
                 }
-
-                
-                // add this VM to the list.
-                $objects[] = $object;
             }
+   
+            // add this VM to the list.
+            $objects[] = $object;
         }
         return $objects;
     }
