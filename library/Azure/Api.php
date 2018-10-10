@@ -371,6 +371,40 @@ class Api
         return $result->decode_response()->value;       
     }
 
+
+    /** ***********************************************************************
+     * queries all application gateways from a resource group and returns a list
+     *
+     * @return array of objects
+     *
+     */   
+   
+    public function getApplicationGateways($group)
+    {
+        $resource_group = $group->name;
+        
+        Logger::info("Azure API: querying application gateways from resource group ".$resource_group);
+
+        $result = $this->call_get('subscriptions/'.
+                                  $this->subscription_id.
+                                  '/resourceGroups/'.
+                                  $resource_group.
+                                  '/providers/Microsoft.Network/applicationGateways',
+                                  "2018-07-01");
+        // check if things have gone wrong
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get application gateways for resource group '%s'. HTTP: %d",
+                $resource_group, $result->info->http_code);
+            Logger::error( $error );           
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;       
+    }
+
     
     /** ***********************************************************************
      * takes all information on virtual machines from a resource group and 
@@ -542,6 +576,91 @@ class Api
     }
 
     
+    /** ***********************************************************************
+     * takes all information on application gateways from a resource group and 
+     * returns it in the format IcingaWeb2 Director expects
+     *
+     * @return array of objects
+     *
+     */
+
+    public function scanAppGWResource($group)
+    {
+        // only items that have a valid provisioning state
+        if ($group->properties->provisioningState != "Succeeded")
+        {
+            Logger::info("Azure API: Resoure group ".$group->name.
+                         " invalid provisioning state.");
+            return array();
+        }
+
+        // get data needed
+        $app_gateways = $this->getApplicationGateways($group);
+        $public_ip    = $this->getPublicIpAddresses($group);
+
+        
+        $objects = array();
+
+        foreach($app_gateways as $current)
+        {
+            $object = (object) [
+                'name'              => $current->name,
+                'id'                => $current->id,
+                'location'          => $current->location,
+                'provisioningState' => $current->properties->provisioningState,
+                'frontEndPublicIP'  => NULL,
+                'frontEndPrivateIP' => (
+                    (property_exists($current->properties,
+                                     'frontendIPConfigurations') and
+                     property_exists($current->properties->
+                                     frontendIPConfigurations[0]->properties,
+                                     'privateIPAddress')) ?
+                    $current->properties->frontendIPConfigurations[0]->
+                    properties->privateIPAddress : NULL
+                ),
+                'operationalState'  => $current->operationalState,
+                'frontEndPort'      => (
+                    property_exists($current, 'frontendPorts') ?
+                    $current->frontendPorts[0]->properties->port : NULL
+                ),
+                'httpFrontEndPort'  => (
+                    (property_exists($current, 'httpListeners') and
+                     property_exists($current->httpListeners->properties, 'frontendPort')) ?
+                    $current->httpListeners->properties->frontendPort : NULL
+                ),
+                'httpFrontEndIP'    => NULL,
+                'enabledHTTP2'      => $current->enableHttp2,
+                'enabledWAF'        => (
+                    (property_exists($current, 'webApplicationFirewallConfiguration') and
+                     property_exists($current->webApplicationFirewallConfiguration,'enabled'))?
+                    $current->webApplicationFirewallConfiguration->enabled : FALSE
+                ),
+            ];
+
+            // search for the public ip, but only if there is one configured. 
+            if (property_exists($current->properties,'frontendIPConfigurations')
+                and
+                property_exists($current->properties->frontendIPConfigurations[0]->properties,
+                                'publicIPAddress'))
+            {
+                foreach($public_ip as $pubip)
+                {
+                    if (($current->properties->frontendIPConfigurations[0]->
+                         properties->publicIPAddress->id == $pubip->id)
+                        and
+                        (property_exists($pubip->properties,'ipAddress')))
+                    {
+                        $object->frontEndPublicIP = $pubip->properties->ipAddress;
+                    }
+                }
+            }
+            // add this VM to the list.
+            $objects[] = $object;
+        }
+        return $objects;
+    }
+
+    
     public function getAllVM()
     {
         Logger::info("Azure API: querying any VM available");
@@ -573,4 +692,20 @@ class Api
         return $objects;
     }
 
+    public function getAllAppGW()
+    {
+        Logger::info("Azure API: querying any Application Gateway available");
+        $rgs =  $this->getResourceGroups();
+
+        $objects = array();
+
+        // walk through any resourceGroups
+        foreach( $rgs as $group )  
+        {          
+            $objects = $objects + $this->scanAppGWResource( $group );
+        }
+        return $objects;
+    }
+
+    
 }

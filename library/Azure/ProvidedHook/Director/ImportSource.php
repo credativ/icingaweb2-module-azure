@@ -40,6 +40,9 @@ class ImportSource extends ImportSourceHook
         case 'lb':
             $objects = $this->api()->getAllLB();
             break;
+        case 'appgw':
+            $objects = $this->api()->getAllAppGW();
+            break;
         }
 
         return $objects;
@@ -96,6 +99,7 @@ class ImportSource extends ImportSourceHook
                 'location',
                 'provisioningState',
                 'frontEndPublicIP',
+                'frontEndPrivateIP',
                 'operationalState',
                 'frontEndPort',
                 'httpFrontEndPort',
