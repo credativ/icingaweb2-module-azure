@@ -36,8 +36,6 @@ class ImportSource extends ImportSourceHook
         // preload api credentials and generate bearer token      
         $objects = $this->api()->getAll();
 
-        Logger::info("fetchData called 2");
-        
         return $objects;
     }
 
@@ -62,16 +60,17 @@ class ImportSource extends ImportSourceHook
         return array(
             'name',
             'id',
+            'location',
             'osType',
             'osDiskName',
             'dataDisks',
+            'network_interfaces_count',
             'publicIP',
             'privateIP',
             'cores',
-            'osDiskSizeInMB',
             'resourceDiskSizeInMB',
             'memoryInMB',
-            'maxdataDiscCount',
+            'maxDataDiscCount',
         );
         
     }
