@@ -46,7 +46,12 @@ class Token {
     /** @var string client_secret */
     private $endpoint;
 
-        
+
+    /** ***********************************************************************
+     * constructor for Token object
+
+     */
+    
     public function __construct( $tenant_id, $subscription_id,
                                  $client_id, $client_secret,
                                  $endpoint)
@@ -78,14 +83,16 @@ class Token {
     }
 
     
-    /****************************************************
+    /** ***********************************************************************
      * call the login api and generate a new bearer token
      * may throw exceptions if login api is unwilling.
      *
      * @return void
      */
+
     private function requestToken()
-    {       
+    {
+        Logger::info("Azure API: generating new Bearer token");
         $result = $this->restc->post($this->tenant_id."/oauth2/token");
 
         // check if HTTP result code was 200 - OK
@@ -132,8 +139,10 @@ class Token {
     
     /****************************************************
      * tests if token has expired, true if invalid
+     *
      * @return bool
      */
+
     private function expired() {
         return (($this->expires === NULL) or ($this->expires <= time()));
     }
@@ -141,6 +150,7 @@ class Token {
     
     /****************************************************
      * Returns the current bearer token string 
+     *
      * @return string
      */
     public function getBearer() {
@@ -151,5 +161,3 @@ class Token {
         return self::API_TOKEN_TYPE ." ". $this->bearer;
     }
 }
-
-
