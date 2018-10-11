@@ -152,6 +152,16 @@ class Api
         $wanted = explode(" ", $rgn);
         $return_groups = array();
 
+        // do we have duplicate entries ?
+        // if so, present a warning and remove dupes
+        if(count($wanted) > count(array_unique($wanted)))
+        {
+            Logger::warning("Azure API: there are duplicate entries in ".
+                            "configured resource groups '".
+                            $rgn."'. This might be a configuration error.");
+            $wanted = array_unique($wanted);
+        }
+
         // search all azure resourceGroups and pick these configured
         // keep track which where found already
         foreach($azure_groups as $ag)
