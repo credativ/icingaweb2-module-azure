@@ -1,5 +1,13 @@
 2018-10-11  Peter Dreuw  <peter.dreuw@credativ.de>
 
+	* Changed version to v0.3.0
+
+	Added functionality to configure a list of desired resourceGroups
+	to maintain, reducing the set from "all" to "some from list"
+	if configured.
+
+2018-10-11  Peter Dreuw  <peter.dreuw@credativ.de>
+
 	* Changed version to v0.2.1
 
 	Removed uneccesary debug log output.
