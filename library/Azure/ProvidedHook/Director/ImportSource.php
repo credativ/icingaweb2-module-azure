@@ -103,10 +103,8 @@ class ImportSource extends ImportSourceHook
                 'operationalState',
                 'frontEndPort',
                 'httpFrontEndPort',
-                'httpFrontEndIP',
                 'enabledHTTP2',
-                'enabledWAF',
-                
+                'enabledWAF',              
             );
         }
         
@@ -126,7 +124,7 @@ class ImportSource extends ImportSourceHook
     {
         // Compat for old configs, vm used to be the only available type:
         $type = $this->getSetting('object_type', 'vm');
-        if (! in_array($type, array('vm', 'lb'))) {
+        if (! in_array($type, array('vm', 'lb', 'appgw'))) {
             Logger::error('Azure API: Got invalid Azure object type: "%s"',
                           $type);
             throw new ConfigurationError(

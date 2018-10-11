@@ -618,7 +618,7 @@ class Api
                     $current->properties->frontendIPConfigurations[0]->
                     properties->privateIPAddress : NULL
                 ),
-                'operationalState'  => $current->operationalState,
+                'operationalState'  => $current->properties->operationalState,
                 'frontEndPort'      => (
                     property_exists($current, 'frontendPorts') ?
                     $current->frontendPorts[0]->properties->port : NULL
@@ -628,12 +628,11 @@ class Api
                      property_exists($current->httpListeners->properties, 'frontendPort')) ?
                     $current->httpListeners->properties->frontendPort : NULL
                 ),
-                'httpFrontEndIP'    => NULL,
-                'enabledHTTP2'      => $current->enableHttp2,
+                'enabledHTTP2'      => $current->properties->enableHttp2,
                 'enabledWAF'        => (
                     (property_exists($current, 'webApplicationFirewallConfiguration') and
-                     property_exists($current->webApplicationFirewallConfiguration,'enabled'))?
-                    $current->webApplicationFirewallConfiguration->enabled : FALSE
+                     property_exists($current->properties->webApplicationFirewallConfiguration,'enabled'))?
+                    $current->properties->webApplicationFirewallConfiguration->enabled : FALSE
                 ),
             ];
 
@@ -704,6 +703,8 @@ class Api
         {          
             $objects = $objects + $this->scanAppGWResource( $group );
         }
+
+        Logger::info(print_r($objects, true));
         return $objects;
     }
 
