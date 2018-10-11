@@ -18,8 +18,20 @@ class ImportSource extends ImportSourceHook
     /** @var Api */
     private $api;   // stores API object
 
+    /** names and shortcut codes for objects */
+    
+    const verboseObjectTypes = array(
+            'vm'          => 'Virtual Machines',
+            'lb'          => 'Load Balancers',
+            'appgw'       => 'Application Gateways',
+            'expgw'       => 'Express Route Circuits',
+            'mspgsql'     => 'Db for PostgreSQL',
+        );
+
+
     public function __construct( )
     {
+        
     }
               
 
@@ -32,10 +44,14 @@ class ImportSource extends ImportSourceHook
 
     public function fetchData()
     {
+
+        $start = microtime(true);
+        
         // query config which resourceGroups to deal with
         $rg = $this->getSetting('resource_group_names', '');
+        $query = $this->getObjectType();
         
-        switch($this->getObjectType())
+        switch($query)
         {
         case 'vm':
             $objects = $this->api()->getAllVM( $rg );
@@ -54,6 +70,12 @@ class ImportSource extends ImportSourceHook
             break;
         }
 
+        // log some timing data
+        $duration = microtime(true) - $start;
+        Logger::info('Azure API: %s import run took %f seconds',
+                     self::verboseObjectTypes[$query],
+                     $duration);
+        
         return $objects;
     }
 
@@ -235,13 +257,14 @@ class ImportSource extends ImportSourceHook
 
     protected static function enumObjectTypes($form)
     {
-        return array(
-            'vm'          => $form->translate('Virtual Machines'),
-            'lb'          => $form->translate('Load Balancers'),
-            'appgw'       => $form->translate('Application Gateways'),
-            'expgw'       => $form->translate('Express Route Circuits'),
-            'mspgsql'     => $form->translate('Db for PostgreSQL'),
-        );
+        $list = array();
+        
+        foreach(self::verboseObjectTypes as $key => $value)
+        {
+            $list[$key] = $form->translate($value);
+        }
+
+        return $list;
     }
     
 }
