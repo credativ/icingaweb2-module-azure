@@ -704,7 +704,6 @@ class Api
             $objects = $objects + $this->scanAppGWResource( $group );
         }
 
-        Logger::info(print_r($objects, true));
         return $objects;
     }
 
