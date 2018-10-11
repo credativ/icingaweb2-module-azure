@@ -127,7 +127,7 @@ class ImportSource extends ImportSourceHook
                 'serviceProviderName',
                 'serviceProviderProvisioningState',
             );
-        case'mspgsql':
+        case 'mspgsql':
             return array(
                 'name',
                 'id',

@@ -510,6 +510,39 @@ class Api
 
     
     /** ***********************************************************************
+     * queries all DB for PostgreSQL from a resource group and returns a list
+     *
+     * @return array of objects
+     *
+     */   
+   
+    public function getDbForPostgreSQL($group)
+    {
+        $resource_group = $group->name;
+        
+        Logger::info("Azure API: querying Microsoft.DbForPostgreSQL from resource group ".$resource_group);
+
+        $result = $this->call_get('subscriptions/'.
+                                  $this->subscription_id.
+                                  '/resourceGroups/'.
+                                  $resource_group.
+                                  '/providers/Microsoft.DBforPostgreSQL/servers',
+                                  "2017-12-01");
+        // check if things have gone wrong
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get Microsoft.DbForPostgreSQL for resource group '%s'. HTTP: %d",
+                $resource_group, $result->info->http_code);
+            Logger::error( $error );           
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;       
+    }
+
+    /** ***********************************************************************
      * takes all information on virtual machines from a resource group and 
      * returns it in the format IcingaWeb2 Director expects
      *
@@ -829,6 +862,53 @@ class Api
     }
 
 
+    /** ***********************************************************************
+     * takes all information on Microsoft.DBforPostgreSQL from a resource group and 
+     * returns it in the format IcingaWeb2 Director expects
+     *
+     * @return array of objects
+     *
+     */
+
+    public function scanMsPgSQLResource($group)
+    {
+        // only items that have a valid provisioning state
+        if ($group->properties->provisioningState != "Succeeded")
+        {
+            Logger::info("Azure API: Resoure group ".$group->name.
+                         " invalid provisioning state.");
+            return array();
+        }
+
+        // get data needed
+        $dbservers = $this->getDbForPostgreSQL($group);
+
+        $objects = array();
+
+        foreach($dbservers as $current) 
+        {
+            $object = (object) [
+                'name'                => $current->name,
+                'id'                  => $current->id,
+                'location'            => $current->location,
+                'version'             => $current->properties->version ,
+                'tier'                => $current->sku->tier,
+                'capacity'            => $current->sku->capacity,
+                'sslEnforcement'      => $current->properties->sslEnforcement,
+                'userVisibleState'    => $current->properties->userVisibleState,
+                'fqdn'                => $current->properties->fullyQualifiedDomainName,
+                'earliestRestoreDate' => $current->properties->earliestRestoreDate,
+                'storageMB'           => $current->properties->storageProfile->storageMB,
+                'backupRetentionDays' => $current->properties->storageProfile->backupRetentionDays,
+                'geoRedundantBackup'  => $current->properties->storageProfile->geoRedundantBackup,
+            ];
+
+            // add this VM to the list.
+            $objects[] = $object;
+        }
+        return $objects;
+    }
+
     
     /** ***********************************************************************
      * Walks through all or all desired resource groups and returns
@@ -941,5 +1021,34 @@ class Api
 
         return $objects;
     }
+
     
+    /** ***********************************************************************
+     * Walks through all or all desired resource groups and returns
+     * an array of objects of Microsoft DB for PosgreSQL for IcingaWeb2 Director
+     * 
+     *
+     * @param string $rgn 
+     * a space separated list of resoureceGroup names to query or '' for all
+     *
+     * @return array of objects
+     *
+     */
+
+    public function getAllMsPgSQL( $rgn )
+    {
+        Logger::info("Azure API: querying any 'DB for PostgreSQL' services in configured resource groups.");
+        $rgs =  $this->getResourceGroups( $rgn );
+
+        $objects = array();
+
+        // walk through any resourceGroups
+        foreach( $rgs as $group )  
+        {          
+            $objects = $objects + $this->scanMsPgSQLResource( $group );
+        }
+
+        return $objects;
+    }
+   
 }
