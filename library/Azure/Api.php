@@ -719,11 +719,9 @@ class Api
     
     public function getAllVM( $rgn )
     {
-        Logger::info("Azure API: querying VM available in configuret resource groups.");
+        Logger::info("Azure API: querying VM available in configured resource groups.");
         $rgs =  $this->getResourceGroups( $rgn );
 
-                Logger::info("häh?");
-                
         $objects = array();
 
         // walk through any resourceGroups
@@ -749,7 +747,7 @@ class Api
 
     public function getAllLB( $rgn )
     {
-        Logger::info("Azure API: querying any LoadBalancer available");
+        Logger::info("Azure API: querying any LoadBalancer in configured resource groups");
         $rgs =  $this->getResourceGroups( $rgn );
 
         $objects = array();
@@ -777,7 +775,7 @@ class Api
 
     public function getAllAppGW( $rgn )
     {
-        Logger::info("Azure API: querying any Application Gateway available");
+        Logger::info("Azure API: querying any Application Gateway in configured resource groups.");
         $rgs =  $this->getResourceGroups( $rgn );
 
         $objects = array();
