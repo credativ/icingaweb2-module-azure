@@ -1,3 +1,10 @@
+2018-10-11  Peter Dreuw  <peter.dreuw@credativ.de>
+
+	* module.info (Version): Changeged version to v0.2.0
+
+	This version does query either virtual machines, load balancers
+	or application gateways
+
 2018-10-10  Peter Dreuw  <peter.dreuw@credativ.de>
 
 	* module.info (Description): Changed version to v0.1.0
