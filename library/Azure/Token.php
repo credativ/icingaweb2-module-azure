@@ -2,8 +2,6 @@
 
 namespace Icinga\Module\Azure;
 
-use Icinga\Module\Azure\Constants;
-
 use Icinga\Module\Azure\restclient\RestClient;
 
 use Icinga\Application\Logger;

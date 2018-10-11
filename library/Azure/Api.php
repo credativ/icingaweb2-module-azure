@@ -5,7 +5,6 @@ namespace Icinga\Module\Azure;
 use Icinga\Exception\ConfigurationError;
 use Icinga\Exception\QueryException;
 
-use Icinga\Module\Azure\Constants;
 use Icinga\Module\Azure\Token;
 
 use Icinga\Module\Azure\restclient\RestClient;
