@@ -474,6 +474,40 @@ class Api
         return $result->decode_response()->value;       
     }
 
+
+    /** ***********************************************************************
+     * queries all express route circuits from a resource group and returns a list
+     *
+     * @return array of objects
+     *
+     */   
+   
+    public function getExpressRouteCircuits($group)
+    {
+        $resource_group = $group->name;
+        
+        Logger::info("Azure API: querying express route circuits from resource group ".$resource_group);
+
+        $result = $this->call_get('subscriptions/'.
+                                  $this->subscription_id.
+                                  '/resourceGroups/'.
+                                  $resource_group.
+                                  '/providers/Microsoft.Network/expressRouteCircuits',
+                                  "2018-04-01");
+        // check if things have gone wrong
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get express route circuits for resource group '%s'. HTTP: %d",
+                $resource_group, $result->info->http_code);
+            Logger::error( $error );           
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;       
+    }
+
     
     /** ***********************************************************************
      * takes all information on virtual machines from a resource group and 
@@ -726,6 +760,77 @@ class Api
 
     
     /** ***********************************************************************
+     * takes all information on express route circuits from a resource group and 
+     * returns it in the format IcingaWeb2 Director expects
+     *
+     * @return array of objects
+     *
+     */
+
+    public function scanExpGWResource($group)
+    {
+        // only items that have a valid provisioning state
+        if ($group->properties->provisioningState != "Succeeded")
+        {
+            Logger::info("Azure API: Resoure group ".$group->name.
+                         " invalid provisioning state.");
+            return array();
+        }
+
+        // get data needed
+        $exp_routes = $this->getExpressRouteCircuits($group);
+
+        $objects = array();
+
+        foreach($exp_routes as $current) 
+        {
+            $object = (object) [
+                'name'                     => $current->name,
+                'id'                       => $current->id,
+                'location'                 => $current->location,
+                'provisioningState'        => $current->properties->provisioningState,
+                'peeringLocation'          => NULL,
+                'serviceProviderName'      => NULL,
+                'bandwidthInMbps'          => NULL,
+                'circuitProvisioningState' => $current->properties->circuitProvisioningState,
+                'allowClassicOperations'   => $current->properties->allowClassicOperations,
+                'serviceProviderProvisioningState' =>
+                $current->properties->serviceProviderProvisioningState,
+            ];
+
+            if (property_exists($current->properties,'serviceProviderProperties'))
+            {
+                if (property_exists(
+                        $current->properties->serviceProviderProperties,
+                        'peeringLocation'))
+                    $object->peeringLocation = $current->properties->
+                                             serviceProviderProperties->
+                                             peeringLocation;
+                
+                if (property_exists(
+                        $current->properties->serviceProviderProperties,
+                        'serviceProviderName'))
+                    $object->peeringLocation = $current->properties->
+                                             serviceProviderProperties->
+                                             serviceProviderName;
+
+                if (property_exists(
+                        $current->properties->serviceProviderProperties,
+                        'bandwidthInMbps'))
+                    $object->peeringLocation = $current->properties->
+                                             serviceProviderProperties->
+                                             bandwidthInMbps;
+            }
+
+            // add this VM to the list.
+            $objects[] = $object;
+        }
+        return $objects;
+    }
+
+
+    
+    /** ***********************************************************************
      * Walks through all or all desired resource groups and returns
      * an array of objects of virtual machines for IcingaWeb2 Director
      * 
@@ -809,5 +914,32 @@ class Api
         return $objects;
     }
 
+    /** ***********************************************************************
+     * Walks through all or all desired resource groups and returns
+     * an array of objects of express route circuits for IcingaWeb2 Director
+     * 
+     *
+     * @param string $rgn 
+     * a space separated list of resoureceGroup names to query or '' for all
+     *
+     * @return array of objects
+     *
+     */
+
+    public function getAllExpGW( $rgn )
+    {
+        Logger::info("Azure API: querying any Express Route Circuits in configured resource groups.");
+        $rgs =  $this->getResourceGroups( $rgn );
+
+        $objects = array();
+
+        // walk through any resourceGroups
+        foreach( $rgs as $group )  
+        {          
+            $objects = $objects + $this->scanExpGWResource( $group );
+        }
+
+        return $objects;
+    }
     
 }

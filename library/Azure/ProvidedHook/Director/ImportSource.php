@@ -46,6 +46,12 @@ class ImportSource extends ImportSourceHook
         case 'appgw':
             $objects = $this->api()->getAllAppGW( $rg );
             break;
+        case 'expgw':
+            $objects = $this->api()->getAllExpGW( $rg );
+            break;
+        case 'mspgsql':
+            $objects = $this->api()->getAllMsPgSQL( $rg );
+            break;
         }
 
         return $objects;
@@ -108,6 +114,35 @@ class ImportSource extends ImportSourceHook
                 'enabledHTTP2',
                 'enabledWAF',              
             );
+        case 'expgw':
+            return array(
+                'name',
+                'id',
+                'location',
+                'provisioningState',
+                'bandwidthInMbps',
+                'circuitProvisioningState',
+                'allowClassicOperations',
+                'peeringLocation',
+                'serviceProviderName',
+                'serviceProviderProvisioningState',
+            );
+        case'mspgsql':
+            return array(
+                'name',
+                'id',
+                'location',
+                'version',
+                'tier',
+                'capacity',
+                'sslEnforcement',
+                'userVisibleState',
+                'fqdn',
+                'earliestRestoreDate',
+                'storageMB',
+                'backupRetentionDays',
+                'geoRedundantBackup',
+            );
         }
         
     }
@@ -126,7 +161,7 @@ class ImportSource extends ImportSourceHook
     {
         // Compat for old configs, vm used to be the only available type:
         $type = $this->getSetting('object_type', 'vm');
-        if (! in_array($type, array('vm', 'lb', 'appgw'))) {
+        if (! in_array($type, array('vm', 'lb', 'appgw', 'expgw', 'mspgsql'))) {
             Logger::error('Azure API: Got invalid Azure object type: "%s"',
                           $type);
             throw new ConfigurationError(
@@ -204,6 +239,8 @@ class ImportSource extends ImportSourceHook
             'vm'          => $form->translate('Virtual Machines'),
             'lb'          => $form->translate('Load Balancers'),
             'appgw'       => $form->translate('Application Gateways'),
+            'expgw'       => $form->translate('Express Route Circuits'),
+            'mspgsql'     => $form->translate('Db for PostgreSQL'),
         );
     }
     
