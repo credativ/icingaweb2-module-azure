@@ -151,13 +151,19 @@ class Api
         // if not, determine which groups are wanted
         $wanted = explode(" ", $rgn);
         $return_groups = array();
-        
+
+        // search all azure resourceGroups and pick these configured
+        // keep track which where found already
         foreach($azure_groups as $ag)
-            if (in_array($ag->name, $wanted))
+            if ((count($wanted) > 0) and (in_array($ag->name, $wanted)))
+            {
                 $return_groups[] = $ag;
+                unset($wanted[array_search($ag->name, $wanted)]);
+            }
 
         // check if things have gone wrong, i.e. $wanted not empty,
         // but result list is empty
+        
         if (count($return_groups) == 0)
         {
             $error = sprintf(
@@ -167,6 +173,15 @@ class Api
             throw new ConfigurationError( $error );
         }      
 
+        // check if there is something left in $wanted
+        // in that case, we did not find all configured resourceGroups
+        // which is worth a warning.
+
+        if (count($wanted)>0)
+            Logger::warning("Azure API: could not find resource group(s) named '".
+                            implode(" ", $wanted)."'. This might be a ".
+                            "configuration error.");
+        
         return $return_groups;
     }
     
