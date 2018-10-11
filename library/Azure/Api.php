@@ -689,13 +689,8 @@ class Api
                 ),
                 'operationalState'  => $current->properties->operationalState,
                 'frontEndPort'      => (
-                    property_exists($current, 'frontendPorts') ?
-                    $current->frontendPorts[0]->properties->port : NULL
-                ),
-                'httpFrontEndPort'  => (
-                    (property_exists($current, 'httpListeners') and
-                     property_exists($current->httpListeners->properties, 'frontendPort')) ?
-                    $current->httpListeners->properties->frontendPort : NULL
+                    property_exists($current->properties, 'frontendPorts') ?
+                    $current->properties->frontendPorts[0]->properties->port : NULL
                 ),
                 'enabledHTTP2'      => $current->properties->enableHttp2,
                 'enabledWAF'        => (

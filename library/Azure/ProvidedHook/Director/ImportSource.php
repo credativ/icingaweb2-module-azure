@@ -105,7 +105,6 @@ class ImportSource extends ImportSourceHook
                 'frontEndPrivateIP',
                 'operationalState',
                 'frontEndPort',
-                'httpFrontEndPort',
                 'enabledHTTP2',
                 'enabledWAF',              
             );
