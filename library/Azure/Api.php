@@ -3,6 +3,8 @@
 namespace Icinga\Module\Azure;
 
 use Icinga\Exception\ConfigurationError;
+use Icinga\Exception\QueryException;
+
 use Icinga\Module\Azure\Constants;
 use Icinga\Module\Azure\Token;
 
@@ -100,13 +102,21 @@ class Api
      *
      * may throw QueryException on HTTP error
      *
+     * @param string $rgn 
+     * a space separated list of resoureceGroup names to query or '' for all
+     *
      * @return array of objects
      *
      */
 
-    public function getResourceGroups()
+    public function getResourceGroups( $rgn )
     {
-        Logger::info("Azure API: querying all resource groups");
+        if ($rgn == '')
+            Logger::info("Azure API: querying all resource groups");
+        else
+            Logger::info("Azure API: looking for resource groups '".
+                         $rgn."'.");
+        
 
         $result = $this->call_get('subscriptions/'.
                                   $this->subscription_id.
@@ -122,8 +132,42 @@ class Api
                                      $result->info->http_code);
         }
 
-        // decode the JSON, take only the "value" array and return it
-        return $result->decode_response()->value;
+        
+        // decode the JSON, take only the "value" array
+        $azure_groups = $result->decode_response()->value;
+
+        // make shure we don't have an empty list returned from API
+        if (count($azure_groups) == 0)
+        {
+            $error = "Azure API: Could not find any matching resource groups.";
+            Logger::error( $error );           
+            throw new QueryException( $error );
+        }      
+        
+        // if parameter is empty string, just deliver all groups 
+        if ($rgn == '')
+            return $azure_groups;
+        
+        // if not, determine which groups are wanted
+        $wanted = explode(" ", $rgn);
+        $return_groups = array();
+        
+        foreach($azure_groups as $ag)
+            if (in_array($ag->name, $wanted))
+                $return_groups[] = $ag;
+
+        // check if things have gone wrong, i.e. $wanted not empty,
+        // but result list is empty
+        if (count($return_groups) == 0)
+        {
+            $error = sprintf(
+                "Azure API: Could not find matching resource groups for '%s'.",
+                $rgn);
+            Logger::error( $error );           
+            throw new ConfigurationError( $error );
+        }      
+
+        return $return_groups;
     }
     
 
@@ -659,12 +703,27 @@ class Api
         return $objects;
     }
 
-    
-    public function getAllVM()
-    {
-        Logger::info("Azure API: querying any VM available");
-        $rgs =  $this->getResourceGroups();
 
+    
+    /** ***********************************************************************
+     * Walks through all or all desired resource groups and returns
+     * an array of objects of virtual machines for IcingaWeb2 Director
+     * 
+     *
+     * @param string $rgn 
+     * a space separated list of resoureceGroup names to query or '' for all
+     *
+     * @return array of objects
+     *
+     */
+    
+    public function getAllVM( $rgn )
+    {
+        Logger::info("Azure API: querying VM available in configuret resource groups.");
+        $rgs =  $this->getResourceGroups( $rgn );
+
+                Logger::info("häh?");
+                
         $objects = array();
 
         // walk through any resourceGroups
@@ -676,10 +735,22 @@ class Api
     }
 
     
-    public function getAllLB()
+    /** ***********************************************************************
+     * Walks through all or all desired resource groups and returns
+     * an array of objects of LoadBalancers for IcingaWeb2 Director
+     * 
+     *
+     * @param string $rgn 
+     * a space separated list of resoureceGroup names to query or '' for all
+     *
+     * @return array of objects
+     *
+     */
+
+    public function getAllLB( $rgn )
     {
         Logger::info("Azure API: querying any LoadBalancer available");
-        $rgs =  $this->getResourceGroups();
+        $rgs =  $this->getResourceGroups( $rgn );
 
         $objects = array();
 
@@ -690,11 +761,24 @@ class Api
         }
         return $objects;
     }
+    
 
-    public function getAllAppGW()
+    /** ***********************************************************************
+     * Walks through all or all desired resource groups and returns
+     * an array of objects of application gateways for IcingaWeb2 Director
+     * 
+     *
+     * @param string $rgn 
+     * a space separated list of resoureceGroup names to query or '' for all
+     *
+     * @return array of objects
+     *
+     */
+
+    public function getAllAppGW( $rgn )
     {
         Logger::info("Azure API: querying any Application Gateway available");
-        $rgs =  $this->getResourceGroups();
+        $rgs =  $this->getResourceGroups( $rgn );
 
         $objects = array();
 

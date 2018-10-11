@@ -32,16 +32,19 @@ class ImportSource extends ImportSourceHook
 
     public function fetchData()
     {
+        // query config which resourceGroups to deal with
+        $rg = $this->getSetting('resource_group_names', '');
+        
         switch($this->getObjectType())
         {
         case 'vm':
-            $objects = $this->api()->getAllVM();
+            $objects = $this->api()->getAllVM( $rg );
             break;
         case 'lb':
-            $objects = $this->api()->getAllLB();
+            $objects = $this->api()->getAllLB( $rg );
             break;
         case 'appgw':
-            $objects = $this->api()->getAllAppGW();
+            $objects = $this->api()->getAllAppGW( $rg );
             break;
         }
 
@@ -141,36 +144,42 @@ class ImportSource extends ImportSourceHook
     {
         $form->addElement('text', 'tenant_id', array(
             'label'        => $form->translate('Azure Tenant ID'),
-            'description'  => $form->translate('This is the Azure Tenant ID of the account you '.
-                                               'want to query. This Subscription ID must match the one '.
-                                               'you used to create the application clients credentials with.'),
+            'description'  => $form->translate(
+                'This is the Azure Tenant ID of the account you '.
+                'want to query. This Subscription ID must match the one '.
+                'you used to create the application clients credentials with.'),
             'required'     => true,
         ));
         $form->addElement('text', 'subscription_id', array(
             'label'        => $form->translate('Azure Subscription ID'),
-            'description'  => $form->translate('This is the Azure Subscription ID of the account you '.
-                                               'want to query. This Subscription ID must match the one '.
-                                               'you used to create the application clients credentials with.'),
+            'description'  => $form->translate(
+                'This is the Azure Subscription ID of the account you '.
+                'want to query. This Subscription ID must match the one '.
+                'you used to create the application clients credentials with.'),
             'required'     => true,
         ));
         $form->addElement('text', 'client_id', array(
             'label'        => $form->translate('Azure client ID'),
-            'description'  => $form->translate('This is the Azure client ID of the account you '.
-                                               'want to query. This ID must be generated on '.
-                                               'https://portal.azure.com using the Tenant ID and Subscription ID above.'),
+            'description'  => $form->translate(
+                'This is the Azure client ID of the account you '.
+                'want to query. This ID must be generated on '.
+                'https://portal.azure.com using the Tenant ID and '.
+                'Subscription ID above.'),
             'required'     => true,
         ));
         $form->addElement('text', 'client_secret', array(
             'label'        => $form->translate('Azure client secret'),
-            'description'  => $form->translate('This is the secret you got when creating the Client ID.'),
+            'description'  => $form->translate(
+                'This is the secret you got when creating the Client ID.'),
             'required'     => true,
         ));
         $form->addElement('select', 'object_type', array(
             'label'        => 'Object type',
             'required'     => true,
             'description'  => $form->translate(
-                'Object type to import. This Azure API importer can deal with one object type only. '.
-                'To have multiple object types, e.g. VM and LoadBalancers in your import, you need to '.
+                'Object type to import. This Azure API importer can deal '.
+                'with one object type only. To have multiple object types, '.
+                'e.g. VM and LoadBalancers in your import, you need to '.
                 'add this Azure API importer multiple times.'
             ),
             'multiOptions' => $form->optionalEnum(
@@ -178,6 +187,16 @@ class ImportSource extends ImportSourceHook
             ),
             'class'        => 'autosubmit',
         ));
+        $form->addElement('text', 'resource_group_names', array(
+            'label'        => $form->translate('Resource Groups'),
+            'description'  => $form->translate(
+                'Enter the Resource Group names you want to query. '.
+                'Intersect them with a space or leave this empty '.
+                'to query all resource groups in your account. '.
+                'Please note that these names are case sensitive.'),
+            'required'     => false,
+        ));
+
     }
 
     protected static function enumObjectTypes($form)
