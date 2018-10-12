@@ -17,9 +17,31 @@ Documentation
 ### Basics
  * [Installation](doc/01-Installation.md)
  * [ImportSource](doc/02-ImportSource.md)
+ * [Fields queried](doc/05-FieldsQueried.md)
  * [Troubleshooting](doc/99-Troubleshooting.md)
 
 Furthermore, there is a [ChangeLog](ChangeLog) file.
+
+
+Implemented features
+--------------------
+
+Currently, we have some resources implemented in this importer module:
+
+* Virtual machines
+* Load balancers
+* Application Gateways
+* Microsoft.DBforPostgreSQL servers (SAAS)  (untested)
+* Express route circuits  (untested)
+
+While the first three are tested and should be working smoothly, the PostgreSQL
+and Express route circuit object types are considered untested.
+
+This list will be enhanced with any release step by step. If you miss something,
+we would appreciate an open issue on this here on GitHub. The same applies for
+missing fields on the import types.
+
+![Query types](/doc/screenshot/readme/azure_object_types.png)
 
 
 Dependencies
@@ -41,5 +63,4 @@ fit into namespaces and uses valid exception classes suitable for IcingaWeb2
 
 The code was inspired by the [Icinga Web 2 module for vSphere](https://github.com/Icinga/icingaweb2-module-vsphere)
 as well as by the [AWS module for Icinga Web 2](https://github.com/Icinga/icingaweb2-module-aws).
-
 

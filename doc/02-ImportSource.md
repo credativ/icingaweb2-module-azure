@@ -8,6 +8,8 @@ Dashboard and choose *Import data sources*.
 This brings you to your list of configured **Import Source** definitions,
 we want to **Add** a new one.
 
+![Create an importer](/doc/screenshot/readme/importer_overview.png)
+
 Select an appropriate name for the Importer and choose "Microsoft Azure" from
 the "Source Type" drop down list. You may also add a good description, too.
 
@@ -22,12 +24,17 @@ fields:
 * Object Type
 * Resource Groups
 
+
+![Create or edit importer settings](/doc/screenshot/edit_importer.png)
+
 The **key column name** defaults to "name" and will be appropriate in most
 situations.
 
 The **Azure Tenant ID, Subscription ID, Client ID** and **Client** Secret are
 the credentials you have to obtain from your Azure Account. Please confere the
 appropriate documentation on this.
+
+![Object Types](/doc/screenshot/azure_object_types.png)
 
 **Object Type** is a dropdown list showing the object types this importer
 plugin can query from the Azure API. Depending on the object type the
@@ -44,4 +51,9 @@ resource group available for the given credentials. If you have multiple
 resource groups available to the given credentials, you can enter the names
 of the resource groups to be imported here. Make shure, you split these
 with a single space.
+
+You can click on the **Preview** tab of the importer to see a fast preview query
+like this:
+
+![Preview](/doc/screenshot/vm_preview.png)
 
