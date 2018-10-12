@@ -223,7 +223,7 @@ class ImportSource extends ImportSourceHook
                 'Subscription ID above.'),
             'required'     => true,
         ));
-        $form->addElement('text', 'client_secret', array(
+        $form->addElement('text', 'client_secret', array(    // TODO: set 'text' to 'password'
             'label'        => $form->translate('Azure client secret'),
             'description'  => $form->translate(
                 'This is the secret you got when creating the Client ID.'),
