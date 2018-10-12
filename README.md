@@ -41,7 +41,7 @@ This list will be enhanced with any release step by step. If you miss something,
 we would appreciate an open issue on this here on GitHub. The same applies for
 missing fields on the import types.
 
-![Query types](/doc/screenshot/readme/azure_object_types.png)
+![Query types](/doc/screenshot/azure_object_types.png)
 
 
 Dependencies
