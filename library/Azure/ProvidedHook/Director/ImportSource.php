@@ -190,7 +190,7 @@ class ImportSource extends ImportSourceHook
     {
         // Compat for old configs, vm used to be the only available type:
         $type = $this->getSetting('object_type', 'vm');
-        if (! in_array($type, array('vm', 'lb', 'appgw', 'expgw', 'mspgsql'))) {
+        if (! array_key_exists($type, self::supportedObjectTypes)) {
             Logger::error('Azure API: Got invalid Azure object type: "%s"',
                           $type);
             throw new ConfigurationError(
