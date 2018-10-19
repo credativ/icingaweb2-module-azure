@@ -1,15 +1,15 @@
 <?php
-
 namespace Icinga\Module\Azure;
 
 use Icinga\Exception\ConfigurationError;
 use Icinga\Exception\QueryException;
+use Icinga\Application\Logger;
+
 
 use Icinga\Module\Azure\Token;
-
 use Icinga\Module\Azure\restclient\RestClient;
 
-use Icinga\Application\Logger;
+
 
 /**
  * Class Api
@@ -20,7 +20,10 @@ use Icinga\Application\Logger;
  *
  * This abstract class needs to be extended by a class to put these single
  * object queries together and assemble a full answer to IcingaWeb2 Director.
- * This extension has to implement the 'getAll' method. 
+ * This extension can implement the public 'getAll' method or use the default. 
+ * Furthermore, the concept of the gettAll method should be iterating through 
+ * the Azure resource group names and calling the scanResourceGroup method for 
+ * each one. This is the second abstract method to be implemented.
  *
  */
 
@@ -34,11 +37,17 @@ abstract class Api
     /** @var restc stores the restclient object we need for tha api access */
     private $restc;
 
-    const API_ENDPT   = "https://management.azure.com/";
-   
     /** @var subscription_id we need this for the REST client URLs to call */
     private $subscription_id;
 
+    /** log message for getAll // should be redifined in subclass */
+    protected const MSG_LOG_GET_ALL =
+                                    "Azure API: Call to getAll primitive".
+                                    "- should never be seen!";
+    
+    public const API_ENDPT   = "https://management.azure.com/";
+   
+   
 
     /** ***********************************************************************
      * Walks through all or all desired resource groups and returns
@@ -52,9 +61,37 @@ abstract class Api
      *
      */
 
-    abstract public function getAll( $rgn );
+    public function getAll( $rgn )
+    {
+        // log individual log message as constant should be redefined
+        // in subclasses
+        
+        Logger::info(static::MSG_LOG_GET_ALL);
+        $rgs =  $this->getResourceGroups( $rgn );
+
+        $objects = array();
+
+        // walk through any resourceGroups
+        foreach( $rgs as $group )  
+        {          
+            $objects = $objects + $this->scanResourceGroup( $group );
+        }
+        return $objects;
+    }
+
+
     
+    /** ***********************************************************************
+     * takes all information on specific object type from a given resource group
+     * and returns it in the format IcingaWeb2 Director expects
+     *
+     * @return array of objects
+     *
+     */
     
+    abstract protected function scanResourceGroup( $group );
+
+        
     /** ***********************************************************************
      * Api object constructor.
      *
@@ -68,7 +105,7 @@ abstract class Api
 
     public function __construct( $tenant_id, $subscription_id,
                                  $client_id, $client_secret )
-    {
+    {        
         // store API credentials we need in future     
         $this->subscription_id = $subscription_id;
         

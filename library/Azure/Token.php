@@ -1,5 +1,4 @@
 <?php
-
 namespace Icinga\Module\Azure;
 
 use Icinga\Module\Azure\restclient\RestClient;

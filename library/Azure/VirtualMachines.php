@@ -1,26 +1,28 @@
 <?php
-
 namespace Icinga\Module\Azure;
 
 use Icinga\Exception\ConfigurationError;
 use Icinga\Exception\QueryException;
-
-use Icinga\Module\Azure\Token;
-
-use Icinga\Module\Azure\restclient\RestClient;
-
 use Icinga\Application\Logger;
+
+use Icinga\Module\Azure\Api;
+
+
 /**
- * Class Api
+ * Class Virtual Machines
  *
- * This is your main entry point when working with this library
+ * This is your main entry point when querying virtual machines from 
+ * Azure API. 
+ *
  */
 
 
 class VirtualMachines extends Api
 {
-
-   
+    /** Log Message for getAll **/
+    protected const
+        MSG_LOG_GET_ALL =
+        "Azure API: querying VM available in configured resource groups.";     
 
     /** ***********************************************************************
      * takes all information on virtual machines from a resource group and 
@@ -30,7 +32,7 @@ class VirtualMachines extends Api
      *
      */
 
-    protected function scanVMResource($group)
+    protected function scanResourceGroup($group)
     {
         // only items that have a valid provisioning state
         if ($group->properties->provisioningState != "Succeeded")
@@ -134,35 +136,6 @@ class VirtualMachines extends Api
             }
         }
         
-        return $objects;
-    }
-
-
-   
-    /** ***********************************************************************
-     * Walks through all or all desired resource groups and returns
-     * an array of objects of virtual machines for IcingaWeb2 Director
-     * 
-     *
-     * @param string $rgn 
-     * a space separated list of resoureceGroup names to query or '' for all
-     *
-     * @return array of objects
-     *
-     */
-    
-    public function getAllVM( $rgn )
-    {
-        Logger::info("Azure API: querying VM available in configured resource groups.");
-        $rgs =  $this->getResourceGroups( $rgn );
-
-        $objects = array();
-
-        // walk through any resourceGroups
-        foreach( $rgs as $group )  
-        {          
-            $objects = $objects + $this->scanVMResource( $group );
-        }
         return $objects;
     }  
 }

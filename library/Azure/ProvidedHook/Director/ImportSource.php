@@ -7,9 +7,14 @@ use Icinga\Module\Director\Web\Form\QuickForm;
 use Icinga\Exception\ConfigurationError;
 use Icinga\Exception\AuthenticationException;
 
-use Icinga\Module\Azure\Api;
-
 use Icinga\Application\Logger;
+
+// import classes for importer
+use Icinga\Module\Azure\VirtualMachines;
+use Icinga\Module\Azure\LoadBalancers;
+use Icinga\Module\Azure\AppGW;
+use Icinga\Module\Azure\ExpGW;
+use Icinga\Module\Azure\MsPgSQL;
 
 
 class ImportSource extends ImportSourceHook
@@ -31,7 +36,6 @@ class ImportSource extends ImportSourceHook
 
     public function __construct( )
     {
-        
     }
               
 
@@ -46,30 +50,14 @@ class ImportSource extends ImportSourceHook
     {
 
         $start = microtime(true);
-        
+        $query = $this->getObjectType();
+            
         // query config which resourceGroups to deal with
         $rg = $this->getSetting('resource_group_names', '');
-        $query = $this->getObjectType();
-        
-        switch($query)
-        {
-        case 'vm':
-            $objects = $this->api()->getAllVM( $rg );
-            break;
-        case 'lb':
-            $objects = $this->api()->getAllLB( $rg );
-            break;
-        case 'appgw':
-            $objects = $this->api()->getAllAppGW( $rg );
-            break;
-        case 'expgw':
-            $objects = $this->api()->getAllExpGW( $rg );
-            break;
-        case 'mspgsql':
-            $objects = $this->api()->getAllMsPgSQL( $rg );
-            break;
-        }
 
+        $objects = $this->api($query)->getAll( $rg );
+        
+ 
         // log some timing data
         $duration = microtime(true) - $start;
         Logger::info('Azure API: %s import run took %f seconds',
@@ -80,16 +68,61 @@ class ImportSource extends ImportSourceHook
     }
 
     
-    protected function api()
+    protected function api($query)
     {
         if ($this->api === null) {
             // api is uninitialized, create it.
-            $this->api = new Api(
-                $this->getSetting('tenant_id'),
-                $this->getSetting('subscription_id'),
-                $this->getSetting('client_id'),
-                $this->getSetting('client_secret')
-            );
+                           
+            switch($query)
+            {
+            case 'vm':
+                $this->api = new VirtualMachines(
+                    $this->getSetting('tenant_id'),
+                    $this->getSetting('subscription_id'),
+                    $this->getSetting('client_id'),
+                    $this->getSetting('client_secret')
+                );
+                break;
+            case 'lb':
+                $this->api = new LoadBalancers(
+                    $this->getSetting('tenant_id'),
+                    $this->getSetting('subscription_id'),
+                    $this->getSetting('client_id'),
+                    $this->getSetting('client_secret')
+                );
+                break;
+            case 'appgw':
+                $this->api = new AppGW(
+                    $this->getSetting('tenant_id'),
+                    $this->getSetting('subscription_id'),
+                    $this->getSetting('client_id'),
+                    $this->getSetting('client_secret')
+                );
+                break;
+            case 'expgw':
+                $this->api = new ExpGW(
+                    $this->getSetting('tenant_id'),
+                    $this->getSetting('subscription_id'),
+                    $this->getSetting('client_id'),
+                    $this->getSetting('client_secret')
+                );
+                break;
+            case 'mspgsql':
+                $this->api = new MsPgSQL(
+                    $this->getSetting('tenant_id'),
+                    $this->getSetting('subscription_id'),
+                    $this->getSetting('client_id'),
+                    $this->getSetting('client_secret')
+                );
+                break;
+            default:
+                Logger::error('Azure API: Got invalid Azure object type: "%s"',
+                              $type);
+                throw new ConfigurationError(
+                    'Azure API: Got invalid Azure object type: "%s"',
+                    $type
+                );
+            }
         }
         return $this->api;
     }
