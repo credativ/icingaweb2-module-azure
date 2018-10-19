@@ -23,21 +23,97 @@ class ImportSource extends ImportSourceHook
     /** @var Api */
     private $api;   // stores API object
 
-    /** names and shortcut codes for objects */
     
-    const verboseObjectTypes = array(
-            'vm'          => 'Virtual Machines',
-            'lb'          => 'Load Balancers',
-            'appgw'       => 'Application Gateways',
-            'expgw'       => 'Express Route Circuits',
-            'mspgsql'     => 'Db for PostgreSQL',
-        );
+    /** names, fields and shortcut codes for objects */
+    
+    const supportedObjectTypes = array(
+        'vm'      => array(
+            'name'   => 'Virtual Machines',
+            'class'  => 'Icinga\Module\Azure\VirtualMachines',
+            'fields' =>  array(
+                'name',
+                'id',
+                'location',
+                'osType',
+                'osDiskName',
+                'dataDisks',
+                'network_interfaces_count',
+                'publicIP',
+                'privateIP',
+                'cores',
+                'resourceDiskSizeInMB',
+                'memoryInMB',
+                'maxDataDiscCount',
+            ),
+        ),
+        
+        'lb'      => array(
+            'name'   => 'Load Balancers',
+            'class'  => 'Icinga\Module\Azure\LoadBalancers',
+            'fields' => array(
+                'name',
+                'id',
+                'location',
+                'provisioningState',
+                'frontEndPublicIP',              
+            ),
+        ),
+        
+        'appgw'   => array(
+            'name'   => 'Application Gateways',
+            'class'  => 'Icinga\Module\Azure\AppGW',
+            'fields' => array(
+                'name',
+                'id',
+                'location',
+                'provisioningState',
+                'frontEndPublicIP',
+                'frontEndPrivateIP',
+                'operationalState',
+                'frontEndPort',
+                'enabledHTTP2',
+                'enabledWAF',              
+            ),
+        ),
 
-
-    public function __construct( )
-    {
-    }
-              
+        'expgw'   => array(
+            'name'   => 'Express Route Circuits',
+            'class'  => 'Icinga\Module\Azure\ExpGW',
+            'fields' => array(
+                'name',
+                'id',
+                'location',
+                'provisioningState',
+                'bandwidthInMbps',
+                'circuitProvisioningState',
+                'allowClassicOperations',
+                'peeringLocation',
+                'serviceProviderName',
+                'serviceProviderProvisioningState',
+            ),
+        ),
+        
+        'mspgsql' => array(
+            'name'   => 'Db for PostgreSQL',
+            'class'  => 'Icinga\Module\Azure\MsPgSQL',
+            'fields' =>  array(
+                'name',
+                'id',
+                'location',
+                'version',
+                'tier',
+                'capacity',
+                'sslEnforcement',
+                'userVisibleState',
+                'fqdn',
+                'earliestRestoreDate',
+                'storageMB',
+                'backupRetentionDays',
+                'geoRedundantBackup',
+            )
+        ),
+        
+    );
 
         
     public function getName()
@@ -55,13 +131,15 @@ class ImportSource extends ImportSourceHook
         // query config which resourceGroups to deal with
         $rg = $this->getSetting('resource_group_names', '');
 
+
+        // retrieve all data we want from the class we choose
         $objects = $this->api($query)->getAll( $rg );
         
  
         // log some timing data
         $duration = microtime(true) - $start;
         Logger::info('Azure API: %s import run took %f seconds',
-                     self::verboseObjectTypes[$query],
+                     self::supportedObjectTypes[$query]['name'],
                      $duration);
         
         return $objects;
@@ -71,58 +149,22 @@ class ImportSource extends ImportSourceHook
     protected function api($query)
     {
         if ($this->api === null) {
+
             // api is uninitialized, create it.
-                           
-            switch($query)
-            {
-            case 'vm':
-                $this->api = new VirtualMachines(
-                    $this->getSetting('tenant_id'),
-                    $this->getSetting('subscription_id'),
-                    $this->getSetting('client_id'),
-                    $this->getSetting('client_secret')
-                );
-                break;
-            case 'lb':
-                $this->api = new LoadBalancers(
-                    $this->getSetting('tenant_id'),
-                    $this->getSetting('subscription_id'),
-                    $this->getSetting('client_id'),
-                    $this->getSetting('client_secret')
-                );
-                break;
-            case 'appgw':
-                $this->api = new AppGW(
-                    $this->getSetting('tenant_id'),
-                    $this->getSetting('subscription_id'),
-                    $this->getSetting('client_id'),
-                    $this->getSetting('client_secret')
-                );
-                break;
-            case 'expgw':
-                $this->api = new ExpGW(
-                    $this->getSetting('tenant_id'),
-                    $this->getSetting('subscription_id'),
-                    $this->getSetting('client_id'),
-                    $this->getSetting('client_secret')
-                );
-                break;
-            case 'mspgsql':
-                $this->api = new MsPgSQL(
-                    $this->getSetting('tenant_id'),
-                    $this->getSetting('subscription_id'),
-                    $this->getSetting('client_id'),
-                    $this->getSetting('client_secret')
-                );
-                break;
-            default:
-                Logger::error('Azure API: Got invalid Azure object type: "%s"',
-                              $type);
-                throw new ConfigurationError(
-                    'Azure API: Got invalid Azure object type: "%s"',
-                    $type
-                );
-            }
+            // therefore we're doing some magic:
+            // the class name is stored in a static const array
+            // which is used for configuration stuff like the visible
+            // name. Sadly we have to make use of a helper variable here
+            // as PHP does not permit the const string in the new command
+            // and I don't want to use the reflection stuff to keep things
+            // simple
+            $myclassname = self::supportedObjectTypes[$query]['class'];
+            $this->api = new $myclassname(
+                $this->getSetting('tenant_id'),
+                $this->getSetting('subscription_id'),
+                $this->getSetting('client_id'),
+                $this->getSetting('client_secret')
+            );
         }
         return $this->api;
     }
@@ -130,78 +172,10 @@ class ImportSource extends ImportSourceHook
 
     public function listColumns()
     {
-        switch($this->getObjectType())
-        {
-        case 'vm':
-            return array(
-                'name',
-                'id',
-                'location',
-                'osType',
-                'osDiskName',
-                'dataDisks',
-                'network_interfaces_count',
-                'publicIP',
-                'privateIP',
-                'cores',
-                'resourceDiskSizeInMB',
-                'memoryInMB',
-                'maxDataDiscCount',
-            );
-        case 'lb':
-            return array(
-                'name',
-                'id',
-                'location',
-                'provisioningState',
-                'frontEndPublicIP',              
-            );
-        case 'appgw':
-            return array(
-                'name',
-                'id',
-                'location',
-                'provisioningState',
-                'frontEndPublicIP',
-                'frontEndPrivateIP',
-                'operationalState',
-                'frontEndPort',
-                'enabledHTTP2',
-                'enabledWAF',              
-            );
-        case 'expgw':
-            return array(
-                'name',
-                'id',
-                'location',
-                'provisioningState',
-                'bandwidthInMbps',
-                'circuitProvisioningState',
-                'allowClassicOperations',
-                'peeringLocation',
-                'serviceProviderName',
-                'serviceProviderProvisioningState',
-            );
-        case 'mspgsql':
-            return array(
-                'name',
-                'id',
-                'location',
-                'version',
-                'tier',
-                'capacity',
-                'sslEnforcement',
-                'userVisibleState',
-                'fqdn',
-                'earliestRestoreDate',
-                'storageMB',
-                'backupRetentionDays',
-                'geoRedundantBackup',
-            );
-        }
-        
+        return self::supportedObjectTypes[$this->getObjectType()]['fields'];
     }
 
+    
     /**
      * @inheritdoc
      */
@@ -224,7 +198,6 @@ class ImportSource extends ImportSourceHook
                 $type
             );
         }
-
         return $type;
     }
 
@@ -292,9 +265,9 @@ class ImportSource extends ImportSourceHook
     {
         $list = array();
         
-        foreach(self::verboseObjectTypes as $key => $value)
+        foreach(self::supportedObjectTypes as $key => $value)
         {
-            $list[$key] = $form->translate($value);
+            $list[$key] = $form->translate($value['name']);
         }
 
         return $list;
