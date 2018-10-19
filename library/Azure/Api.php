@@ -10,15 +10,24 @@ use Icinga\Module\Azure\Token;
 use Icinga\Module\Azure\restclient\RestClient;
 
 use Icinga\Application\Logger;
+
 /**
  * Class Api
  *
- * This is your main entry point when working with this library
+ * This is the abstract base class for your API endpoint.
+ * It provides all methods to query the Azure API itself and 
+ * all generic requests to object groups / lists in Azure.
+ *
+ * This abstract class needs to be extended by a class to put these single
+ * object queries together and assemble a full answer to IcingaWeb2 Director.
+ * This extension has to implement the 'getAll' method. 
+ *
  */
 
 
-class Api
+abstract class Api
 {
+
     /** @var token stores the current token object if initialized */
     private $token;
 
@@ -30,6 +39,21 @@ class Api
     /** @var subscription_id we need this for the REST client URLs to call */
     private $subscription_id;
 
+
+    /** ***********************************************************************
+     * Walks through all or all desired resource groups and returns
+     * an array of objects of the specific Azure Objects for IcingaWeb2 Director
+     * 
+     *
+     * @param string $rgn 
+     * a space separated list of resoureceGroup names to query or '' for all
+     *
+     * @return array of objects
+     *
+     */
+
+    abstract public function getAll( $rgn );
+    
     
     /** ***********************************************************************
      * Api object constructor.
@@ -108,7 +132,7 @@ class Api
      *
      */
 
-    public function getResourceGroups( $rgn )
+    protected function getResourceGroups( $rgn )
     {
         if ($rgn == '')
             Logger::info("Azure API: querying all resource groups");
@@ -206,7 +230,7 @@ class Api
      *
      */
 
-    public function getResGroupResources($resource_group)
+    protected function getResGroupResources($resource_group)
     {
         Logger::info("Azure API: querying resource group ".$resource_group);
 
@@ -239,7 +263,7 @@ class Api
      *
      */   
    
-    public function getVirtualMachines($group)
+    protected function getVirtualMachines($group)
     {
         $resource_group = $group->name;
         
@@ -273,7 +297,7 @@ class Api
      *
      */   
    
-    public function getVirtualMachineSizing($vm)
+    protected function getVirtualMachineSizing($vm)
     {   
         Logger::info("Azure API: querying virtual machine sizing for vm ".
                      $vm->name);
@@ -314,7 +338,7 @@ class Api
      *
      */   
    
-    public function getDisks($group)
+    protected function getDisks($group)
     {
         $resource_group = $group->name;
         
@@ -347,7 +371,7 @@ class Api
      *
      */   
    
-    public function getNetworkInterfaces($group)
+    protected function getNetworkInterfaces($group)
     {
         $resource_group = $group->name;
         
@@ -380,7 +404,7 @@ class Api
      *
      */   
    
-    public function getPublicIpAddresses($group)
+    protected function getPublicIpAddresses($group)
     {
         $resource_group = $group->name;
         
@@ -413,7 +437,7 @@ class Api
      *
      */   
    
-    public function getLoadBalancers($group)
+    protected function getLoadBalancers($group)
     {
         $resource_group = $group->name;
         
@@ -447,7 +471,7 @@ class Api
      *
      */   
    
-    public function getApplicationGateways($group)
+    protected function getApplicationGateways($group)
     {
         $resource_group = $group->name;
         
@@ -481,7 +505,7 @@ class Api
      *
      */   
    
-    public function getExpressRouteCircuits($group)
+    protected function getExpressRouteCircuits($group)
     {
         $resource_group = $group->name;
         
@@ -515,7 +539,7 @@ class Api
      *
      */   
    
-    public function getDbForPostgreSQL($group)
+    protected function getDbForPostgreSQL($group)
     {
         $resource_group = $group->name;
         
@@ -540,514 +564,4 @@ class Api
         // get result data from JSON into object $decoded
         return $result->decode_response()->value;       
     }
-
-    /** ***********************************************************************
-     * takes all information on virtual machines from a resource group and 
-     * returns it in the format IcingaWeb2 Director expects
-     *
-     * @return array of objects
-     *
-     */
-
-    public function scanVMResource($group)
-    {
-        // only items that have a valid provisioning state
-        if ($group->properties->provisioningState != "Succeeded")
-        {
-            Logger::info("Azure API: Resoure group ".$group->name.
-                         " invalid provisioning state.");
-            return array();
-        }
-
-        // get data needed
-        $virtual_machines   = $this->getVirtualMachines($group);
-        // $disks              = $this->getDisks($group);
-        $network_interfaces = $this->getNetworkInterfaces($group);
-        $public_ip          = $this->getPublicIpAddresses($group);
-
-        $objects = array();
-
-        foreach($virtual_machines as $current)
-        {
-            // skip anything not provisioned.
-            if ($current->properties->provisioningState == "Succeeded")
-            {
-                $object = (object) [
-                    'name'           => $current->name,
-                    'id'             => $current->id,
-                    'location'       => $current->location,
-                    'osType'         => (
-                        property_exists($current->properties->storageProfile->osDisk,
-                                        'osType')?
-                        $current->properties->storageProfile->osDisk->osType : ""
-                    ),
-                    'osDiskName'     => (
-                        property_exists($current->properties->storageProfile->osDisk,'name')?
-                        $current->properties->storageProfile->osDisk->name : ""
-                    ),
-                    'dataDisks'      => count($current->properties->storageProfile->dataDisks),
-                    'privateIP'      => "",
-                    'network_interfaces_count' => 0,
-                ];
-
-                // scan network interfaces and fint the ones belonging to
-                // the current vm
-
-                foreach($network_interfaces as $interf)
-                {
-                    // In Azure, a network interface may not have a VM attached :-(
-                    // and make shure, we match the current vm
-                    if (
-                        property_exists($interf->properties, 'virtualMachine') and
-                        $interf->properties->virtualMachine->id == $current->id )
-                    {
-                        
-                        $object->network_interfaces_count++;
-                        
-                        $object->privateIP =
-                                           $interf->properties->
-                                           ipConfigurations[0]->properties->
-                                           privateIPAddress;
-                        // check, if this interface has got a public IP address
-                        if (property_exists(
-                            $interf->properties->ipConfigurations[0]->properties,
-                            'publicIPAddress'))
-                        {
-                            foreach($public_ip as $pubip)
-                            {
-                                if (($interf->properties->ipConfigurations[0]->properties->publicIPAddress->id ==
-                                     $pubip->id) and
-                                    (property_exists($pubip->properties,'ipAddress')))
-                                {
-                                    $object->publicIP = $pubip->properties->ipAddress;
-                                }
-                                else
-                                    if (!property_exists($object, 'publicIP'))
-                                        $object->publicIP = "";
-                            }
-                        }
-                    }
-                }  // end foreach network interfaces
-
-
-                // get the sizing done
-                $vmsize =  $this->getVirtualMachineSizing($current);
-
-                if ($vmsize == NULL)
-                {
-                    $object->cores = NULL;
-                    $object->resourceDiskSizeInMB = NULL;
-                    $object->memoryInMB = NULL;
-                    $object->maxdataDiscCount = NULL;
-                }
-                else
-                {
-                    $object->cores = $vmsize->numberOfCores;
-                    $object->resourceDiskSizeInMB = $vmsize->resourceDiskSizeInMB;
-                    $object->memoryInMB = $vmsize->memoryInMB;
-                    $object->maxDataDiscCount = $vmsize->maxDataDiskCount;
-                }
-
-                // add this VM to the list.
-                $objects[] = $object;
-            }
-        }
-        
-        return $objects;
-    }
-
-
-    /** ***********************************************************************
-     * takes all information on load balancers from a resource group and 
-     * returns it in the format IcingaWeb2 Director expects
-     *
-     * @return array of objects
-     *
-     */
-
-    public function scanLBResource($group)
-    {
-        // only items that have a valid provisioning state
-        if ($group->properties->provisioningState != "Succeeded")
-        {
-            Logger::info("Azure API: Resoure group ".$group->name.
-                         " invalid provisioning state.");
-            return array();
-        }
-
-        // get data needed
-        $load_balancers = $this->getLoadBalancers($group);
-        $public_ip      = $this->getPublicIpAddresses($group);
-
-        
-        $objects = array();
-
-        foreach($load_balancers as $current)
-        {
-            $object = (object) [
-                'name'              => $current->name,
-                'id'                => $current->id,
-                'location'          => $current->location,
-                'provisioningState' => $current->properties->provisioningState,
-                'frontEndPublicIP'  => NULL,
-            ];
-
-            // search for the public ip               
-            foreach($public_ip as $pubip)
-            {
-                if (($current->properties->frontendIPConfigurations[0]->
-                     properties->publicIPAddress->id == $pubip->id)
-                    and
-                    (property_exists($pubip->properties,'ipAddress')))
-                {
-                    $object->frontEndPublicIP = $pubip->properties->ipAddress;
-                }
-            }
-   
-            // add this VM to the list.
-            $objects[] = $object;
-        }
-        return $objects;
-    }
-
-    
-    /** ***********************************************************************
-     * takes all information on application gateways from a resource group and 
-     * returns it in the format IcingaWeb2 Director expects
-     *
-     * @return array of objects
-     *
-     */
-
-    public function scanAppGWResource($group)
-    {
-        // only items that have a valid provisioning state
-        if ($group->properties->provisioningState != "Succeeded")
-        {
-            Logger::info("Azure API: Resoure group ".$group->name.
-                         " invalid provisioning state.");
-            return array();
-        }
-
-        // get data needed
-        $app_gateways = $this->getApplicationGateways($group);
-        $public_ip    = $this->getPublicIpAddresses($group);
-
-        
-        $objects = array();
-
-        foreach($app_gateways as $current)
-        {
-            $object = (object) [
-                'name'              => $current->name,
-                'id'                => $current->id,
-                'location'          => $current->location,
-                'provisioningState' => $current->properties->provisioningState,
-                'frontEndPublicIP'  => NULL,
-                'frontEndPrivateIP' => (
-                    (property_exists($current->properties,
-                                     'frontendIPConfigurations') and
-                     property_exists($current->properties->
-                                     frontendIPConfigurations[0]->properties,
-                                     'privateIPAddress')) ?
-                    $current->properties->frontendIPConfigurations[0]->
-                    properties->privateIPAddress : NULL
-                ),
-                'operationalState'  => $current->properties->operationalState,
-                'frontEndPort'      => (
-                    property_exists($current->properties, 'frontendPorts') ?
-                    $current->properties->frontendPorts[0]->properties->port : NULL
-                ),
-                'enabledHTTP2'      => $current->properties->enableHttp2,
-                'enabledWAF'        => (
-                    (property_exists($current, 'webApplicationFirewallConfiguration') and
-                     property_exists($current->properties->webApplicationFirewallConfiguration,'enabled'))?
-                    $current->properties->webApplicationFirewallConfiguration->enabled : FALSE
-                ),
-            ];
-
-            // search for the public ip, but only if there is one configured. 
-            if (property_exists($current->properties,'frontendIPConfigurations')
-                and
-                property_exists($current->properties->frontendIPConfigurations[0]->properties,
-                                'publicIPAddress'))
-            {
-                foreach($public_ip as $pubip)
-                {
-                    if (($current->properties->frontendIPConfigurations[0]->
-                         properties->publicIPAddress->id == $pubip->id)
-                        and
-                        (property_exists($pubip->properties,'ipAddress')))
-                    {
-                        $object->frontEndPublicIP = $pubip->properties->ipAddress;
-                    }
-                }
-            }
-            // add this VM to the list.
-            $objects[] = $object;
-        }
-        return $objects;
-    }
-
-
-    
-    /** ***********************************************************************
-     * takes all information on express route circuits from a resource group and 
-     * returns it in the format IcingaWeb2 Director expects
-     *
-     * @return array of objects
-     *
-     */
-
-    public function scanExpGWResource($group)
-    {
-        // only items that have a valid provisioning state
-        if ($group->properties->provisioningState != "Succeeded")
-        {
-            Logger::info("Azure API: Resoure group ".$group->name.
-                         " invalid provisioning state.");
-            return array();
-        }
-
-        // get data needed
-        $exp_routes = $this->getExpressRouteCircuits($group);
-
-        $objects = array();
-
-        foreach($exp_routes as $current) 
-        {
-            $object = (object) [
-                'name'                     => $current->name,
-                'id'                       => $current->id,
-                'location'                 => $current->location,
-                'provisioningState'        => $current->properties->provisioningState,
-                'peeringLocation'          => NULL,
-                'serviceProviderName'      => NULL,
-                'bandwidthInMbps'          => NULL,
-                'circuitProvisioningState' => $current->properties->circuitProvisioningState,
-                'allowClassicOperations'   => $current->properties->allowClassicOperations,
-                'serviceProviderProvisioningState' =>
-                $current->properties->serviceProviderProvisioningState,
-            ];
-
-            if (property_exists($current->properties,'serviceProviderProperties'))
-            {
-                if (property_exists(
-                        $current->properties->serviceProviderProperties,
-                        'peeringLocation'))
-                    $object->peeringLocation = $current->properties->
-                                             serviceProviderProperties->
-                                             peeringLocation;
-                
-                if (property_exists(
-                        $current->properties->serviceProviderProperties,
-                        'serviceProviderName'))
-                    $object->peeringLocation = $current->properties->
-                                             serviceProviderProperties->
-                                             serviceProviderName;
-
-                if (property_exists(
-                        $current->properties->serviceProviderProperties,
-                        'bandwidthInMbps'))
-                    $object->peeringLocation = $current->properties->
-                                             serviceProviderProperties->
-                                             bandwidthInMbps;
-            }
-
-            // add this VM to the list.
-            $objects[] = $object;
-        }
-        return $objects;
-    }
-
-
-    /** ***********************************************************************
-     * takes all information on Microsoft.DBforPostgreSQL from a resource group and 
-     * returns it in the format IcingaWeb2 Director expects
-     *
-     * @return array of objects
-     *
-     */
-
-    public function scanMsPgSQLResource($group)
-    {
-        // only items that have a valid provisioning state
-        if ($group->properties->provisioningState != "Succeeded")
-        {
-            Logger::info("Azure API: Resoure group ".$group->name.
-                         " invalid provisioning state.");
-            return array();
-        }
-
-        // get data needed
-        $dbservers = $this->getDbForPostgreSQL($group);
-
-        $objects = array();
-
-        foreach($dbservers as $current) 
-        {
-            $object = (object) [
-                'name'                => $current->name,
-                'id'                  => $current->id,
-                'location'            => $current->location,
-                'version'             => $current->properties->version ,
-                'tier'                => $current->sku->tier,
-                'capacity'            => $current->sku->capacity,
-                'sslEnforcement'      => $current->properties->sslEnforcement,
-                'userVisibleState'    => $current->properties->userVisibleState,
-                'fqdn'                => $current->properties->fullyQualifiedDomainName,
-                'earliestRestoreDate' => $current->properties->earliestRestoreDate,
-                'storageMB'           => $current->properties->storageProfile->storageMB,
-                'backupRetentionDays' => $current->properties->storageProfile->backupRetentionDays,
-                'geoRedundantBackup'  => $current->properties->storageProfile->geoRedundantBackup,
-            ];
-
-            // add this VM to the list.
-            $objects[] = $object;
-        }
-        return $objects;
-    }
-
-    
-    /** ***********************************************************************
-     * Walks through all or all desired resource groups and returns
-     * an array of objects of virtual machines for IcingaWeb2 Director
-     * 
-     *
-     * @param string $rgn 
-     * a space separated list of resoureceGroup names to query or '' for all
-     *
-     * @return array of objects
-     *
-     */
-    
-    public function getAllVM( $rgn )
-    {
-        Logger::info("Azure API: querying VM available in configured resource groups.");
-        $rgs =  $this->getResourceGroups( $rgn );
-
-        $objects = array();
-
-        // walk through any resourceGroups
-        foreach( $rgs as $group )  
-        {          
-            $objects = $objects + $this->scanVMResource( $group );
-        }
-        return $objects;
-    }
-
-    
-    /** ***********************************************************************
-     * Walks through all or all desired resource groups and returns
-     * an array of objects of LoadBalancers for IcingaWeb2 Director
-     * 
-     *
-     * @param string $rgn 
-     * a space separated list of resoureceGroup names to query or '' for all
-     *
-     * @return array of objects
-     *
-     */
-
-    public function getAllLB( $rgn )
-    {
-        Logger::info("Azure API: querying any LoadBalancer in configured resource groups");
-        $rgs =  $this->getResourceGroups( $rgn );
-
-        $objects = array();
-
-        // walk through any resourceGroups
-        foreach( $rgs as $group )  
-        {          
-            $objects = $objects + $this->scanLBResource( $group );
-        }
-        return $objects;
-    }
-    
-
-    /** ***********************************************************************
-     * Walks through all or all desired resource groups and returns
-     * an array of objects of application gateways for IcingaWeb2 Director
-     * 
-     *
-     * @param string $rgn 
-     * a space separated list of resoureceGroup names to query or '' for all
-     *
-     * @return array of objects
-     *
-     */
-
-    public function getAllAppGW( $rgn )
-    {
-        Logger::info("Azure API: querying any Application Gateway in configured resource groups.");
-        $rgs =  $this->getResourceGroups( $rgn );
-
-        $objects = array();
-
-        // walk through any resourceGroups
-        foreach( $rgs as $group )  
-        {          
-            $objects = $objects + $this->scanAppGWResource( $group );
-        }
-
-        return $objects;
-    }
-
-    /** ***********************************************************************
-     * Walks through all or all desired resource groups and returns
-     * an array of objects of express route circuits for IcingaWeb2 Director
-     * 
-     *
-     * @param string $rgn 
-     * a space separated list of resoureceGroup names to query or '' for all
-     *
-     * @return array of objects
-     *
-     */
-
-    public function getAllExpGW( $rgn )
-    {
-        Logger::info("Azure API: querying any Express Route Circuits in configured resource groups.");
-        $rgs =  $this->getResourceGroups( $rgn );
-
-        $objects = array();
-
-        // walk through any resourceGroups
-        foreach( $rgs as $group )  
-        {          
-            $objects = $objects + $this->scanExpGWResource( $group );
-        }
-
-        return $objects;
-    }
-
-    
-    /** ***********************************************************************
-     * Walks through all or all desired resource groups and returns
-     * an array of objects of Microsoft DB for PosgreSQL for IcingaWeb2 Director
-     * 
-     *
-     * @param string $rgn 
-     * a space separated list of resoureceGroup names to query or '' for all
-     *
-     * @return array of objects
-     *
-     */
-
-    public function getAllMsPgSQL( $rgn )
-    {
-        Logger::info("Azure API: querying any 'DB for PostgreSQL' services in configured resource groups.");
-        $rgs =  $this->getResourceGroups( $rgn );
-
-        $objects = array();
-
-        // walk through any resourceGroups
-        foreach( $rgs as $group )  
-        {          
-            $objects = $objects + $this->scanMsPgSQLResource( $group );
-        }
-
-        return $objects;
-    }
-   
 }
