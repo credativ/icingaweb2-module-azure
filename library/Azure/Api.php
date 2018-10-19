@@ -1,4 +1,11 @@
 <?php
+/** ***************************************************************************
+ * @author Peter Dreuw <peter.dreuw@credativ.de>
+ * @copyright Copyright (c) 2018 creadtiv GmbH
+ * @license https://github.com/credativ/icingaweb2-module-azure/blob/master/LICENSE MIT License
+ *
+ *
+ */
 namespace Icinga\Module\Azure;
 
 use Icinga\Exception\ConfigurationError;
@@ -11,7 +18,7 @@ use Icinga\Module\Azure\restclient\RestClient;
 
 
 
-/**
+/** ***************************************************************************
  * Class Api
  *
  * This is the abstract base class for your API endpoint.
@@ -31,20 +38,40 @@ use Icinga\Module\Azure\restclient\RestClient;
 abstract class Api
 {
 
-    /** @var token stores the current token object if initialized */
+    /** 
+     * stores the current token object if initialized
+     * @property string token
+     */
     private $token;
 
-    /** @var restc stores the restclient object we need for tha api access */
+    /**
+     * stores the restclient object we need for tha api access 
+     * @property object restc
+     */
     private $restc;
 
-    /** @var subscription_id we need this for the REST client URLs to call */
+    /**
+     * we need this for the REST client URLs to call 
+     * @property string subscription_id
+     */
     private $subscription_id;
 
-    /** log message for getAll // should be redifined in subclass */
+
+    /** 
+     * log message for getAll 
+     * should be redifined in subclass 
+     *
+     * @staticvar string MSG_LOG_GET_ALL
+     */
     protected const MSG_LOG_GET_ALL =
                                     "Azure API: Call to getAll primitive".
                                     "- should never be seen!";
     
+    /** 
+     * URL of the Microsoft Azure management API endpoint
+     *
+     * @staticvar string API_ENDPT
+     */
     public const API_ENDPT   = "https://management.azure.com/";
    
    
@@ -84,6 +111,9 @@ abstract class Api
     /** ***********************************************************************
      * takes all information on specific object type from a given resource group
      * and returns it in the format IcingaWeb2 Director expects
+     *
+     * @param string $group
+     * name of the resource group in question
      *
      * @return array of objects
      *
@@ -263,6 +293,9 @@ abstract class Api
      *
      * may throw QueryException on HTTP error
      *
+     * @param string $resource_group
+     * name of resoureceGroup to query
+     *
      * @return array of objects
      *
      */
@@ -296,6 +329,9 @@ abstract class Api
     /** ***********************************************************************
      * queries all VM from a resource group and returns a list
      *
+     * @param object $group 
+     * resoureceGroup object to work on
+     *
      * @return array of objects
      *
      */   
@@ -304,7 +340,8 @@ abstract class Api
     {
         $resource_group = $group->name;
         
-        Logger::info("Azure API: querying virtual machines from resource group ".$resource_group);
+        Logger::info("Azure API: querying virtual machines from resource group ".
+            $resource_group);
 
         $result = $this->call_get('subscriptions/'.
                                   $this->subscription_id.
@@ -315,8 +352,8 @@ abstract class Api
         // check if things have gone wrong
         if ($result->info->http_code != 200)
         {
-            $error = sprintf(
-                "Azure API: Could not get virtual machines for resource group '%s'. HTTP: %d",
+           $error = sprintf(
+               "Azure API: Could not get virtual machines for resource group '%s'. HTTP: %d",
                 $resource_group, $result->info->http_code);
             Logger::error( $error );           
             throw new QueryException( $error );
@@ -328,7 +365,10 @@ abstract class Api
     
 
     /** ***********************************************************************
-     * queries all VM from a resource group and returns a list
+     * queries the sizing for a given VM and returns a sizing object
+     *
+     * @param object $vm
+     * virtualMachine object to retrieve resource sizing data for
      *
      * @return array of objects
      *
@@ -368,8 +408,11 @@ abstract class Api
     
 
     
-     /** ***********************************************************************
+    /** ***********************************************************************
      * queries all disks from a resource group and returns a list
+     *
+     * @param object $group 
+     * resoureceGroup object to work on
      *
      * @return array of objects
      *
@@ -401,8 +444,11 @@ abstract class Api
         return $result->decode_response()->value;       
     }
     
-     /** ***********************************************************************
+    /** ***********************************************************************
      * queries all network interfaces from a resource group and returns a list
+     *
+     * @param object $group 
+     * resoureceGroup object to work on
      *
      * @return array of objects
      *
@@ -434,8 +480,11 @@ abstract class Api
         return $result->decode_response()->value;       
     }
 
-     /** ***********************************************************************
+    /** ***********************************************************************
      * queries all public IP adresses from a resource group and returns a list
+     *
+     * @param object $group 
+     * resoureceGroup object to work on
      *
      * @return array of objects
      *
@@ -467,13 +516,15 @@ abstract class Api
         return $result->decode_response()->value;       
     }
 
-     /** ***********************************************************************
+    /** ***********************************************************************
      * queries all load balancers from a resource group and returns a list
+     *
+     * @param object $group 
+     * resoureceGroup object to work on
      *
      * @return array of objects
      *
-     */   
-   
+     */     
     protected function getLoadBalancers($group)
     {
         $resource_group = $group->name;
@@ -504,10 +555,13 @@ abstract class Api
     /** ***********************************************************************
      * queries all application gateways from a resource group and returns a list
      *
+     * @param object $group 
+     * resoureceGroup object to work on
+     *
      * @return array of objects
      *
      */   
-   
+  
     protected function getApplicationGateways($group)
     {
         $resource_group = $group->name;
@@ -537,6 +591,9 @@ abstract class Api
 
     /** ***********************************************************************
      * queries all express route circuits from a resource group and returns a list
+     *
+     * @param object $group 
+     * resoureceGroup object to work on
      *
      * @return array of objects
      *
@@ -571,6 +628,9 @@ abstract class Api
     
     /** ***********************************************************************
      * queries all DB for PostgreSQL from a resource group and returns a list
+     *
+     * @param object $group 
+     * resoureceGroup object to work on
      *
      * @return array of objects
      *
