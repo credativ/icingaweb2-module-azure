@@ -11,6 +11,7 @@ use Icinga\Application\Logger;
 
 // import classes for importer
 use Icinga\Module\Azure\VirtualMachines;
+use Icinga\Module\Azure\VirtualMachinesDisks;
 use Icinga\Module\Azure\LoadBalancers;
 use Icinga\Module\Azure\AppGW;
 use Icinga\Module\Azure\ExpGW;
@@ -44,6 +45,33 @@ class ImportSource extends ImportSourceHook
                 'resourceDiskSizeInMB',
                 'memoryInMB',
                 'maxDataDiscCount',
+            ),
+        ),
+        
+        'vmdisks' => array(
+            'name'   => 'Virtual Machines (Disks)',
+            'class'  => 'Icinga\Module\Azure\VirtualMachinesDisks',
+            'fields' =>  array(
+                'name',
+                'id',
+                'location',
+                'managedBy',
+                'diskState',
+                'provisioningState',
+                'timeCreated',
+                'diskSizeGB',
+                'osType',
+                'createOption',
+                'imageReferenceId',
+                'imageReferenceLun',
+                'sourceUri',
+                'sourceResourceId',
+                'encryptionEnabled',
+                'vmName',
+                'vmUsageType',
+                'vmCaching',
+                'vmLocation',
+                'vmProvisioningState',
             ),
         ),
         

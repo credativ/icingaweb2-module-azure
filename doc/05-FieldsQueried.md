@@ -29,6 +29,33 @@ Please note that this reports the private and/or public IP of the first
 interface found.
 
 
+Virtual Machines (Disks)
+------------------------
+
+The **Virtual machines (disks)** object type does return these fields:
+
+* name
+* id
+* location
+* managedBy
+* diskState
+* provisioningState
+* timeCreated
+* diskSizeGB
+* osType
+* createOption
+* imageReferenceId
+* imageReferenceLun
+* sourceUri
+* sourceResourceId
+* encryptionEnabled
+* vmName
+* vmUsageType
+* vmCaching
+* vmLocation
+* vmProvisioningState
+
+
 Load Balancers
 --------------
 
