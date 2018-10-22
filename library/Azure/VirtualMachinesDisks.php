@@ -26,8 +26,8 @@ class VirtualMachinesDisks extends Api
         "machines in configured resource groups.";     
 
     /** ***********************************************************************
-     * takes all information on virtual machines from a resource group and 
-     * returns it in the format IcingaWeb2 Director expects
+     * takes all information on virtual machines disks from a resource group 
+     * and returns it in the format IcingaWeb2 Director expects
      *
      * @return array of objects
      *

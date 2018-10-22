@@ -12,6 +12,7 @@ use Icinga\Application\Logger;
 // import classes for importer
 use Icinga\Module\Azure\VirtualMachines;
 use Icinga\Module\Azure\VirtualMachinesDisks;
+use Icinga\Module\Azure\VirtualMachinesInterfaces;
 use Icinga\Module\Azure\LoadBalancers;
 use Icinga\Module\Azure\AppGW;
 use Icinga\Module\Azure\ExpGW;
@@ -74,6 +75,51 @@ class ImportSource extends ImportSourceHook
                 'vmProvisioningState',
             ),
         ),
+
+        'vmnetif' => array(
+            'name'   => 'Virtual Machines (Interfaces)',
+            'class'  => 'Icinga\Module\Azure\VirtualMachinesInterfaces',
+            'fields' =>  array(
+                'name',
+                'id',
+                'uniqueId',
+                'location',
+                'etag',
+                'provisioningState',
+                'macAddress',
+                'enableAcceleratedNetworking',
+                'enableIPForwarding',
+                'networkSecurityGroupId',
+                'dnsServers',
+                'appliedDnsServers',
+                'internalDnsNameLabel',
+                'internalFqdn',
+                'internalDomainNameSuffix',
+                'virtualMachineId',
+                'vmName',
+                'vmLocation',
+                'vmProvisioningState',
+                'ipConfName',
+                'ipConfId',
+                'ipConfEtag',
+                'ipConfProvisioningState',
+                'ipConfPrivateIPAddress',
+                'ipConfPrivateIPAllocationMethod',
+                'ipConfSubnetId',
+                'ipConfPrimary',
+                'ipConfPrivateIPAddressVersion',
+                'ipConfInUseWithService',
+                'ipConfPublicIPAddressId',
+                'ipConfPublicIPAddressName',
+                'ipConfPublicIPAddress',
+                'ipConfPublicIPAddressProvState',
+                'ipConfPublicIPAddressVersion',
+                'ipConfPublicIPAllocationMethod',
+                'ipConfPublicIPAddressLocation',
+                'ipConfPublicIPAddressIdleTimeoutInMinutes',
+            ),
+        ),
+
         
         'lb'      => array(
             'name'   => 'Load Balancers',
