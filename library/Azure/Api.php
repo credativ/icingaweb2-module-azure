@@ -216,9 +216,9 @@ abstract class Api
         // check if things have gone wrong
         if ($result->info->http_code != 200)
         {
-            Logger::error("Azure API: Could not get resource groups. HTTP: ".
+            Logger::error("Azure API: Could not get resource group(s). HTTP: ".
                           $result->info->http_code);           
-            throw new QueryException("Could not get resource groups. HTTP: ".
+            throw new QueryException("Could not get resource group(s). HTTP: ".
                                      $result->info->http_code);
         }
 
@@ -229,7 +229,7 @@ abstract class Api
         // make shure we don't have an empty list returned from API
         if (count($azure_groups) == 0)
         {
-            $error = "Azure API: Could not find any matching resource groups.";
+            $error = "Azure API: Could not find any matching resource group.";
             Logger::error( $error );           
             throw new QueryException( $error );
         }      
@@ -267,7 +267,7 @@ abstract class Api
         if (count($return_groups) == 0)
         {
             $error = sprintf(
-                "Azure API: Could not find matching resource groups for '%s'.",
+                "Azure API: Could not find matching resource group for '%s'.",
                 $rgn);
             Logger::error( $error );           
             throw new ConfigurationError( $error );
@@ -302,7 +302,7 @@ abstract class Api
 
     protected function getResGroupResources($resource_group)
     {
-        Logger::info("Azure API: querying resource group ".$resource_group);
+        Logger::info("Azure API: querying resource group '".$resource_group."'");
 
         $result = $this->call_get('subscriptions/'.
                                   $this->subscription_id.
@@ -340,8 +340,8 @@ abstract class Api
     {
         $resource_group = $group->name;
         
-        Logger::info("Azure API: querying virtual machines from resource group ".
-            $resource_group);
+        Logger::info("Azure API: querying virtual machines from resource group '".
+            $resource_group."'");
 
         $result = $this->call_get('subscriptions/'.
                                   $this->subscription_id.
@@ -376,8 +376,8 @@ abstract class Api
    
     protected function getVirtualMachineSizing($vm)
     {   
-        Logger::info("Azure API: querying virtual machine sizing for vm ".
-                     $vm->name);
+        Logger::info("Azure API: querying virtual machine sizing for vm '".
+                     $vm->name."'");
 
         $result = $this->call_get($vm->id.'/vmSizes',"2018-06-01");
         
@@ -401,8 +401,8 @@ abstract class Api
                 return $s;
             }
         }
-        Logger::info("Azure API: querying virtual machine sizing for vm ".
-                     $vm->name. "was not successfull.");
+        Logger::info("Azure API: querying virtual machine sizing for vm '".
+                     $vm->name."' was not successfull.");
         return NULL;
     }
     
@@ -422,7 +422,8 @@ abstract class Api
     {
         $resource_group = $group->name;
         
-        Logger::info("Azure API: querying disks from resource group ".$resource_group);
+        Logger::info("Azure API: querying disks from resource group '".
+                     $resource_group."'");
 
         $result = $this->call_get('subscriptions/'.
                                   $this->subscription_id.
@@ -458,7 +459,8 @@ abstract class Api
     {
         $resource_group = $group->name;
         
-        Logger::info("Azure API: retrieving network interfaces from resource group ".$resource_group);
+        Logger::info("Azure API: retrieving network interfaces from resource group '".
+                     $resource_group."'");
 
         $result = $this->call_get('subscriptions/'.
                                   $this->subscription_id.
@@ -494,7 +496,8 @@ abstract class Api
     {
         $resource_group = $group->name;
         
-        Logger::info("Azure API: retrieving public IP addresses from resource group ".$resource_group);
+        Logger::info("Azure API: retrieving public IP addresses from resource group '".
+                     $resource_group."'");
 
         $result = $this->call_get('subscriptions/'.
                                   $this->subscription_id.
@@ -529,7 +532,8 @@ abstract class Api
     {
         $resource_group = $group->name;
         
-        Logger::info("Azure API: querying load balancers from resource group ".$resource_group);
+        Logger::info("Azure API: querying load balancers from resource group '".
+                     $resource_group."'");
 
         $result = $this->call_get('subscriptions/'.
                                   $this->subscription_id.
@@ -566,7 +570,8 @@ abstract class Api
     {
         $resource_group = $group->name;
         
-        Logger::info("Azure API: querying application gateways from resource group ".$resource_group);
+        Logger::info("Azure API: querying application gateways from resource group '".
+                     $resource_group."'");
 
         $result = $this->call_get('subscriptions/'.
                                   $this->subscription_id.
@@ -603,7 +608,8 @@ abstract class Api
     {
         $resource_group = $group->name;
         
-        Logger::info("Azure API: querying express route circuits from resource group ".$resource_group);
+        Logger::info("Azure API: querying express route circuits from resource group '".
+                     $resource_group."'");
 
         $result = $this->call_get('subscriptions/'.
                                   $this->subscription_id.
@@ -640,7 +646,8 @@ abstract class Api
     {
         $resource_group = $group->name;
         
-        Logger::info("Azure API: querying Microsoft.DbForPostgreSQL from resource group ".$resource_group);
+        Logger::info("Azure API: querying Microsoft.DbForPostgreSQL from resource group '".
+                     $resource_group."'");
 
         $result = $this->call_get('subscriptions/'.
                                   $this->subscription_id.

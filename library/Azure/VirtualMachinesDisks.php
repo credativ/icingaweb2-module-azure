@@ -22,7 +22,8 @@ class VirtualMachinesDisks extends Api
     /** Log Message for getAll **/
     protected const
         MSG_LOG_GET_ALL =
-        "Azure API: querying Disks available in correlation to virtual machines in configured resource groups.";     
+        "Azure API: querying disks available in correlation to virtual ".
+        "machines in configured resource groups.";     
 
     /** ***********************************************************************
      * takes all information on virtual machines from a resource group and 
