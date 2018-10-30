@@ -130,24 +130,25 @@ abstract class Api
      * @param string $client_id
      * @param string $client_secret
      * @param string $proxy
+     * @param integer con_timeout
+     * @param integer timeout
      *
      * @return void
      */
 
     public function __construct( $tenant_id, $subscription_id,
                                  $client_id, $client_secret,
-                                 $proxy = '')
+                                 $proxy = '', $con_timeout = 0,
+                                 $timeout = 0 )
     {        
         // store API credentials we need in future     
         $this->subscription_id = $subscription_id;
         
         // get bearer token for API access with given credentials 
-        $this->token = new Token( $tenant_id,
-                                  $subscription_id,
-                                  $client_id,
-                                  $client_secret,
+        $this->token = new Token( $tenant_id, $subscription_id,
+                                  $client_id, $client_secret,
                                   self::API_ENDPT,
-                                  $proxy);
+                                  $proxy, $con_timeout, $timeout );
 
         // initialize REST client for API access.
         // Please note: API endpoint != Token Auth API endpoint
@@ -156,7 +157,11 @@ abstract class Api
         // we have to insert ths each time we use the REST client object
         $this->restc = new RestClient([ 
             'base_url' => self::API_ENDPT,
-            'curl_options' => [CURLOPT_PROXY => $proxy],
+            'curl_options' => [
+                CURLOPT_PROXY          => $proxy,
+                CURLOPT_TIMEOUT        => $timeout,
+                CURLOPT_CONNECTTIMEOUT => $con_timeout,
+            ],
             'format'   => "json",
         ]);
     }

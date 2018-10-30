@@ -61,7 +61,8 @@ class Token {
     
     public function __construct( $tenant_id, $subscription_id,
                                  $client_id, $client_secret,
-                                 $endpoint, $proxy = '')
+                                 $endpoint, $proxy = '',
+                                 $con_timeout = 0, $timeout = 0 )
     {       
         $this->tenant_id       = $tenant_id;
         $this->subscription_id = $subscription_id;
@@ -75,7 +76,12 @@ class Token {
         
         $this->restc = new RestClient([ 
             'base_url' => self::API_LOGIN,
-            'curl_options' => [CURLOPT_PROXY => $proxy],
+            'curl_options' => [
+                CURLOPT_PROXY          => $proxy,
+                CURLOPT_TIMEOUT        => $timeout,
+                CURLOPT_CONNECTTIMEOUT => $con_timeout,
+            ],
+            
             'format'   => "json",
             'parameters'  => [
                 'grant_type'    => 'client_credentials',

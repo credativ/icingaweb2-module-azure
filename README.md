@@ -33,8 +33,8 @@ Currently, we have some resources implemented in this importer module:
 * Interfaces for virtual machines
 * Load balancers
 * Application Gateways
-* Microsoft.DBforPostgreSQL servers (SAAS)  (untested)
-* Express route circuits  (untested)
+* Microsoft.DBforPostgreSQL servers (SAAS)
+* Express route circuits
 
 While the first five are tested and should be working smoothly, the PostgreSQL
 and Express route circuit object types are considered untested.

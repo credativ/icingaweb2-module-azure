@@ -246,7 +246,9 @@ class ImportSource extends ImportSourceHook
                 $this->getSetting('subscription_id'),
                 $this->getSetting('client_id'),
                 $this->getSetting('client_secret'),
-                $this->getSetting('proxy','')
+                $this->getSetting('proxy',''),
+                $this->getSetting('con_timeout',0),
+                $this->getSetting('timeout', 0)
             );
         }
         return $this->api;
@@ -342,11 +344,31 @@ class ImportSource extends ImportSourceHook
             'required'     => false,
         ));
         $form->addElement('text', 'proxy', array(
-            'label'        => $form->translate('HTTP Proxy'),
+            'label'        => $form->translate('Proxy url'),
             'description'  => $form->translate(
-                'Enter your proxy configuration in following format: '.
-                'http://example.com:Port OR '.
-                'http://example.com/file.txt'),
+                "Enter your proxy configuration in following format: ".
+                "'http://example.com:Port' OR ".
+                "'socks5://example.com:port' etc."),
+            'required'     => false,
+        ));
+        $form->addElement('text', 'con_timeout', array(
+            'label'        => $form->translate('Connection timeout'),
+            'description'  => $form->translate(
+                'Connection timeout in seconds. This is the maximum '.
+                'time to wait until giving up. Set to "0" to wait '.
+                'infinetly'),
+            'required'     => false,
+        ));
+        $form->addElement('text', 'timeout', array(
+            'label'        => $form->translate('Request timeout'),
+            'description'  => $form->translate(
+                'Timeout in seconds to wait for the request to finish. '.
+                'Please note, that the Azure API might not be too fast, so '.
+                'don\'t choose this too short. Make shure, your PHP process '.
+                'does not timeout meanwhile (i.e. check your php settings). '.
+                'Setting this to 0 means no timeout. This timeout starts '.
+                'after the connection is established and is per CURL request.'.
+                'A full import run may consist of several requests!'),
             'required'     => false,
         ));
 

@@ -23,7 +23,9 @@ fields:
 * Azure Cient Secret
 * Object Type
 * Resource Groups
-* HTTP Proxy
+* Proxy URL
+* Connection timeout
+* Request Timeout
 
 
 ![Create or edit importer settings](/doc/screenshot/edit_importer.png)
@@ -53,10 +55,18 @@ resource groups available to the given credentials, you can enter the names
 of the resource groups to be imported here. Make shure, you split these
 with a single space.
 
-**HTTP Proxy** is the URL of a http proxy obviously. It could be like
+**Proxy URL** is the URL of a http proxy obviously. It could be like
 http://example.com:port. For details on this look into the php-curl
 documentation as this goes straight forward into the curl request setup as
 parameter CURLOPT_PROXY.
+
+**Request timeout** is the timeout for an individual API request in seconds.
+This timeout starts running after the connection was established.
+
+**Connection Timeout** in secondes is the time, the curl library waits to reach
+the remote API endpoint. If it times out, the request will be canceled and an
+error will be raised/logged.
+
 
 You can click on the **Preview** tab of the importer to see a fast preview query
 like this:
