@@ -1,4 +1,11 @@
 <?php
+/** ***************************************************************************
+ * @author Peter Dreuw <peter.dreuw@credativ.de>
+ * @copyright Copyright (c) 2018 creadtiv GmbH
+ * @license https://github.com/credativ/icingaweb2-module-azure/blob/master/LICENSE MIT License
+ *
+ *
+ */
 namespace Icinga\Module\Azure;
 
 use Icinga\Module\Azure\restclient\RestClient;
@@ -43,6 +50,9 @@ class Token {
     /** @var string client_secret */
     private $endpoint;
 
+    /** @var string proxy */
+    private $proxy;
+
 
     /** ***********************************************************************
      * constructor for Token object
@@ -51,19 +61,21 @@ class Token {
     
     public function __construct( $tenant_id, $subscription_id,
                                  $client_id, $client_secret,
-                                 $endpoint)
+                                 $endpoint, $proxy = '')
     {       
         $this->tenant_id       = $tenant_id;
         $this->subscription_id = $subscription_id;
         $this->client_id       = $client_id;
         $this->client_secret   = $client_secret;
         $this->endpoint        = $endpoint;
+        $this->proxy	       = $proxy;      
 
         $this->bearer  = NULL;
         $this->expires = NULL;
         
         $this->restc = new RestClient([ 
             'base_url' => self::API_LOGIN,
+            'curl_options' => [CURLOPT_PROXY => $proxy],
             'format'   => "json",
             'parameters'  => [
                 'grant_type'    => 'client_credentials',

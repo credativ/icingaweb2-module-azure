@@ -129,12 +129,14 @@ abstract class Api
      * @param string $subscription_id
      * @param string $client_id
      * @param string $client_secret
+     * @param string $proxy
      *
      * @return void
      */
 
     public function __construct( $tenant_id, $subscription_id,
-                                 $client_id, $client_secret )
+                                 $client_id, $client_secret,
+                                 $proxy = '')
     {        
         // store API credentials we need in future     
         $this->subscription_id = $subscription_id;
@@ -144,7 +146,8 @@ abstract class Api
                                   $subscription_id,
                                   $client_id,
                                   $client_secret,
-                                  self::API_ENDPT);
+                                  self::API_ENDPT,
+                                  $proxy);
 
         // initialize REST client for API access.
         // Please note: API endpoint != Token Auth API endpoint
@@ -153,6 +156,7 @@ abstract class Api
         // we have to insert ths each time we use the REST client object
         $this->restc = new RestClient([ 
             'base_url' => self::API_ENDPT,
+            'curl_options' => [CURLOPT_PROXY => $proxy],
             'format'   => "json",
         ]);
     }

@@ -1,4 +1,11 @@
 <?php
+/** ***************************************************************************
+ * @author Peter Dreuw <peter.dreuw@credativ.de>
+ * @copyright Copyright (c) 2018 creadtiv GmbH
+ * @license https://github.com/credativ/icingaweb2-module-azure/blob/master/LICENSE MIT License
+ *
+ *
+ */
 namespace Icinga\Module\Azure\ProvidedHook\Director;
 
 use Icinga\Module\Director\Hook\ImportSourceHook;
@@ -237,7 +244,8 @@ class ImportSource extends ImportSourceHook
                 $this->getSetting('tenant_id'),
                 $this->getSetting('subscription_id'),
                 $this->getSetting('client_id'),
-                $this->getSetting('client_secret')
+                $this->getSetting('client_secret'),
+                $this->getSetting('proxy','')
             );
         }
         return $this->api;
@@ -330,6 +338,14 @@ class ImportSource extends ImportSourceHook
                 'Intersect them with a space or leave this empty '.
                 'to query all resource groups in your account. '.
                 'Please note that these names are case sensitive.'),
+            'required'     => false,
+        ));
+        $form->addElement('text', 'proxy', array(
+            'label'        => $form->translate('HTTP Proxy'),
+            'description'  => $form->translate(
+                'Enter your proxy configuration in following format: '.
+                'http://example.com:Port OR '.
+                'http://example.com/file.txt'),
             'required'     => false,
         ));
 

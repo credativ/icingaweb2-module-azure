@@ -23,6 +23,7 @@ fields:
 * Azure Cient Secret
 * Object Type
 * Resource Groups
+* HTTP Proxy
 
 
 ![Create or edit importer settings](/doc/screenshot/edit_importer.png)
@@ -51,6 +52,11 @@ resource group available for the given credentials. If you have multiple
 resource groups available to the given credentials, you can enter the names
 of the resource groups to be imported here. Make shure, you split these
 with a single space.
+
+**HTTP Proxy** is the URL of a http proxy obviously. It could be like
+http://example.com:port. For details on this look into the php-curl
+documentation as this goes straight forward into the curl request setup as
+parameter CURLOPT_PROXY.
 
 You can click on the **Preview** tab of the importer to see a fast preview query
 like this:
