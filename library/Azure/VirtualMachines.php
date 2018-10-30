@@ -44,7 +44,6 @@ class VirtualMachines extends Api
 
         // get data needed
         $virtual_machines   = $this->getVirtualMachines($group);
-        // $disks              = $this->getDisks($group);
         $network_interfaces = $this->getNetworkInterfaces($group);
         $public_ip          = $this->getPublicIpAddresses($group);
 
@@ -56,21 +55,26 @@ class VirtualMachines extends Api
             if ($current->properties->provisioningState == "Succeeded")
             {
                 $object = (object) [
-                    'name'           => $current->name,
-                    'id'             => $current->id,
-                    'location'       => $current->location,
-                    'osType'         => (
+                    'name'             => $current->name,
+                    'id'               => $current->id,
+                    'location'         => $current->location,
+                    'osType'           => (
                         property_exists($current->properties->storageProfile->osDisk,
                                         'osType')?
                         $current->properties->storageProfile->osDisk->osType : ""
                     ),
-                    'osDiskName'     => (
+                    'osDiskName'       => (
                         property_exists($current->properties->storageProfile->osDisk,'name')?
                         $current->properties->storageProfile->osDisk->name : ""
                     ),
-                    'dataDisks'      => count($current->properties->storageProfile->dataDisks),
-                    'privateIP'      => "",
+                    'dataDisks'        => count($current->properties->storageProfile->dataDisks),
+                    'privateIP'        => NULL,
                     'network_interfaces_count' => 0,
+                    'publicIP'         => NULL,
+                    'cores'            => NULL,
+                    'resourceDiskSizeInMB' => NULL,
+                    'memoryInMB'       => NULL,
+                    'maxdataDiscCount' => NULL,
                 ];
 
                 // scan network interfaces and fint the ones belonging to
@@ -104,9 +108,6 @@ class VirtualMachines extends Api
                                 {
                                     $object->publicIP = $pubip->properties->ipAddress;
                                 }
-                                else
-                                    if (!property_exists($object, 'publicIP'))
-                                        $object->publicIP = "";
                             }
                         }
                     }
@@ -116,14 +117,7 @@ class VirtualMachines extends Api
                 // get the sizing done
                 $vmsize =  $this->getVirtualMachineSizing($current);
 
-                if ($vmsize == NULL)
-                {
-                    $object->cores = NULL;
-                    $object->resourceDiskSizeInMB = NULL;
-                    $object->memoryInMB = NULL;
-                    $object->maxdataDiscCount = NULL;
-                }
-                else
+                if ($vmsize != NULL)
                 {
                     $object->cores = $vmsize->numberOfCores;
                     $object->resourceDiskSizeInMB = $vmsize->resourceDiskSizeInMB;
