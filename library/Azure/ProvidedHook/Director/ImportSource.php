@@ -53,6 +53,7 @@ class ImportSource extends ImportSourceHook
                 'resourceDiskSizeInMB',
                 'memoryInMB',
                 'maxDataDiscCount',
+                'provisioningState',
             ),
         ),
         

@@ -52,82 +52,78 @@ class VirtualMachines extends Api
         foreach($virtual_machines as $current)
         {
             // skip anything not provisioned.
-            if ($current->properties->provisioningState == "Succeeded")
+            $object = (object) [
+                'name'             => $current->name,
+                'id'               => $current->id,
+                'location'         => $current->location,
+                'osType'           => (
+                    property_exists($current->properties->storageProfile->osDisk,
+                                    'osType')?
+                    $current->properties->storageProfile->osDisk->osType : ""
+                ),
+                'osDiskName'       => (
+                    property_exists($current->properties->storageProfile->osDisk,'name')?
+                    $current->properties->storageProfile->osDisk->name : ""
+                ),
+                'dataDisks'        => count($current->properties->storageProfile->dataDisks),
+                'privateIP'        => NULL,
+                'network_interfaces_count' => 0,
+                'publicIP'         => NULL,
+                'cores'            => NULL,
+                'resourceDiskSizeInMB' => NULL,
+                'memoryInMB'       => NULL,
+                'maxdataDiscCount' => NULL,
+                'provisioningState'=> $current->properties->provisioningState,
+            ];
+
+            // scan network interfaces and fint the ones belonging to
+            // the current vm
+
+            foreach($network_interfaces as $interf)
             {
-                $object = (object) [
-                    'name'             => $current->name,
-                    'id'               => $current->id,
-                    'location'         => $current->location,
-                    'osType'           => (
-                        property_exists($current->properties->storageProfile->osDisk,
-                                        'osType')?
-                        $current->properties->storageProfile->osDisk->osType : ""
-                    ),
-                    'osDiskName'       => (
-                        property_exists($current->properties->storageProfile->osDisk,'name')?
-                        $current->properties->storageProfile->osDisk->name : ""
-                    ),
-                    'dataDisks'        => count($current->properties->storageProfile->dataDisks),
-                    'privateIP'        => NULL,
-                    'network_interfaces_count' => 0,
-                    'publicIP'         => NULL,
-                    'cores'            => NULL,
-                    'resourceDiskSizeInMB' => NULL,
-                    'memoryInMB'       => NULL,
-                    'maxdataDiscCount' => NULL,
-                ];
-
-                // scan network interfaces and fint the ones belonging to
-                // the current vm
-
-                foreach($network_interfaces as $interf)
+                // In Azure, a network interface may not have a VM attached :-(
+                // and make shure, we match the current vm
+                if (
+                    property_exists($interf->properties, 'virtualMachine') and
+                    $interf->properties->virtualMachine->id == $current->id )
                 {
-                    // In Azure, a network interface may not have a VM attached :-(
-                    // and make shure, we match the current vm
-                    if (
-                        property_exists($interf->properties, 'virtualMachine') and
-                        $interf->properties->virtualMachine->id == $current->id )
+                    $object->network_interfaces_count++;
+
+                    $object->privateIP =
+                                       $interf->properties->
+                                       ipConfigurations[0]->properties->
+                                       privateIPAddress;
+                    // check, if this interface has got a public IP address
+                    if (property_exists(
+                        $interf->properties->ipConfigurations[0]->properties,
+                        'publicIPAddress'))
                     {
-                        
-                        $object->network_interfaces_count++;
-                        
-                        $object->privateIP =
-                                           $interf->properties->
-                                           ipConfigurations[0]->properties->
-                                           privateIPAddress;
-                        // check, if this interface has got a public IP address
-                        if (property_exists(
-                            $interf->properties->ipConfigurations[0]->properties,
-                            'publicIPAddress'))
+                        foreach($public_ip as $pubip)
                         {
-                            foreach($public_ip as $pubip)
+                            if (($interf->properties->ipConfigurations[0]->properties->publicIPAddress->id ==
+                                 $pubip->id) and
+                                (property_exists($pubip->properties,'ipAddress')))
                             {
-                                if (($interf->properties->ipConfigurations[0]->properties->publicIPAddress->id ==
-                                     $pubip->id) and
-                                    (property_exists($pubip->properties,'ipAddress')))
-                                {
-                                    $object->publicIP = $pubip->properties->ipAddress;
-                                }
+                                $object->publicIP = $pubip->properties->ipAddress;
                             }
                         }
                     }
-                }  // end foreach network interfaces
-
-
-                // get the sizing done
-                $vmsize =  $this->getVirtualMachineSizing($current);
-
-                if ($vmsize != NULL)
-                {
-                    $object->cores = $vmsize->numberOfCores;
-                    $object->resourceDiskSizeInMB = $vmsize->resourceDiskSizeInMB;
-                    $object->memoryInMB = $vmsize->memoryInMB;
-                    $object->maxDataDiscCount = $vmsize->maxDataDiskCount;
                 }
+            }  // end foreach network interfaces
 
-                // add this VM to the list.
-                $objects[] = $object;
+            // get the sizing done
+            $vmsize =  $this->getVirtualMachineSizing($current);
+
+            if ($vmsize != NULL)
+            {
+                $object->cores = $vmsize->numberOfCores;
+                $object->resourceDiskSizeInMB = $vmsize->resourceDiskSizeInMB;
+                $object->memoryInMB = $vmsize->memoryInMB;
+                $object->maxDataDiscCount = $vmsize->maxDataDiskCount;
             }
+
+            // add this VM to the list.
+            $objects[] = $object;   
         }
         
         return $objects;

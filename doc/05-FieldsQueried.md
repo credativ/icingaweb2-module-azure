@@ -24,6 +24,7 @@ The **Virtual machines** object type does return these fields:
 * resourceDiskSizeInMB
 * memoryInMB
 * maxDataDiscCount
+* prosioningState
 
 Please note that this reports the private and/or public IP of the first
 interface found.
