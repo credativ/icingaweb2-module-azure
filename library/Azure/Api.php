@@ -722,6 +722,18 @@ abstract class Api
         return $result->decode_response()->value;       
     }
 
+    /** ***********************************************************************
+     * logs and raises an error for any CURL operation that went wrong
+     *
+     * @param string $errormsg
+     * the CURL error string
+     *
+     * @param string $text
+     * description of action in progress when CURL req went wrong
+     *
+     * @return void
+     *
+     */
 
     protected function raiseCurlError( $errormsg, $text )
     {
