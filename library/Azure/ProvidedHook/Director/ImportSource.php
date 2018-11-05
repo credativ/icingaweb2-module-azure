@@ -24,6 +24,7 @@ use Icinga\Module\Azure\LoadBalancers;
 use Icinga\Module\Azure\AppGW;
 use Icinga\Module\Azure\ExpGW;
 use Icinga\Module\Azure\MsPgSQL;
+use Icinga\Module\Azure\ResourceGroup;
 
 
 class ImportSource extends ImportSourceHook
@@ -76,6 +77,11 @@ class ImportSource extends ImportSourceHook
             'name'   => 'Db for PostgreSQL',
             'class'  => 'Icinga\Module\Azure\MsPgSQL',
             'fields' =>  MsPgSQL::FIELDS_RETURNED,
+        ),
+        'resgrp'  => array(
+            'name'   => 'Resource Groups',
+            'class'  => 'Icinga\Module\Azure\ResourceGroup',
+            'fields' =>  ResourceGroup::FIELDS_RETURNED,
         ),
     );
 

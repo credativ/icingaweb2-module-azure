@@ -190,3 +190,19 @@ Microsoft DB for PosgreSQL (server)
 * geoRedundantBackup
 
 
+Resource Groups
+---------------
+
+The simple query for resource groups available in the given subscription
+might not be too usefull in Azure but on the one hand you could monitor
+the provisioning state. The primary reason for this to exist is as a helper
+for the dynamically generated configuration menu for all importers based
+on this Azure API director plugin.
+
+* name
+* subscriptionId
+* id
+* location
+* provisioningState
+
+
