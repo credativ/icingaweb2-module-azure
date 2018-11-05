@@ -34,6 +34,8 @@ class ImportSource extends ImportSourceHook
     /** @var Api */
     private $api;   // stores API object
 
+
+    private const RESOURCE_GROUP_JOKER = "<*all*>";
     
     /** names, fields and shortcut codes for objects */
     
@@ -107,7 +109,8 @@ class ImportSource extends ImportSourceHook
             
         // query config which resourceGroups to deal with
         $rg = $this->getSetting('resource_group_names', '');
-
+        if ($rg == self::RESOURCE_GROUP_JOKER)
+            $rg = '';
 
         // retrieve all data we want from the class we choose
         $objects = $this->api($query)->getAll( $rg );
@@ -186,6 +189,41 @@ class ImportSource extends ImportSourceHook
 
     public static function addSettingsFormFields(QuickForm $form)
     {
+        // get connection relevant information first
+
+        $form->addElement('text', 'proxy', array(
+            'label'        => $form->translate('Proxy url'),
+            'description'  => $form->translate(
+                "Enter your proxy configuration in following format: ".
+                "'http://example.com:Port' OR ".
+                "'socks5://example.com:port' etc."),
+            'required'     => false,
+            'class'        => 'autosubmit',
+        ));
+        $form->addElement('text', 'con_timeout', array(
+            'label'        => $form->translate('Connection timeout'),
+            'description'  => $form->translate(
+                'Connection timeout in seconds. This is the maximum '.
+                'time to wait until giving up. Set to "0" to wait '.
+                'infinetly'),
+            'required'     => false,
+            'class'        => 'autosubmit',
+        ));
+        $form->addElement('text', 'timeout', array(
+            'label'        => $form->translate('Request timeout'),
+            'description'  => $form->translate(
+                'Timeout in seconds to wait for the request to finish. '.
+                'Please note, that the Azure API might not be too fast, so '.
+                'don\'t choose this too short. Make shure, your PHP process '.
+                'does not timeout meanwhile (i.e. check your php settings). '.
+                'Setting this to 0 means no timeout. This timeout starts '.
+                'after the connection is established and is per CURL request.'.
+                'A full import run may consist of several requests!'),
+            'required'     => false,
+            'class'        => 'autosubmit',
+        ));
+
+        // get minimum credentials necessary
         $form->addElement('text', 'tenant_id', array(
             'label'        => $form->translate('Azure Tenant ID'),
             'description'  => $form->translate(
@@ -193,6 +231,7 @@ class ImportSource extends ImportSourceHook
                 'want to query. This Subscription ID must match the one '.
                 'you used to create the application clients credentials with.'),
             'required'     => true,
+            'class'        => 'autosubmit',
         ));
         $form->addElement('text', 'client_id', array(
             'label'        => $form->translate('Azure client ID'),
@@ -202,6 +241,7 @@ class ImportSource extends ImportSourceHook
                 'https://portal.azure.com using the Tenant ID and '.
                 'Subscription ID above.'),
             'required'     => true,
+            'class'        => 'autosubmit',
         ));
         $form->addElement('text', 'client_secret', array(    // TODO: set 'text' to 'password'
             'label'        => $form->translate('Azure client secret'),
@@ -210,14 +250,51 @@ class ImportSource extends ImportSourceHook
             'required'     => true,
             'class'        => 'autosubmit',
         ));
-        $form->addElement('text', 'subscription_id', array(
+
+        
+        $tenant_id     = $form->getSentOrObjectSetting('tenant_id');
+        $client_id     = $form->getSentOrObjectSetting('client_id');
+        $client_secret = $form->getSentOrObjectSetting('client_secret');
+
+        // if the minimum credentials are not set, stay where we are...
+        if ((!$tenant_id) or (!$client_id) or (!$client_secret))
+            return;
+
+        // if we got enough credential information, lets find
+        // available subscriptions first
+        try
+        {
+            $api = new Subscription(
+                $tenant_id, "",
+                $client_id, $client_secret,
+                $form->getSentOrObjectSetting('proxy'),
+                intval($form->getSentOrObjectSetting('con_timeout')),
+                intval($form->getSentOrObjectSetting('timeout')));
+
+            $subscr = $api->getAll("");
+        }
+        catch(Exception $e)
+        {
+            // in case something went wrong.. stay here...
+            Logger::info("Azure API: could not find subscription ID when creating importer.");
+            return;
+        }
+
+        // show retrieved subscriptions available for credentials
+        $form->addElement('select', 'subscription_id', array(
             'label'        => $form->translate('Azure Subscription ID'),
             'description'  => $form->translate(
                 'This is the Azure Subscription ID of the account you '.
                 'want to query. This Subscription ID must match the one '.
                 'you used to create the application clients credentials with.'),
             'required'     => true,
+            'multiOptions' => $form->optionalEnum(
+                static::enumSubscriptions($subscr)
+            ),
+            'class'        => 'autosubmit',
         ));
+
+        
         $form->addElement('select', 'object_type', array(
             'label'        => 'Object type',
             'required'     => true,
@@ -233,11 +310,35 @@ class ImportSource extends ImportSourceHook
             'class'        => 'autosubmit',
         ));
 
-        //        if (! ($server = $form->getSentOrObjectSetting('server'))) {
-        //          return;
-        //      } 
 
-        $form->addElement('text', 'resource_group_names', array(
+        $subscription_id = $form->getSentOrObjectSetting('subscription_id');
+
+        // if the minimum credentials are not set, stay where we are...
+        if (!$subscription_id)
+            return;
+
+        // if we got enough credential information, lets find
+        // available resource groups
+        try
+        {
+            $api = new ResourceGroup(
+                $tenant_id, $subscription_id,
+                $client_id, $client_secret,
+                $form->getSentOrObjectSetting('proxy'),
+                intval($form->getSentOrObjectSetting('con_timeout')),
+                intval($form->getSentOrObjectSetting('timeout')));
+
+            $resgroup = $api->getAll("");
+        }
+        catch(Exception $e)
+        {
+            // in case something went wrong.. stay here...
+            Logger::info("Azure API: could not find resource groups when creating importer.");
+            return;
+        }
+
+
+        $form->addElement('select', 'resource_group_names', array(
             'label'        => $form->translate('Resource Groups'),
             'description'  => $form->translate(
                 'Enter the Resource Group names you want to query. '.
@@ -245,42 +346,49 @@ class ImportSource extends ImportSourceHook
                 'to query all resource groups in your account. '.
                 'Please note that these names are case sensitive.'),
             'required'     => false,
-        ));
-        $form->addElement('text', 'proxy', array(
-            'label'        => $form->translate('Proxy url'),
-            'description'  => $form->translate(
-                "Enter your proxy configuration in following format: ".
-                "'http://example.com:Port' OR ".
-                "'socks5://example.com:port' etc."),
-            'required'     => false,
-        ));
-        $form->addElement('text', 'con_timeout', array(
-            'label'        => $form->translate('Connection timeout'),
-            'description'  => $form->translate(
-                'Connection timeout in seconds. This is the maximum '.
-                'time to wait until giving up. Set to "0" to wait '.
-                'infinetly'),
-            'required'     => false,
-        ));
-        $form->addElement('text', 'timeout', array(
-            'label'        => $form->translate('Request timeout'),
-            'description'  => $form->translate(
-                'Timeout in seconds to wait for the request to finish. '.
-                'Please note, that the Azure API might not be too fast, so '.
-                'don\'t choose this too short. Make shure, your PHP process '.
-                'does not timeout meanwhile (i.e. check your php settings). '.
-                'Setting this to 0 means no timeout. This timeout starts '.
-                'after the connection is established and is per CURL request.'.
-                'A full import run may consist of several requests!'),
-            'required'     => false,
-        ));
 
+            // does not work as needed yet
+            //            'multiple' => 'true',
+
+            'multiOptions' => $form->optionalEnum(
+                static::enumresourceGroups($form, $resgroup)
+            ),
+        ));
     }
+
+
+    protected static function enumSubscriptions($subscr)
+    {
+        $list = array();
+
+        foreach($subscr as $sub)
+        {
+            $list[$sub->subscriptionId] = $sub->name.' ('.$sub->subscriptionId.')';
+        }
+
+        return $list;
+    }
+
+
+    protected static function enumResourceGroups($form, $groups)
+    {
+        $list = array();
+
+        $list[self::RESOURCE_GROUP_JOKER] = $form->translate('<all resource groups>');
+
+        foreach($groups as $group)
+        {
+            $list[$group->name] = $group->name;
+        }
+
+        return $list;
+    }
+
 
     protected static function enumObjectTypes($form)
     {
         $list = array();
-        
+
         foreach(self::supportedObjectTypes as $key => $value)
         {
             $list[$key] = $form->translate($value['name']);
