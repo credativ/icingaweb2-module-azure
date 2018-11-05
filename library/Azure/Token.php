@@ -37,9 +37,6 @@ class Token {
 
     /** @var string tenant_id */
     private $tenant_id;
-    
-    /** @var string subscription_id */
-    private $subscription_id;
 
     /** @var string client_id */
     private $client_id;
@@ -59,13 +56,12 @@ class Token {
 
      */
     
-    public function __construct( $tenant_id, $subscription_id,
+    public function __construct( $tenant_id, 
                                  $client_id, $client_secret,
                                  $endpoint, $proxy = '',
                                  $con_timeout = 0, $timeout = 0 )
     {       
         $this->tenant_id       = $tenant_id;
-        $this->subscription_id = $subscription_id;
         $this->client_id       = $client_id;
         $this->client_secret   = $client_secret;
         $this->endpoint        = $endpoint;

@@ -154,7 +154,7 @@ abstract class Api
         $this->subscription_id = $subscription_id;
         
         // get bearer token for API access with given credentials 
-        $this->token = new Token( $tenant_id, $subscription_id,
+        $this->token = new Token( $tenant_id,
                                   $client_id, $client_secret,
                                   self::API_ENDPT,
                                   $proxy, $con_timeout, $timeout );
