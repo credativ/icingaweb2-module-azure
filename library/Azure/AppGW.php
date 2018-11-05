@@ -20,10 +20,33 @@ use Icinga\Module\Azure\Api;
 class AppGW extends Api
 {
 
-    /** Log Message for getAll **/
+    /** 
+     * Log Message for getAll 
+     *
+     * @staticvar string MSG_LOG_GET_ALL
+     */
     protected const
         MSG_LOG_GET_ALL =
         "Azure API: querying any Application Gateway in configured resource groups.";
+
+    /**
+     * array of field names to be returned by implementation.
+     *
+     * @staticvar array FIELDS_RETURNED
+     */
+    public const FIELDS_RETURNED = array(
+        'name',
+        'subscriptionId',
+        'id',
+        'location',
+        'provisioningState',
+        'frontEndPublicIP',
+        'frontEndPrivateIP',
+        'operationalState',
+        'frontEndPort',
+        'enabledHTTP2',
+        'enabledWAF',
+    );
 
         
     /** ***********************************************************************

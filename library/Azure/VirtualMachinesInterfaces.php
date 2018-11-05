@@ -26,11 +26,62 @@ use Icinga\Module\Azure\Api;
 
 class VirtualMachinesInterfaces extends Api
 {
-    /** Log Message for getAll **/
+    /** 
+     * Log Message for getAll
+     *
+     * @staticvar string MSG_LOG_GET_ALL
+     */
     protected const
         MSG_LOG_GET_ALL =
         "Azure API: querying interfaces available in configured resource groups ".
-        "and in correlation to virtual machines if there is a vm attached";     
+        "and in correlation to virtual machines if there is a vm attached";
+
+    /**
+     * array of field names to be returned by implementation.
+     *
+     * @staticvar array FIELDS_RETURNED
+     */
+    public const FIELDS_RETURNED = array(
+        'name',
+        'subscriptionId',
+        'id',
+        'uniqueId',
+        'location',
+        'etag',
+        'provisioningState',
+        'macAddress',
+        'enableAcceleratedNetworking',
+        'enableIPForwarding',
+        'networkSecurityGroupId',
+        'dnsServers',
+        'appliedDnsServers',
+        'internalDnsNameLabel',
+        'internalFqdn',
+        'internalDomainNameSuffix',
+        'virtualMachineId',
+        'vmName',
+        'vmLocation',
+        'vmProvisioningState',
+        'ipConfName',
+        'ipConfId',
+        'ipConfEtag',
+        'ipConfProvisioningState',
+        'ipConfPrivateIPAddress',
+        'ipConfPrivateIPAllocationMethod',
+        'ipConfSubnetId',
+        'ipConfPrimary',
+        'ipConfPrivateIPAddressVersion',
+        'ipConfInUseWithService',
+        'ipConfPublicIPAddressId',
+        'ipConfPublicIPAddressName',
+        'ipConfPublicIPAddress',
+        'ipConfPublicIPAddressProvState',
+        'ipConfPublicIPAddressVersion',
+        'ipConfPublicIPAllocationMethod',
+        'ipConfPublicIPAddressLocation',
+        'ipConfPublicIPAddressIdleTimeoutInMinutes',
+    );
+
 
     /** ***********************************************************************
      * takes all information on virtual machine interfaces from a resource 

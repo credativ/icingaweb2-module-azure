@@ -19,12 +19,47 @@ use Icinga\Module\Azure\Api;
 
 class VirtualMachinesDisks extends Api
 {
-    /** Log Message for getAll **/
+    /** 
+     * Log Message for getAll 
+     * should be redifined in subclass 
+     *
+     * @staticvar string MSG_LOG_GET_ALL
+     */
     protected const
         MSG_LOG_GET_ALL =
         "Azure API: querying disks available in correlation to virtual ".
-        "machines in configured resource groups.";     
+        "machines in configured resource groups.";
 
+    /**
+     * array of field names to be returned by implementation.
+     *
+     * @staticvar array FIELDS_RETURNED
+     */
+    public const FIELDS_RETURNED = array(
+        'name',
+        'subscriptionId',
+        'id',
+        'location',
+        'managedBy',
+        'diskState',
+        'provisioningState',
+        'timeCreated',
+        'diskSizeGB',
+        'osType',
+        'createOption',
+        'imageReferenceId',
+        'imageReferenceLun',
+        'sourceUri',
+        'sourceResourceId',
+        'encryptionEnabled',
+        'vmName',
+        'vmUsageType',
+        'vmCaching',
+        'vmLocation',
+        'vmProvisioningState'
+    );
+
+    
     /** ***********************************************************************
      * takes all information on virtual machines disks from a resource group 
      * and returns it in the format IcingaWeb2 Director expects

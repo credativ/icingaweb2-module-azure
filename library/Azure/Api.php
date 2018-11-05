@@ -30,7 +30,7 @@ use Icinga\Module\Azure\restclient\RestClient;
  * Furthermore, the concept of the gettAll method should be iterating through 
  * the Azure resource group names and calling the scanResourceGroup method for 
  * each one. This is the second abstract method to be implemented.
- *
+ * 
  */
 
 
@@ -65,7 +65,17 @@ abstract class Api
     protected const MSG_LOG_GET_ALL =
                                     "Azure API: Call to getAll primitive".
                                     "- should never be seen!";
-    
+
+    /**
+     * array of field names to be returned by implementation.
+     *
+     * @staticvar array FIELDS_RETURNED
+     *
+     * empty for abstract base class. 
+     */
+    public const FIELDS_RETURNED = array();
+
+
     /** 
      * URL of the Microsoft Azure management API endpoint
      *

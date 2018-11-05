@@ -19,10 +19,37 @@ use Icinga\Module\Azure\Api;
 
 class VirtualMachines extends Api
 {
-    /** Log Message for getAll **/
+    /** Log Message for getAll
+     *
+     * @staticvar string MSG_LOG_GET_ALL
+     */
     protected const
         MSG_LOG_GET_ALL =
-        "Azure API: querying VM available in configured resource groups.";     
+        "Azure API: querying VM available in configured resource groups.";
+
+    /**
+     * array of field names to be returned by implementation.
+     *
+     * @staticvar array FIELDS_RETURNED
+     */
+
+    public const FIELDS_RETURNED = array(
+                                     'name',
+                                     'subscriptionId',
+                                     'id',
+                                     'location',
+                                     'osType',
+                                     'osDiskName',
+                                     'dataDisks',
+                                     'network_interfaces_count',
+                                     'publicIP',
+                                     'privateIP',
+                                     'cores',
+                                     'resourceDiskSizeInMB',
+                                     'memoryInMB',
+                                     'maxDataDiscCount',
+                                     'provisioningState',
+    );
 
     /** ***********************************************************************
      * takes all information on virtual machines from a resource group and 

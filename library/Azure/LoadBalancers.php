@@ -22,10 +22,29 @@ use Icinga\Module\Azure\Api;
 class LoadBalancers extends Api
 {
 
-    /** Log Message for getAll **/
+    /**
+     * Log Message for getAll
+     *
+     * @staticvar string MSG_LOG_GET_ALL
+     */
     protected const
         MSG_LOG_GET_ALL = "Azure API: querying any LoadBalancer in configured resource groups";
-    
+
+    /**
+     * array of field names to be returned by implementation.
+     *
+     * @staticvar array FIELDS_RETURNED
+     */
+    public const FIELDS_RETURNED = array(
+        'name',
+        'subscriptionId',
+        'id',
+        'location',
+        'provisioningState',
+        'frontEndPublicIP',
+    );
+
+
     /** ***********************************************************************
      * takes all information on load balancers from a resource group and 
      * returns it in the format IcingaWeb2 Director expects
