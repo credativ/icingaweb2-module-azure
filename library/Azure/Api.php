@@ -17,7 +17,6 @@ use Icinga\Module\Azure\Token;
 use Icinga\Module\Azure\restclient\RestClient;
 
 
-
 /** ***************************************************************************
  * Class Api
  *
@@ -223,6 +222,10 @@ abstract class Api
                                   "2014-04-01");
 
         // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                                   "querying resource groups");
+
         if ($result->info->http_code != 200)
         {
             Logger::error("Azure API: Could not get resource group(s). HTTP: ".
@@ -320,6 +323,10 @@ abstract class Api
                                   '/resources',
                                   "2017-05-10");
         // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                            "querying resource group resources");
+
         if ($result->info->http_code != 200)
         {
             $error = sprintf(
@@ -359,6 +366,10 @@ abstract class Api
                                   '/providers/Microsoft.Compute/virtualMachines',
                                   "2018-06-01");
         // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                            "querying virtual machines");
+
         if ($result->info->http_code != 200)
         {
            $error = sprintf(
@@ -391,6 +402,10 @@ abstract class Api
         $result = $this->call_get($vm->id.'/vmSizes',"2018-06-01");
         
         // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                            "querying virtual machine sizes");
+
         if ($result->info->http_code != 200)
         {
             $error = sprintf(
@@ -440,7 +455,12 @@ abstract class Api
                                   $resource_group.
                                   '/providers/Microsoft.Compute/disks',
                                   "2017-03-30");
+        
         // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                            "querying disks");
+
         if ($result->info->http_code != 200)
         {
             $error = sprintf(
@@ -478,6 +498,10 @@ abstract class Api
                                   '/providers/Microsoft.Network/networkInterfaces',
                                   "2018-07-01");
         // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                            "querying network interfaces");
+
         if ($result->info->http_code != 200)
         {
             $error = sprintf(
@@ -515,6 +539,10 @@ abstract class Api
                                   '/providers/Microsoft.Network/publicIPAddresses',
                                   "2018-07-01");
         // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                            "querying public ip addresses");
+
         if ($result->info->http_code != 200)
         {
             $error = sprintf(
@@ -551,6 +579,10 @@ abstract class Api
                                   '/providers/Microsoft.Network/loadBalancers',
                                   "2018-07-01");
         // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                            "querying load balancers");
+
         if ($result->info->http_code != 200)
         {
             $error = sprintf(
@@ -589,6 +621,10 @@ abstract class Api
                                   '/providers/Microsoft.Network/applicationGateways',
                                   "2018-07-01");
         // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                            "querying application gateways");
+
         if ($result->info->http_code != 200)
         {
             $error = sprintf(
@@ -627,6 +663,10 @@ abstract class Api
                                   '/providers/Microsoft.Network/expressRouteCircuits',
                                   "2018-04-01");
         // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                            "querying express route circuits");
+
         if ($result->info->http_code != 200)
         {
             $error = sprintf(
@@ -665,6 +705,10 @@ abstract class Api
                                   '/providers/Microsoft.DBforPostgreSQL/servers',
                                   "2017-12-01");
         // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                            "querying Microsoft.DbForPostgreSQL");
+
         if ($result->info->http_code != 200)
         {
             $error = sprintf(
@@ -676,5 +720,15 @@ abstract class Api
 
         // get result data from JSON into object $decoded
         return $result->decode_response()->value;       
+    }
+
+
+    protected function raiseCurlError( $errormsg, $text )
+    {
+        Logger::info("test");
+        $msg = sprintf("Azure API: Got CURL error '%s' while %s.",
+                       $errormsg, $text);
+        Logger::error( $msg );
+        throw new QueryException($msg);
     }
 }

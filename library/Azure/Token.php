@@ -110,11 +110,21 @@ class Token {
         Logger::info("Azure API: generating new Bearer token");
         $result = $this->restc->post($this->tenant_id."/oauth2/token");
 
+
+        // check if there was a curl error
+        if ($result->errno != CURLE_OK)
+        {
+            $msg = sprintf("Azure API: Got CURL error '%s' while %s token generation",
+                           $result->error, self::API_TOKEN_TYPE);
+            Logger::error( $msg );
+            throw new QueryException($msg);
+        }
+        
         // check if HTTP result code was 200 - OK
         if ($result->info->http_code != 200)
         {
             Logger::error("Azure Token: Could not get bearer token. HTTP: ".
-                          $result->info->http_code);           
+                          $result->info->http_code." CURL: ".$result->error);           
             throw new QueryException("Could not get bearer token. HTTP: ".
                                      $result->info->http_code);
         }
