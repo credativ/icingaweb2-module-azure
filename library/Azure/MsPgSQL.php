@@ -54,6 +54,7 @@ class MsPgSQL extends Api
         {
             $object = (object) [
                 'name'                => $current->name,
+                'subscriptionId'      => $this->subscription_id,
                 'id'                  => $current->id,
                 'location'            => $current->location,
                 'version'             => $current->properties->version ,

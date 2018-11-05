@@ -53,6 +53,7 @@ class VirtualMachinesDisks extends Api
         {
             $object = (object) [
                 'name'              => $current->name,
+                'subscriptionId'    => $this->subscription_id,
                 'id'                => $current->id,
                 'location'          => $current->location,
                 'managedBy'         => $current->managedBy,

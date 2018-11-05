@@ -5,6 +5,21 @@ This is a short breakdown of information returned by the various importer
 object types. Obviously, each object type has to return its individual set
 of fields to match the resources given by Azure.
 
+Any query returns at least these fields by the time of writing:
+
+* name
+* subscriptionId
+* id
+* location
+
+The 'name' is the name chosen in Microsoft Azure for the returned object. The
+'subscriptionId' is just for convenience to group inventories if you have
+multiple subscriptions you are importing of. An 'id' is simply the returned
+id from Azure which is the path of the URI of the object in the API for most of
+times, which includes the subscription id itself. The 'id' field may not be
+unique. The 'location' field is the location returned from Azure and contains
+the Azure region the object is located in.
+
 
 Virtual Machines
 ----------------
@@ -12,6 +27,7 @@ Virtual Machines
 The **Virtual machines** object type does return these fields:
 
 * name
+* subscriptionId
 * id
 * location
 * osType
@@ -30,12 +46,15 @@ Please note that this reports the private and/or public IP of the first
 interface found.
 
 
+
+
 Virtual Machines (Disks)
 ------------------------
 
 The **Virtual machines (disks)** object type does return these fields:
 
 * name
+* subscriptionId
 * id
 * location
 * managedBy
@@ -70,6 +89,7 @@ assembled from the interface id as well as the ip configuration id.
 The **Virtual machines (interfaces)** object type does return these fields:
 
 * name
+* subscriptionId
 * id
 * uniqueId
 * location
@@ -113,6 +133,7 @@ Load Balancers
 --------------
 
 * name
+* subscriptionId
 * id
 * location
 * provisioningState
@@ -123,6 +144,7 @@ Application Gateways
 --------------------
 
 * name
+* subscriptionId
 * id
 * location
 * provisioningState
@@ -138,6 +160,7 @@ Express Route Circuits
 ----------------------
 
 * name
+* subscriptionId
 * id
 * location
 * provisioningState
@@ -152,6 +175,7 @@ Microsoft DB for PosgreSQL (server)
 -----------------------------------
 
 * name
+* subscriptionId
 * id
 * location
 * version

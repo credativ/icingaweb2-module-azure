@@ -54,7 +54,7 @@ abstract class Api
      * we need this for the REST client URLs to call 
      * @property string subscription_id
      */
-    private $subscription_id;
+    protected $subscription_id;
 
 
     /** 

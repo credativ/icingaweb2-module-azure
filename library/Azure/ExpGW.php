@@ -52,6 +52,7 @@ class ExpGW extends Api
         {
             $object = (object) [
                 'name'                     => $current->name,
+                'subscriptionId'           => $this->subscription_id,
                 'id'                       => $current->id,
                 'location'                 => $current->location,
                 'provisioningState'        => $current->properties->provisioningState,

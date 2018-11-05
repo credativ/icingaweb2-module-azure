@@ -56,6 +56,7 @@ class AppGW extends Api
             $object = (object) [
                 'name'              => $current->name,
                 'id'                => $current->id,
+                'subscriptionId'    => $this->subscription_id,
                 'location'          => $current->location,
                 'provisioningState' => $current->properties->provisioningState,
                 'frontEndPublicIP'  => NULL,

@@ -41,6 +41,7 @@ class ImportSource extends ImportSourceHook
             'class'  => 'Icinga\Module\Azure\VirtualMachines',
             'fields' =>  array(
                 'name',
+                'subscriptionId',
                 'id',
                 'location',
                 'osType',
@@ -62,6 +63,7 @@ class ImportSource extends ImportSourceHook
             'class'  => 'Icinga\Module\Azure\VirtualMachinesDisks',
             'fields' =>  array(
                 'name',
+                'subscriptionId',
                 'id',
                 'location',
                 'managedBy',
@@ -89,6 +91,7 @@ class ImportSource extends ImportSourceHook
             'class'  => 'Icinga\Module\Azure\VirtualMachinesInterfaces',
             'fields' =>  array(
                 'name',
+                'subscriptionId',
                 'id',
                 'uniqueId',
                 'location',
@@ -134,6 +137,7 @@ class ImportSource extends ImportSourceHook
             'class'  => 'Icinga\Module\Azure\LoadBalancers',
             'fields' => array(
                 'name',
+                'subscriptionId',
                 'id',
                 'location',
                 'provisioningState',
@@ -146,6 +150,7 @@ class ImportSource extends ImportSourceHook
             'class'  => 'Icinga\Module\Azure\AppGW',
             'fields' => array(
                 'name',
+                'subscriptionId',
                 'id',
                 'location',
                 'provisioningState',
@@ -163,6 +168,7 @@ class ImportSource extends ImportSourceHook
             'class'  => 'Icinga\Module\Azure\ExpGW',
             'fields' => array(
                 'name',
+                'subscriptionId',
                 'id',
                 'location',
                 'provisioningState',
@@ -180,6 +186,7 @@ class ImportSource extends ImportSourceHook
             'class'  => 'Icinga\Module\Azure\MsPgSQL',
             'fields' =>  array(
                 'name',
+                'subscriptionId',
                 'id',
                 'location',
                 'version',

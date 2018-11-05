@@ -61,6 +61,7 @@ class VirtualMachinesInterfaces extends Api
         {
             $object = (object) [
                 'name'                        => $current->name,
+                'subscriptionId'              => $this->subscription_id,
                 'id'                          => $current->id,
                 'uniqueId'                    => $current->id, // see above
                 'location'                    => $current->location,

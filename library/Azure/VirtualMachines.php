@@ -54,6 +54,7 @@ class VirtualMachines extends Api
             // skip anything not provisioned.
             $object = (object) [
                 'name'             => $current->name,
+                'subscriptionId'   => $this->subscription_id,
                 'id'               => $current->id,
                 'location'         => $current->location,
                 'osType'           => (
