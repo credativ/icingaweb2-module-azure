@@ -25,6 +25,7 @@ use Icinga\Module\Azure\AppGW;
 use Icinga\Module\Azure\ExpGW;
 use Icinga\Module\Azure\MsPgSQL;
 use Icinga\Module\Azure\ResourceGroup;
+use Icinga\Module\Azure\Subscription;
 
 
 class ImportSource extends ImportSourceHook
@@ -83,6 +84,12 @@ class ImportSource extends ImportSourceHook
             'class'  => 'Icinga\Module\Azure\ResourceGroup',
             'fields' =>  ResourceGroup::FIELDS_RETURNED,
         ),
+        'subscr'  => array(
+            'name'   => 'Subscriptions',
+            'class'  => 'Icinga\Module\Azure\Subscription',
+            'fields' =>  Subscription::FIELDS_RETURNED,
+        ),
+
     );
 
         
@@ -143,12 +150,15 @@ class ImportSource extends ImportSourceHook
     }
 
 
+    /**
+     * @inheritdoc
+     */
     public function listColumns()
     {
         return self::supportedObjectTypes[$this->getObjectType()]['fields'];
     }
 
-    
+
     /**
      * @inheritdoc
      */
@@ -158,7 +168,6 @@ class ImportSource extends ImportSourceHook
     }
 
 
-    
     protected function getObjectType()
     {
         // Compat for old configs, vm used to be the only available type:
@@ -174,21 +183,13 @@ class ImportSource extends ImportSourceHook
         return $type;
     }
 
-    
+
     public static function addSettingsFormFields(QuickForm $form)
     {
         $form->addElement('text', 'tenant_id', array(
             'label'        => $form->translate('Azure Tenant ID'),
             'description'  => $form->translate(
                 'This is the Azure Tenant ID of the account you '.
-                'want to query. This Subscription ID must match the one '.
-                'you used to create the application clients credentials with.'),
-            'required'     => true,
-        ));
-        $form->addElement('text', 'subscription_id', array(
-            'label'        => $form->translate('Azure Subscription ID'),
-            'description'  => $form->translate(
-                'This is the Azure Subscription ID of the account you '.
                 'want to query. This Subscription ID must match the one '.
                 'you used to create the application clients credentials with.'),
             'required'     => true,
@@ -207,6 +208,15 @@ class ImportSource extends ImportSourceHook
             'description'  => $form->translate(
                 'This is the secret you got when creating the Client ID.'),
             'required'     => true,
+            'class'        => 'autosubmit',
+        ));
+        $form->addElement('text', 'subscription_id', array(
+            'label'        => $form->translate('Azure Subscription ID'),
+            'description'  => $form->translate(
+                'This is the Azure Subscription ID of the account you '.
+                'want to query. This Subscription ID must match the one '.
+                'you used to create the application clients credentials with.'),
+            'required'     => true,
         ));
         $form->addElement('select', 'object_type', array(
             'label'        => 'Object type',
@@ -222,6 +232,11 @@ class ImportSource extends ImportSourceHook
             ),
             'class'        => 'autosubmit',
         ));
+
+        //        if (! ($server = $form->getSentOrObjectSetting('server'))) {
+        //          return;
+        //      } 
+
         $form->addElement('text', 'resource_group_names', array(
             'label'        => $form->translate('Resource Groups'),
             'description'  => $form->translate(

@@ -36,6 +36,7 @@ Currently, we have some resources implemented in this importer module:
 * Microsoft.DBforPostgreSQL servers (SAAS)
 * Express route circuits
 * Resource Groups
+* Subscriptions
 
 While the first five are tested and should be working smoothly, the PostgreSQL
 and Express route circuit object types are considered untested.

@@ -310,6 +310,51 @@ abstract class Api
 
     
     /** ***********************************************************************
+     * reads all subscriptions from Azure API and returns an array of
+     * subscription objects
+     *
+     * may throw QueryException on HTTP error
+     *
+     * @return array of objects
+     *
+     */
+
+    protected function getSubscriptions( )
+    {
+        Logger::info("Azure API: querying all subscriptions available");
+        
+        $result = $this->call_get('subscriptions', "2014-04-01");
+
+        // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                                   "querying subscriptions");
+
+        if ($result->info->http_code != 200)
+        {
+            Logger::error("Azure API: Could not get subscription(s). HTTP: ".
+                          $result->info->http_code);           
+            throw new QueryException("Could not get subscription(s). HTTP: ".
+                                     $result->info->http_code);
+        }
+
+        
+        // decode the JSON, take only the "value" array
+        $azure_subs = $result->decode_response()->value;
+
+        // make shure we don't have an empty list returned from API
+        if (count($azure_subs) == 0)
+        {
+            $error = "Azure API: Could not find any subscriptions.";
+            Logger::error( $error );           
+            throw new QueryException( $error );
+        }            
+        
+        return $azure_subs;
+    }
+    
+
+    /** ***********************************************************************
      * reads all resources from a resource group from the Azure API and 
      * returns an array of resource objects
      *

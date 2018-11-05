@@ -206,3 +206,21 @@ on this Azure API director plugin.
 * provisioningState
 
 
+Subscriptions
+-------------
+
+The simple query for subscriptions available with the given credentials.
+This might not be too usefull in Azure but on the one hand you could monitor
+the subscription state. The primary reason for this to exist is as a helper
+for the dynamically generated configuration menu for all importers based
+on this Azure API director plugin.
+
+* name
+* subscriptionId
+* id
+* state
+* locationPlacementId
+* quotaId
+* spendingLimit
+
+
