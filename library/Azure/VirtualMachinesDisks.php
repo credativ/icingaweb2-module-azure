@@ -56,7 +56,7 @@ class VirtualMachinesDisks extends Api
         'vmUsageType',
         'vmCaching',
         'vmLocation',
-        'vmProvisioningState'
+        'vmProvisioningState',
     );
 
     

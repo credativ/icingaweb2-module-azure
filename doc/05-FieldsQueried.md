@@ -20,6 +20,9 @@ times, which includes the subscription id itself. The 'id' field may not be
 unique. The 'location' field is the location returned from Azure and contains
 the Azure region the object is located in.
 
+The 'metricDefinitions' field is a comma separated list with metric names
+available for this object type, if available. (cf.
+https://docs.microsoft.com/en-us/azure/monitoring-and-diagnostics/monitoring-supported-metrics?toc=/azure/azure-monitor/toc.json )
 
 Virtual Machines
 ----------------
@@ -41,6 +44,7 @@ The **Virtual machines** object type does return these fields:
 * memoryInMB
 * maxDataDiscCount
 * prosioningState
+* metricDefinitions
 
 Please note that this reports the private and/or public IP of the first
 interface found.
@@ -126,7 +130,7 @@ The **Virtual machines (interfaces)** object type does return these fields:
 * ipConfPublicIPAllocationMethod
 * ipConfPublicIPAddressLocation
 * ipConfPublicIPAddressIdleTimeoutInMinutes
-
+* metricDefinitions
 
 
 Load Balancers

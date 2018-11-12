@@ -49,6 +49,7 @@ class VirtualMachines extends Api
                                      'memoryInMB',
                                      'maxDataDiscCount',
                                      'provisioningState',
+                                     'metricDefinitions',
     );
 
     /** ***********************************************************************
@@ -78,7 +79,9 @@ class VirtualMachines extends Api
 
         foreach($virtual_machines as $current)
         {
-            // skip anything not provisioned.
+            // get metric definitions list
+            $metrics = $this->getMetricDefinitionsList($current->id);
+
             $object = (object) [
                 'name'             => $current->name,
                 'subscriptionId'   => $this->subscription_id,
@@ -102,6 +105,7 @@ class VirtualMachines extends Api
                 'memoryInMB'       => NULL,
                 'maxdataDiscCount' => NULL,
                 'provisioningState'=> $current->properties->provisioningState,
+                'metricDefinitions'=> $metrics,
             ];
 
             // scan network interfaces and fint the ones belonging to

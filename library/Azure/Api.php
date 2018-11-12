@@ -777,6 +777,57 @@ abstract class Api
         return $result->decode_response()->value;       
     }
 
+
+    /** ***********************************************************************
+     * queries the Azure metrics definitions list for a given object 
+     * and returns the list as a comma seperated string
+     *
+     * @param object $group 
+     * resoureceGroup object to work on
+     *
+     * @param string classname
+     * resoureceGroup object class to retrieve metrics list for
+     *
+     * @return string
+     *
+     */   
+   
+    protected function getMetricDefinitionsList($id)
+    {
+        Logger::info("Azure API: querying Metric Definitions List for '".
+                     $id."'.");
+
+        $result = $this->call_get($id.
+                                  '/providers/microsoft.insights/metricDefinitions',
+                                  "2018-01-01");
+        // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                            "querying Azure Metric Definitions list");
+
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get Azure Metric Definitions on '%s'. HTTP: %d",
+                $id, $result->info->http_code);
+            Logger::error( $error );           
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        // and create return string
+
+        $retval = "";
+
+        foreach( $result->decode_response()->value as $metric)
+        {
+            $retval = $retval.','.$metric->name->value;
+        }
+
+        return ltrim($retval, ',');
+    }
+
+
     /** ***********************************************************************
      * logs and raises an error for any CURL operation that went wrong
      *

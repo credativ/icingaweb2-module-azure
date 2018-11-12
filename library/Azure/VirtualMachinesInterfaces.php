@@ -80,6 +80,7 @@ class VirtualMachinesInterfaces extends Api
         'ipConfPublicIPAllocationMethod',
         'ipConfPublicIPAddressLocation',
         'ipConfPublicIPAddressIdleTimeoutInMinutes',
+        'metricDefinitions',
     );
 
 
@@ -110,6 +111,9 @@ class VirtualMachinesInterfaces extends Api
 
         foreach($network_interfaces as $current)
         {
+            // get metric definitions list
+            $metrics = $this->getMetricDefinitionsList($current->id);
+
             $object = (object) [
                 'name'                        => $current->name,
                 'subscriptionId'              => $this->subscription_id,
@@ -173,6 +177,7 @@ class VirtualMachinesInterfaces extends Api
                 'ipConfPublicIPAllocationMethod'   => NULL,
                 'ipConfPublicIPAddressLocation'    => NULL,
                 'ipConfPublicIPAddressIdleTimeoutInMinutes' => NULL,
+                'metricDefinitions'=> $metrics,
             ];
 
 
