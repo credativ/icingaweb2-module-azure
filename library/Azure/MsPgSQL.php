@@ -50,6 +50,7 @@ class MsPgSQL extends Api
         'storageMB',
         'backupRetentionDays',
         'geoRedundantBackup',
+        'metricDefinitions',
     );
 
 
@@ -78,6 +79,9 @@ class MsPgSQL extends Api
 
         foreach($dbservers as $current) 
         {
+            // get metric definitions list
+            $metrics = $this->getMetricDefinitionsList($current->id);
+
             $object = (object) [
                 'name'                => $current->name,
                 'subscriptionId'      => $this->subscription_id,
@@ -93,6 +97,7 @@ class MsPgSQL extends Api
                 'storageMB'           => $current->properties->storageProfile->storageMB,
                 'backupRetentionDays' => $current->properties->storageProfile->backupRetentionDays,
                 'geoRedundantBackup'  => $current->properties->storageProfile->geoRedundantBackup,
+                'metricDefinitions'   => $metrics,
             ];
 
             // add this VM to the list.

@@ -45,6 +45,7 @@ class ExpGW extends Api
         'peeringLocation',
         'serviceProviderName',
         'serviceProviderProvisioningState',
+        'metricDefinitions',
     );
 
 
@@ -73,6 +74,9 @@ class ExpGW extends Api
 
         foreach($exp_routes as $current) 
         {
+            // get metric definitions list
+            $metrics = $this->getMetricDefinitionsList($current->id);
+
             $object = (object) [
                 'name'                     => $current->name,
                 'subscriptionId'           => $this->subscription_id,
@@ -86,6 +90,7 @@ class ExpGW extends Api
                 'allowClassicOperations'   => $current->properties->allowClassicOperations,
                 'serviceProviderProvisioningState' =>
                 $current->properties->serviceProviderProvisioningState,
+                'metricDefinitions'        => $metrics,
             ];
 
             if (property_exists($current->properties,'serviceProviderProperties'))

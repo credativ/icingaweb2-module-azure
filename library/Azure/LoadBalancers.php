@@ -42,6 +42,7 @@ class LoadBalancers extends Api
         'location',
         'provisioningState',
         'frontEndPublicIP',
+        'metricDefinitions',
     );
 
 
@@ -72,12 +73,16 @@ class LoadBalancers extends Api
 
         foreach($load_balancers as $current)
         {
+            // get metric definitions list
+            $metrics = $this->getMetricDefinitionsList($current->id);
+
             $object = (object) [
                 'name'              => $current->name,
                 'id'                => $current->id,
                 'location'          => $current->location,
                 'provisioningState' => $current->properties->provisioningState,
                 'frontEndPublicIP'  => NULL,
+                'metricDefinitions'=> $metrics,
             ];
 
             // search for the public ip               

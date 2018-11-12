@@ -46,6 +46,7 @@ class AppGW extends Api
         'frontEndPort',
         'enabledHTTP2',
         'enabledWAF',
+        'metricDefinitions',
     );
 
         
@@ -76,6 +77,9 @@ class AppGW extends Api
 
         foreach($app_gateways as $current)
         {
+            // get metric definitions list
+            $metrics = $this->getMetricDefinitionsList($current->id);
+  
             $object = (object) [
                 'name'              => $current->name,
                 'id'                => $current->id,
@@ -103,6 +107,7 @@ class AppGW extends Api
                      property_exists($current->properties->webApplicationFirewallConfiguration,'enabled'))?
                     $current->properties->webApplicationFirewallConfiguration->enabled : FALSE
                 ),
+                'metricDefinitions'=> $metrics,
             ];
 
             // search for the public ip, but only if there is one configured. 

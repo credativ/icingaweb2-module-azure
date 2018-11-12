@@ -142,6 +142,7 @@ Load Balancers
 * location
 * provisioningState
 * frontEndPublicIP
+* metricDefinitions
 
 
 Application Gateways
@@ -158,6 +159,7 @@ Application Gateways
 * frontEndPort
 * enabledHTTP2
 * enabledWAF
+* metricDefinitions
 
 
 Express Route Circuits
@@ -173,6 +175,7 @@ Express Route Circuits
 * peeringlocation
 * serviceProviderName
 * serviceproviderProvisioningState
+* metricDefinitions
 
 
 Microsoft DB for PosgreSQL (server)
@@ -192,6 +195,7 @@ Microsoft DB for PosgreSQL (server)
 * storageMB
 * backupRetentionDays
 * geoRedundantBackup
+* metricDefinitions
 
 
 Resource Groups
