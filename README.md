@@ -75,3 +75,16 @@ fit into namespaces and uses valid exception classes suitable for IcingaWeb2
 The code was inspired by the [Icinga Web 2 module for vSphere](https://github.com/Icinga/icingaweb2-module-vsphere)
 as well as by the [AWS module for Icinga Web 2](https://github.com/Icinga/icingaweb2-module-aws).
 
+
+Support
+-------
+
+The *icingaweb2-module-azure* is an open source project developed by credativ. credativ offers technical support 
+as well as installation and integration support for this. If you are interested or need additional features, please 
+feel free to contact us. 
+
+* **Web** [credativ.de](https://credativ.de)
+* **E-Mail:** [info@credativ.de](mailto:info@credativ.de)
+* **Phone:** [+49 2166 9901-0](tel:+49216699010)
+
+
