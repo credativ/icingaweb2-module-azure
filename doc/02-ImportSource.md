@@ -35,7 +35,11 @@ situations.
 
 The **Azure Tenant ID, Subscription ID, Client ID** and **Client** Secret are
 the credentials you have to obtain from your Azure Account. Please confere the
-appropriate documentation on this.
+appropriate documentation on this. The Subscription ID will get selectable after
+you entered the Tenant and Client ID as well as the Client secret.
+Make shure your IcingaWeb2 host has either internet access or you already setup
+the proxy configuration above as this will apply already for retrieving the
+subscription id. 
 
 ![Object Types](/doc/screenshot/azure_object_types.png)
 
@@ -48,12 +52,8 @@ Therefore, you cannot mix object types within one importer instance. You
 will have to configure an importer for virtual machines and another for
 retrieving information on load balancers eg.
 
-**Resource Groups** can contain a list of resource group names in your Azure
-account. You can keep this empty. In this case, the importer will choose any
-resource group available for the given credentials. If you have multiple
-resource groups available to the given credentials, you can enter the names
-of the resource groups to be imported here. Make shure, you split these
-with a single space.
+**Resource Groups** is a list of resource group names available in your Azure
+account. You can select one or choose "all". 
 
 **Proxy URL** is the URL of a http proxy obviously. It could be like
 http://example.com:port. For details on this look into the php-curl
