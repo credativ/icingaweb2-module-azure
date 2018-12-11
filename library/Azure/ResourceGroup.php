@@ -42,7 +42,7 @@ class ResourceGroup extends Api
         'subscriptionId',
         'id',
         'location',
-        'provider',
+        'type',
         'provisioningState',
     );
 
@@ -68,7 +68,7 @@ class ResourceGroup extends Api
             'id'                => $current->id,
             'subscriptionId'    => $this->subscription_id,
             'location'          => $current->location,
-            'provider'          => 'resourceGroups',
+            'type'              => 'resourceGroups',
             'provisioningState' => $current->properties->provisioningState,
         ];
 

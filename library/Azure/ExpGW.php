@@ -38,15 +38,28 @@ class ExpGW extends Api
         'subscriptionId',
         'id',
         'location',
-        'provider',
+        'type',
         'provisioningState',
-        'bandwidthInMbps',
+        'serviceProviderBandwidthInMbps',
+        'bandwidthInGbps',
         'circuitProvisioningState',
         'allowClassicOperations',
         'peeringLocation',
         'serviceProviderName',
         'serviceProviderProvisioningState',
         'metricDefinitions',
+        'allowGlobalReach',
+        'etag',
+        'expressRoutePort',
+        'gatewayManagerEtag',
+        'serviceKey',
+        'serviceProviderNotes',
+        'stag',
+        
+        'authorizations',
+        'peerings',
+        'tags',      
+        
     );
 
 
@@ -81,18 +94,44 @@ class ExpGW extends Api
             $object = (object) [
                 'name'                     => $current->name,
                 'subscriptionId'           => $this->subscription_id,
-                'provider'                 => 'Microsoft.Network/expressRouteCircuits',
+                'type'                     => $current->type,
                 'id'                       => $current->id,
                 'location'                 => $current->location,
+                'etag'                     => $current->etag,
                 'provisioningState'        => $current->properties->provisioningState,
                 'peeringLocation'          => NULL,
                 'serviceProviderName'      => NULL,
-                'bandwidthInMbps'          => NULL,
+                'serviceProviderBandwidthInMbps' => NULL,
+                'bandwidthInGbps'          => (property_exists($current->properties,
+                                                               'bandwidthInGbps') ?
+                                               $current->properties->bandwidthInGbps : NULL),              
                 'circuitProvisioningState' => $current->properties->circuitProvisioningState,
                 'allowClassicOperations'   => $current->properties->allowClassicOperations,
                 'serviceProviderProvisioningState' =>
                 $current->properties->serviceProviderProvisioningState,
                 'metricDefinitions'        => $metrics,
+                'allowGlobalReach'         => (property_exists($current->properties,
+                                                               'allowGlobalReach') ?
+                                               $current->properties->allowGlobalReach : NULL),
+                'expressRoutePort'         => (property_exists($current->properties,
+                                                               'expressRoutePort') ?
+                                               $current->properties->expressRoutePort : NULL),
+                'gatewayManagerEtag'       => (property_exists($current->properties,
+                                                               'gatewayManagerEtag') ?
+                                               $current->properties->gatewayManagerEtag : NULL),
+                'serviceKey'               => (property_exists($current->properties,
+                                                               'serviceKey') ?
+                                               $current->properties->serviceKey : NULL),
+                'serviceProviderNotes'     => (property_exists($current->properties,
+                                                               'serviceProviderNotes') ?
+                                               $current->properties->serviceProviderNotes : NULL),
+                'stag'                     => (property_exists($current->properties,
+                                                               'stag') ?
+                                               $current->properties->stag : NULL),
+                // TODO
+                'authorizations'           => NULL,
+                'peerings'                 => NULL,
+                'tags'                     => NULL,              
             ];
 
             if (property_exists($current->properties,'serviceProviderProperties'))
@@ -114,9 +153,9 @@ class ExpGW extends Api
                 if (property_exists(
                         $current->properties->serviceProviderProperties,
                         'bandwidthInMbps'))
-                    $object->bandwidthInMbps = $current->properties->
-                                             serviceProviderProperties->
-                                             bandwidthInMbps;
+                    $object->serviceProviderBandwidthInMbps = $current->properties->
+                                                            serviceProviderProperties->
+                                                            bandwidthInMbps;
             }
 
             // add this VM to the list.

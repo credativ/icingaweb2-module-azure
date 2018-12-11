@@ -47,7 +47,7 @@ class VirtualMachinesInterfaces extends Api
         'id',
         'uniqueId',
         'location',
-        'provider',
+        'type',
         'etag',
         'provisioningState',
         'macAddress',
@@ -121,7 +121,7 @@ class VirtualMachinesInterfaces extends Api
                 'id'                          => $current->id,
                 'uniqueId'                    => $current->id, // see above
                 'location'                    => $current->location,
-                'provider'                    => 'Microsoft.Network/networkInterfaces',
+                'type'                        => $current->type,
                 'etag'                        => $current->etag,
                 'provisioningState'           => $current->properties->provisioningState,
                 'macAddress'                  => (

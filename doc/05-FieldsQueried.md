@@ -181,12 +181,14 @@ Express Route Circuits
 * location
 * provider
 * provisioningState
-* bandwitdthInMbps
 * circuitProvisioningState
-* peeringlocation
 * serviceProviderName
 * serviceproviderProvisioningState
+* serviceProviderBandwitdthInMbps  1)
+* peeringlocation
 * metricDefinitions
+
+1) was renamed from bandwithInMbps
 
 
 Microsoft DB for PosgreSQL (server)
