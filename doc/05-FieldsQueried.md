@@ -21,7 +21,7 @@ times, which includes the subscription id itself. The 'id' field may not be
 unique. The 'location' field is the location returned from Azure and contains
 the Azure region the object is located in.
 
-The 'provider' field is just a static string derived from the API URL query
+The 'type' field is just a static string derived from the API query
 to give a reference to the main API call that was used and to provide the
 IcingaWeb2 Director user with something to group results. 
 
@@ -38,7 +38,7 @@ The **Virtual machines** object type does return these fields:
 * subscriptionId
 * id
 * location
-* provider
+* type
 * osType
 * osDiskName
 * dataDisks
@@ -67,7 +67,7 @@ The **Virtual machines (disks)** object type does return these fields:
 * subscriptionId
 * id
 * location
-* provider
+* type
 * managedBy
 * diskState
 * provisioningState
@@ -102,7 +102,7 @@ The **Virtual machines (interfaces)** object type does return these fields:
 * name
 * subscriptionId
 * id
-* provider
+* type
 * uniqueId
 * location
 * etag
@@ -147,7 +147,7 @@ Load Balancers
 * name
 * subscriptionId
 * id
-* provider
+* type
 * location
 * provisioningState
 * frontEndPublicIP
@@ -160,7 +160,7 @@ Application Gateways
 * name
 * subscriptionId
 * id
-* provider
+* type
 * location
 * provisioningState
 * frontEndPublicIP
@@ -179,7 +179,7 @@ Express Route Circuits
 * subscriptionId
 * id
 * location
-* provider
+* type
 * provisioningState
 * circuitProvisioningState
 * serviceProviderName
@@ -198,7 +198,7 @@ Microsoft DB for PosgreSQL (server)
 * subscriptionId
 * id
 * location
-* provider
+* type
 * version
 * tier
 * capacity
@@ -225,7 +225,7 @@ on this Azure API director plugin.
 * subscriptionId
 * id
 * location
-* provider
+* type
 * provisioningState
 
 
@@ -241,7 +241,7 @@ on this Azure API director plugin.
 * name
 * subscriptionId
 * id
-* provider
+* type
 * state
 * locationPlacementId
 * quotaId
