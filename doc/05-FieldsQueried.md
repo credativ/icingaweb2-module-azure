@@ -11,6 +11,7 @@ Any query returns at least these fields by the time of writing:
 * subscriptionId
 * id
 * location
+* provider
 
 The 'name' is the name chosen in Microsoft Azure for the returned object. The
 'subscriptionId' is just for convenience to group inventories if you have
@@ -19,6 +20,10 @@ id from Azure which is the path of the URI of the object in the API for most of
 times, which includes the subscription id itself. The 'id' field may not be
 unique. The 'location' field is the location returned from Azure and contains
 the Azure region the object is located in.
+
+The 'provider' field is just a static string derived from the API URL query
+to give a reference to the main API call that was used and to provide the
+IcingaWeb2 Director user with something to group results. 
 
 The 'metricDefinitions' field is a comma separated list with metric names
 available for this object type, if available. (cf.
@@ -33,6 +38,7 @@ The **Virtual machines** object type does return these fields:
 * subscriptionId
 * id
 * location
+* provider
 * osType
 * osDiskName
 * dataDisks
@@ -61,6 +67,7 @@ The **Virtual machines (disks)** object type does return these fields:
 * subscriptionId
 * id
 * location
+* provider
 * managedBy
 * diskState
 * provisioningState
@@ -95,6 +102,7 @@ The **Virtual machines (interfaces)** object type does return these fields:
 * name
 * subscriptionId
 * id
+* provider
 * uniqueId
 * location
 * etag
@@ -139,6 +147,7 @@ Load Balancers
 * name
 * subscriptionId
 * id
+* provider
 * location
 * provisioningState
 * frontEndPublicIP
@@ -151,6 +160,7 @@ Application Gateways
 * name
 * subscriptionId
 * id
+* provider
 * location
 * provisioningState
 * frontEndPublicIP
@@ -169,6 +179,7 @@ Express Route Circuits
 * subscriptionId
 * id
 * location
+* provider
 * provisioningState
 * bandwitdthInMbps
 * circuitProvisioningState
@@ -185,6 +196,7 @@ Microsoft DB for PosgreSQL (server)
 * subscriptionId
 * id
 * location
+* provider
 * version
 * tier
 * capacity
@@ -211,6 +223,7 @@ on this Azure API director plugin.
 * subscriptionId
 * id
 * location
+* provider
 * provisioningState
 
 
@@ -226,6 +239,7 @@ on this Azure API director plugin.
 * name
 * subscriptionId
 * id
+* provider
 * state
 * locationPlacementId
 * quotaId

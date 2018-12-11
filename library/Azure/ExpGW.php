@@ -38,6 +38,7 @@ class ExpGW extends Api
         'subscriptionId',
         'id',
         'location',
+        'provider',
         'provisioningState',
         'bandwidthInMbps',
         'circuitProvisioningState',
@@ -80,6 +81,7 @@ class ExpGW extends Api
             $object = (object) [
                 'name'                     => $current->name,
                 'subscriptionId'           => $this->subscription_id,
+                'provider'                 => 'Microsoft.Network/expressRouteCircuits',
                 'id'                       => $current->id,
                 'location'                 => $current->location,
                 'provisioningState'        => $current->properties->provisioningState,

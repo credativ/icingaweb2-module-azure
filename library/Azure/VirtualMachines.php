@@ -38,6 +38,7 @@ class VirtualMachines extends Api
                                      'subscriptionId',
                                      'id',
                                      'location',
+                                     'provider',
                                      'osType',
                                      'osDiskName',
                                      'dataDisks',
@@ -87,6 +88,7 @@ class VirtualMachines extends Api
                 'subscriptionId'   => $this->subscription_id,
                 'id'               => $current->id,
                 'location'         => $current->location,
+                'provider'         => 'Microsoft.Compute/virtualMachines',
                 'osType'           => (
                     property_exists($current->properties->storageProfile->osDisk,
                                     'osType')?
