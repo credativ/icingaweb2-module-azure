@@ -105,14 +105,14 @@ class ExpGW extends Api
                 if (property_exists(
                         $current->properties->serviceProviderProperties,
                         'serviceProviderName'))
-                    $object->peeringLocation = $current->properties->
-                                             serviceProviderProperties->
-                                             serviceProviderName;
+                    $object->serviceProviderName = $current->properties->
+                                                 serviceProviderProperties->
+                                                 serviceProviderName;
 
                 if (property_exists(
                         $current->properties->serviceProviderProperties,
                         'bandwidthInMbps'))
-                    $object->peeringLocation = $current->properties->
+                    $object->bandwidthInMbps = $current->properties->
                                              serviceProviderProperties->
                                              bandwidthInMbps;
             }
