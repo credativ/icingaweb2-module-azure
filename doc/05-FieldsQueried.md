@@ -181,12 +181,21 @@ Express Route Circuits
 * location
 * type
 * provisioningState
+* bandwithInGbps
 * circuitProvisioningState
+* allowClassicOperations
 * serviceProviderName
 * serviceproviderProvisioningState
 * serviceProviderBandwitdthInMbps  1)
 * peeringlocation
 * metricDefinitions
+* allowGlobalReach
+* etag
+* expressRoutePort
+* gatewayManagerEtag
+* serviceKey
+* serviceProviderNotes
+* stag
 
 1) was renamed from bandwithInMbps
 
