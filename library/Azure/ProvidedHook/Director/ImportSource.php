@@ -146,6 +146,12 @@ class ImportSource extends ImportSourceHook
             // and I don't want to use the reflection stuff to keep things
             // simple
             $myclassname = self::supportedObjectTypes[$query]['class'];
+
+            $special_config = array();
+            foreach( $myclassname::CONFIG_FIELDS as $current ) {
+                $special_config[$current] = $this->getSetting( $current );
+            }
+
             $this->api = new $myclassname(
                 $this->getSetting('tenant_id'),
                 $this->getSetting('subscription_id'),
@@ -153,7 +159,8 @@ class ImportSource extends ImportSourceHook
                 $this->getSetting('client_secret'),
                 $this->getSetting('proxy',''),
                 $this->getSetting('con_timeout',0),
-                $this->getSetting('timeout', 0)
+                $this->getSetting('timeout', 0),
+                $special_config
             );
         }
         return $this->api;
