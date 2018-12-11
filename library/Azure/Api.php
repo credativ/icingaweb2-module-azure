@@ -716,7 +716,7 @@ abstract class Api
                                   '/resourceGroups/'.
                                   $resource_group.
                                   '/providers/Microsoft.Network/expressRouteCircuits',
-                                  "2018-04-01");
+                                  "2018-08-01");
         // check if things have gone wrong
         if ($result->errno != CURLE_OK)
             $this->raiseCurlError( $result->error,
