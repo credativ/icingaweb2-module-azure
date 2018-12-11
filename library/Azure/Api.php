@@ -8,6 +8,7 @@
  */
 namespace Icinga\Module\Azure;
 
+use Icinga\Module\Director\Web\Form\QuickForm;
 use Icinga\Exception\ConfigurationError;
 use Icinga\Exception\QueryException;
 use Icinga\Application\Logger;
@@ -203,7 +204,23 @@ abstract class Api
     }
     
 
-    
+    /** ***********************************************************************
+     * callback for the Importer Form Manager to call back for extensions of
+     * the config form. Default is to do nothing. May be overwritten by
+     * a subclass to add class specific configuration requirements.
+     *
+     * @param QuickForm form
+     * a form object to be extended
+     *
+     * @return void
+     *
+     */
+
+    public function extendForm( QuickForm $form ) {
+        return;
+    }
+
+
     /** ***********************************************************************
      * reads all resource groups from Azure API and returns an array of
      * resource group objects
@@ -735,7 +752,56 @@ abstract class Api
         return $result->decode_response()->value;       
     }
 
-    
+
+    /** ***********************************************************************
+     * queries all express route circuits authorizations for a given express
+     * route circuit from a resource group  and returns a list
+     *
+     * @param object $group
+     * resoureceGroup object to work on
+     *
+     * @param string
+     * name of express route circuit
+     *
+     * @return array of objects
+     *
+     */
+
+    protected function getExpressRouteCircuitsAuthorizations($group, $expr_gw)
+    {
+        $resource_group = $group->name;
+
+        Logger::info("Azure API: querying express route circuits authorizations from resource group '".
+                     $resource_group."'");
+
+        $result = $this->call_get('subscriptions/'.
+                                  $this->subscription_id.
+                                  '/resourceGroups/'.
+                                  $resource_group.
+                                  '/providers/Microsoft.Network/expressRouteCircuits/'.
+                                  $expr_gw.
+                                  '/authorizations',
+                                  "2018-08-01");
+        // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                            "querying express route circuits authorizations");
+
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get express route circuits authorizations ".
+                "for express route circuit %s in resource group '%s'. HTTP: %d",
+                $expr_gw, $resource_group, $result->info->http_code);
+            Logger::error( $error );
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;
+    }
+
+
     /** ***********************************************************************
      * queries all DB for PostgreSQL from a resource group and returns a list
      *

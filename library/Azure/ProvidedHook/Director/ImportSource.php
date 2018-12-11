@@ -23,6 +23,7 @@ use Icinga\Module\Azure\VirtualMachinesInterfaces;
 use Icinga\Module\Azure\LoadBalancers;
 use Icinga\Module\Azure\AppGW;
 use Icinga\Module\Azure\ExpGW;
+use Icinga\Module\Azure\ExpGWauth;
 use Icinga\Module\Azure\MsPgSQL;
 use Icinga\Module\Azure\ResourceGroup;
 use Icinga\Module\Azure\Subscription;
@@ -36,9 +37,9 @@ class ImportSource extends ImportSourceHook
 
 
     private const RESOURCE_GROUP_JOKER = "<*all*>";
-    
+
     /** names, fields and shortcut codes for objects */
-    
+
     const supportedObjectTypes = array(
         'vm'      => array(
             'name'   => 'Virtual Machines',
@@ -74,6 +75,12 @@ class ImportSource extends ImportSourceHook
             'name'   => 'Express Route Circuits',
             'class'  => 'Icinga\Module\Azure\ExpGW',
             'fields' => ExpGW::FIELDS_RETURNED,
+        ),
+
+        'expgwauth'  => array(
+            'name'   => 'Express Route Circuits (Authorization)',
+            'class'  => 'Icinga\Module\Azure\ExpGWauth',
+            'fields' => ExpGWauth::FIELDS_RETURNED,
         ),
 
         'mspgsql' => array(
@@ -354,6 +361,43 @@ class ImportSource extends ImportSourceHook
                 static::enumresourceGroups($form, $resgroup)
             ),
         ));
+
+
+        $object_type = $form->getSentOrObjectSetting('object_type');
+
+        // if the minimum credentials are not set, stay where we are...
+        if (!$object_type)
+            return;
+
+
+        // ok, to this point, we got anything we need for standard configuration
+        // but there might be some object class specific stuff to be done.
+        // so call the object class form configuration method, which is a bit
+        // trick because the class name is part of the form information accuired
+        // somewhat above.
+
+        // to do this, we have to do the same as in $this->api()
+
+
+        try {
+            $myclassname = self::supportedObjectTypes[$object_type]['class'];
+            $temp_api = new $myclassname(
+                $tenant_id, $subscription_id,
+                $client_id, $client_secret,
+                $form->getSentOrObjectSetting('proxy'),
+                intval($form->getSentOrObjectSetting('con_timeout')),
+                intval($form->getSentOrObjectSetting('timeout'))
+            );
+
+            $temp_api->extendForm( $form );
+        }
+        catch(Exception $e)
+        {
+            // in case something went wrong.. stay here...
+            Logger::info("Azure API: could not use form extensions when creating importer.");
+            return;
+        }
+
     }
 
 
