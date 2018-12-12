@@ -393,7 +393,8 @@ class ImportSource extends ImportSourceHook
                 $client_id, $client_secret,
                 $form->getSentOrObjectSetting('proxy'),
                 intval($form->getSentOrObjectSetting('con_timeout')),
-                intval($form->getSentOrObjectSetting('timeout'))
+                intval($form->getSentOrObjectSetting('timeout')),
+                array()
             );
 
             $temp_api->extendForm( $form );
