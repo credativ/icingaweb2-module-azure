@@ -283,9 +283,13 @@ class ImportSource extends ImportSourceHook
                 $client_id, $client_secret,
                 $form->getSentOrObjectSetting('proxy'),
                 intval($form->getSentOrObjectSetting('con_timeout')),
-                intval($form->getSentOrObjectSetting('timeout')));
+                intval($form->getSentOrObjectSetting('timeout')),
+                array()
+            );
 
             $subscr = $api->getAll("");
+
+            unset($api);
         }
         catch(Exception $e)
         {
@@ -340,9 +344,13 @@ class ImportSource extends ImportSourceHook
                 $client_id, $client_secret,
                 $form->getSentOrObjectSetting('proxy'),
                 intval($form->getSentOrObjectSetting('con_timeout')),
-                intval($form->getSentOrObjectSetting('timeout')));
+                intval($form->getSentOrObjectSetting('timeout')),
+                array()
+            );
 
             $resgroup = $api->getAll("");
+
+            unset($api);
         }
         catch(Exception $e)
         {
@@ -369,6 +377,15 @@ class ImportSource extends ImportSourceHook
             ),
         ));
 
+
+        // for the next step, we need to know the resource group name
+        // and the object type name.
+        
+        $resource_group_name = $form->getSentOrObjectSetting('resource_group_names');
+        
+        // if the minimum credentials are not set, stay where we are...
+        if (!$resource_group_name)
+            return;
 
         $object_type = $form->getSentOrObjectSetting('object_type');
 
@@ -398,12 +415,13 @@ class ImportSource extends ImportSourceHook
             );
 
             $temp_api->extendForm( $form );
+
+            unset($temp_api);
         }
         catch(Exception $e)
         {
             // in case something went wrong.. stay here...
             Logger::info("Azure API: could not use form extensions when creating importer.");
-            return;
         }
 
     }
