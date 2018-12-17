@@ -186,17 +186,17 @@ class ExpGW extends Api
             {
                 $object->skuName = (
                     property_exists( $current->sku, 'name') ?
-                    $current->sku->name : NULL;
+                    $current->sku->name : NULL
                 );
 
                 $object->skuTier = (
                     property_exists( $current->sku, 'tier') ?
-                    $current->sku->tier : NULL;
+                    $current->sku->tier : NULL
                 );
 
                 $object->skuFamily = (
                     property_exists( $current->sku, 'family') ?
-                    $current->sku->family : NULL;
+                    $current->sku->family : NULL
                 );
             }
 
