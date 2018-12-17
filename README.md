@@ -44,11 +44,12 @@ Currently, we have some resources implemented in this importer module:
 
 * Virtual machines
 * Disks for virtual machines
-* Interfaces for virtual machines
+* Network Interfaces for virtual machines
 * Load balancers
 * Application Gateways
 * Microsoft.DBforPostgreSQL servers (SAAS)
-* Express route circuits
+* Express Route Circuits
+* Authorizations for Express Route Circuits
 * Resource Groups
 * Subscriptions
 
