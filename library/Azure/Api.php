@@ -121,12 +121,16 @@ abstract class Api
         Logger::info(static::MSG_LOG_GET_ALL);
         $rgs =  $this->getResourceGroups( $rgn );
 
+        Logger::debug( "Azure API: found ". count( $rgs ). "resource groups." );
+
         $objects = array();
 
         // walk through any resourceGroups
         foreach( $rgs as $group )
         {
-            $objects = $objects + $this->scanResourceGroup( $group );
+            $objects = array_merge_recursive(
+                $objects, $this->scanResourceGroup( $group )
+            );
         }
         return $objects;
     }
@@ -506,8 +510,8 @@ abstract class Api
         }
 
         Logger::info(
-            "Azure API: got ". count($retval). "virtual machines for ".
-            "resource group ". $resource_group. "'"
+            "Azure API: got ". count($retval). " virtual machines for ".
+            "resource group '". $resource_group. "'"
         );
         return $retval;
     }
