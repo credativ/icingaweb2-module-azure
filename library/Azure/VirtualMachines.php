@@ -137,12 +137,15 @@ class VirtualMachines extends Api
                     {
                         foreach($public_ip as $pubip)
                         {
-                            if (
-                                ( $interf->properties->ipConfigurations[0]->
-                                  properties->publicIPAddress->id ==
-                                  $pubip->id) and
-                                ( property_exists(
-                                    $pubip->properties,'ipAddress')))
+                            if ((
+                                $interf->properties->ipConfigurations[0]->
+                                properties->publicIPAddress->id ==
+                                $pubip->id
+                            ) and (
+                                property_exists(
+                                    $pubip->properties,'ipAddress'
+                                )
+                            ))
                             {
                                 $object->publicIP =
                                                   $pubip->properties->ipAddress;
