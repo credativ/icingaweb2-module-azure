@@ -53,8 +53,8 @@ Currently, we have some resources implemented in this importer module:
 * Resource Groups
 * Subscriptions
 
-While the first five are tested and should be working smoothly, the PostgreSQL
-and Express route circuit object types are considered untested.
+While the majority of the classes  are tested and should be working smoothly,
+the Express Route Circuit object types are considered untested, currently.
 
 This list will be enhanced with any release step by step. If you miss something,
 we would appreciate an open issue on this here on GitHub. The same applies for
