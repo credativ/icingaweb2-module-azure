@@ -101,7 +101,7 @@ class ImportSource extends ImportSourceHook
 
     );
 
-        
+
     public function getName()
     {
         return 'Microsoft Azure';
@@ -113,7 +113,7 @@ class ImportSource extends ImportSourceHook
 
         $start = microtime(true);
         $query = $this->getObjectType();
-            
+
         // query config which resourceGroups to deal with
         $rg = $this->getSetting('resource_group_names', '');
         if ($rg == self::RESOURCE_GROUP_JOKER)
@@ -121,18 +121,18 @@ class ImportSource extends ImportSourceHook
 
         // retrieve all data we want from the class we choose
         $objects = $this->api($query)->getAll( $rg );
-        
- 
+
+
         // log some timing data
         $duration = microtime(true) - $start;
         Logger::info('Azure API: %s import run took %f seconds',
                      self::supportedObjectTypes[$query]['name'],
                      $duration);
-        
+
         return $objects;
     }
 
-    
+
     protected function api($query)
     {
         if ($this->api === null) {
@@ -257,7 +257,8 @@ class ImportSource extends ImportSourceHook
             'required'     => true,
             'class'        => 'autosubmit',
         ));
-        $form->addElement('text', 'client_secret', array(    // TODO: set 'text' to 'password'
+        $form->addElement('text', 'client_secret', array(
+            // -------------------------->>>>   TODO: set 'text' to 'password'
             'label'        => $form->translate('Azure client secret'),
             'description'  => $form->translate(
                 'This is the secret you got when creating the Client ID.'),
@@ -265,7 +266,7 @@ class ImportSource extends ImportSourceHook
             'class'        => 'autosubmit',
         ));
 
-        
+
         $tenant_id     = $form->getSentOrObjectSetting('tenant_id');
         $client_id     = $form->getSentOrObjectSetting('client_id');
         $client_secret = $form->getSentOrObjectSetting('client_secret');
@@ -294,7 +295,8 @@ class ImportSource extends ImportSourceHook
         catch(Exception $e)
         {
             // in case something went wrong.. stay here...
-            Logger::info("Azure API: could not find subscription ID when creating importer.");
+            Logger::info( "Azure API: could not find subscription ID when ".
+                          "creating importer." );
             return;
         }
 
@@ -312,7 +314,7 @@ class ImportSource extends ImportSourceHook
             'class'        => 'autosubmit',
         ));
 
-        
+
         $form->addElement('select', 'object_type', array(
             'label'        => 'Object type',
             'required'     => true,
@@ -355,7 +357,8 @@ class ImportSource extends ImportSourceHook
         catch(Exception $e)
         {
             // in case something went wrong.. stay here...
-            Logger::info("Azure API: could not find resource groups when creating importer.");
+            Logger::info( "Azure API: could not find resource groups when ".
+                          "creating importer.");
             return;
         }
 
@@ -380,9 +383,11 @@ class ImportSource extends ImportSourceHook
 
         // for the next step, we need to know the resource group name
         // and the object type name.
-        
-        $resource_group_name = $form->getSentOrObjectSetting('resource_group_names');
-        
+
+        $resource_group_name = $form->getSentOrObjectSetting(
+            'resource_group_names'
+        );
+
         // if the minimum credentials are not set, stay where we are...
         if (!$resource_group_name)
             return;
@@ -421,7 +426,8 @@ class ImportSource extends ImportSourceHook
         catch(Exception $e)
         {
             // in case something went wrong.. stay here...
-            Logger::info("Azure API: could not use form extensions when creating importer.");
+            Logger::info( "Azure API: could not use form extensions when ".
+                          "creating importer.");
         }
 
     }
@@ -433,7 +439,8 @@ class ImportSource extends ImportSourceHook
 
         foreach($subscr as $sub)
         {
-            $list[$sub->subscriptionId] = $sub->name.' ('.$sub->subscriptionId.')';
+            $list[$sub->subscriptionId] = $sub->name.' ('.
+                                        $sub->subscriptionId.')';
         }
 
         return $list;
@@ -444,7 +451,9 @@ class ImportSource extends ImportSourceHook
     {
         $list = array();
 
-        $list[self::RESOURCE_GROUP_JOKER] = $form->translate('<all resource groups>');
+        $list[self::RESOURCE_GROUP_JOKER] = $form->translate(
+            '<all resource groups>'
+        );
 
         foreach($groups as $group)
         {
@@ -466,5 +475,5 @@ class ImportSource extends ImportSourceHook
 
         return $list;
     }
-    
+
 }
