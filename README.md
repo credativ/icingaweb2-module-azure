@@ -34,6 +34,8 @@ https://github.com/credativ/icingaweb2-module-azure/blob/master/LICENSE
 Even if the releases are tagged and signed, there can no additional
 warranty or liability be derived from this. MIT license applies.
 
+For your convinience, you will find these tagged versions under the
+[releases tab here on GitHub](https://github.com/credativ/icingaweb2-module-azure/releases).
 
 Implemented features
 --------------------
