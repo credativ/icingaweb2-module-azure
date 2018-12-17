@@ -139,7 +139,7 @@ class ExpGWauth extends Api
         $objects = array();
 
         // load express route circuits in this res group
-        $exp_circuits = $this->getgetExpressRouteCircuits( $group );
+        $exp_circuits = $this->getExpressRouteCircuits( $group );
 
         // search for the right one...
         foreach($exp_circuits as $circuit)
