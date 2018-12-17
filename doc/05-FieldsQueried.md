@@ -23,7 +23,7 @@ the Azure region the object is located in.
 
 The 'type' field is just a static string derived from the API query
 to give a reference to the main API call that was used and to provide the
-IcingaWeb2 Director user with something to group results. 
+IcingaWeb2 Director user with something to group results.
 
 The 'metricDefinitions' field is a comma separated list with metric names
 available for this object type, if available. (cf.
@@ -91,10 +91,10 @@ Virtual Machines (Interfaces)
 -----------------------------
 
 Please note, the interfaces will show only one ip configuration on the VM
-query class VirtualMachines. In opposition, this class 
-"VirtualMachinesInterfaces" will create an interface object for each 
-ip configuration found on the network interface. Therefore the object id 
-man not be unique and I introduced a second field uniqueId, which is 
+query class VirtualMachines. In opposition, this class
+"VirtualMachinesInterfaces" will create an interface object for each
+ip configuration found on the network interface. Therefore the object id
+man not be unique and I introduced a second field uniqueId, which is
 assembled from the interface id as well as the ip configuration id.
 
 The **Virtual machines (interfaces)** object type does return these fields:
@@ -200,6 +200,20 @@ Express Route Circuits
 1) was renamed from bandwithInMbps
 
 
+Express Route Circuits (Authorizations)
+---------------------------------------
+* name
+* id
+* etags
+* metricDefinitions
+* type
+* subscriptionId
+* provisioningState
+* expressRouteCircuitName
+* authorizationKey
+* authorizationUseStatus
+
+
 Microsoft DB for PosgreSQL (server)
 -----------------------------------
 
@@ -255,5 +269,3 @@ on this Azure API director plugin.
 * locationPlacementId
 * quotaId
 * spendingLimit
-
-

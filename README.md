@@ -22,6 +22,18 @@ Documentation
 
 Furthermore, there is a [ChangeLog](ChangeLog) file.
 
+Please note, the project is work in progress. The **MASTER** will not
+necessarily reflect a working copy of this software. Anything tested and
+working will be tagged with a version number. Usually these tags are gpg
+signed, too.
+
+This module is released under the MIT License.
+
+https://github.com/credativ/icingaweb2-module-azure/blob/master/LICENSE
+
+Even if the releases are tagged and signed, there can no additional
+warranty or liability be derived from this. MIT license applies.
+
 
 Implemented features
 --------------------
@@ -72,19 +84,20 @@ https://github.com/tcdent/php-restclient
 published under the MIT license. The REST client code was slightly modified to
 fit into namespaces and uses valid exception classes suitable for IcingaWeb2
 
-The code was inspired by the [Icinga Web 2 module for vSphere](https://github.com/Icinga/icingaweb2-module-vsphere)
-as well as by the [AWS module for Icinga Web 2](https://github.com/Icinga/icingaweb2-module-aws).
+The code was inspired by the
+[Icinga Web 2 module for vSphere](https://github.com/Icinga/icingaweb2-module-vsphere)
+as well as by the
+[AWS module for Icinga Web 2](https://github.com/Icinga/icingaweb2-module-aws).
 
 
 Support
 -------
 
-The *icingaweb2-module-azure* is an open source project developed by credativ. credativ offers technical support 
-as well as installation and integration support for this. If you are interested or need additional features, please 
-feel free to contact us. 
+The *icingaweb2-module-azure* is an open source project developed by
+credativ. credativ offers technical support as well as installation
+and integration support for this. If you are interested or need additional
+features, please feel free to contact us.
 
 * **Web** [credativ.de](https://credativ.de)
 * **E-Mail:** [info@credativ.de](mailto:info@credativ.de)
 * **Phone:** [+49 2166 9901-0](tel:+49216699010)
-
-
