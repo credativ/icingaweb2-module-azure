@@ -121,7 +121,7 @@ abstract class Api
         Logger::info(static::MSG_LOG_GET_ALL);
         $rgs =  $this->getResourceGroups( $rgn );
 
-        Logger::debug( "Azure API: found ". count( $rgs ). "resource groups." );
+        Logger::debug( "Azure API: found ". count( $rgs ). " elements." );
 
         $objects = array();
 
@@ -132,6 +132,10 @@ abstract class Api
                 $objects, $this->scanResourceGroup( $group )
             );
         }
+
+        Logger::debug( "Azure API: returning ". count( $objects ).
+                       " elements." );
+
         return $objects;
     }
 
