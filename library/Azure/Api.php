@@ -243,8 +243,10 @@ abstract class Api
 
 
     /** ***********************************************************************
-     * reads all resource groups from Azure API and returns an array of
-     * resource group objects
+     * reads all or one resource group from Azure API and returns an array of
+     * resource group objects. If parameter $rgn is empty, all resource groups
+     * shall be returned. If its not empty, $rgn is considered a space 
+     * separated list of names.
      *
      * may throw QueryException on HTTP error
      *
