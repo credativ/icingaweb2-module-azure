@@ -390,6 +390,8 @@ abstract class Api
             throw new QueryException( $error );
         }
 
+        Logger::info("Azure API: found ".count($azure_subs)." subscriptions");
+
         return $azure_subs;
     }
 
@@ -457,32 +459,57 @@ abstract class Api
             "Azure API: querying virtual machines from resource group '".
             $resource_group."'");
 
-        $result = $this->call_get(
-            'subscriptions/'.
-            $this->subscription_id.
-            '/resourceGroups/'.
-            $resource_group.
-            '/providers/Microsoft.Compute/virtualMachines',
-            "2018-06-01"
-        );
-        // check if things have gone wrong
-        if ($result->errno != CURLE_OK)
-            $this->raiseCurlError( $result->error,
-                            "querying virtual machines");
+        $retval = array();
 
-        if ($result->info->http_code != 200)
+        $call =
+              'subscriptions/'. $this->subscription_id.
+              '/resourceGroups/'. $resource_group.
+              '/providers/Microsoft.Compute/virtualMachines';
+
+
+        while( $call != NULL ) // iterate over all pages
         {
-           $error = sprintf(
-               "Azure API: Could not get virtual machines for resource ".
-               "group '%s'. HTTP: %d",
-                $resource_group, $result->info->http_code
-           );
-            Logger::error( $error );
-            throw new QueryException( $error );
+            Logger::debug( "Azure API: calling ".$call );
+
+            $result = $this->call_get($call, "2018-06-01" );
+
+            // check if things have gone wrong
+            if ($result->errno != CURLE_OK)
+                $this->raiseCurlError( $result->error,
+                                       "querying virtual machines");
+
+            if ($result->info->http_code != 200)
+            {
+                $error = sprintf(
+                    "Azure API: Could not get virtual machines for resource ".
+                    "group '%s'. HTTP: %d",
+                    $resource_group, $result->info->http_code
+                );
+                Logger::error( $error );
+                throw new QueryException( $error );
+            }
+
+            // get result data from JSON into object $decoded
+            $temp =  $result->decode_response();
+
+            $retval = $retval + $temp->value;
+
+            if (property_exists( $temp, 'nextLink'))
+            {
+                $call = $temp->nextLink;
+                LoggerI:info("Azure API: querying next page virtual machines");
+            }
+            else
+            {
+                $call = NULL;
+            };
         }
 
-        // get result data from JSON into object $decoded
-        return $result->decode_response()->value;
+        Logger::info(
+            "Azure API: got ". count($retval). "virtual machines for ".
+            "resource group ". $resource_group. "'"
+        );
+        return $retval;
     }
 
 
