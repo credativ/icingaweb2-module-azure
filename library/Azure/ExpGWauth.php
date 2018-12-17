@@ -12,8 +12,8 @@ use Icinga\Module\Azure\Api;
 /**
  * Class Api
  *
- * This is your main entry point when querying Express Route Circuit from
- * Azure API.
+ * This is your main entry point when querying Express Route Circuit 
+ * Authorization from Azure API.
  *
  */
 
@@ -49,9 +49,6 @@ class ExpGWauth extends Api
         'expressRouteCircuitName',
         'id',
         'type',
-        'provisioningState',
-        'authorizationKey',
-        'authorizationUseStatus',
         'etags',
         'metricDefinitions',
         'authorizationKey',
