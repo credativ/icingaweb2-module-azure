@@ -147,6 +147,7 @@ class ImportSource extends ImportSourceHook
             // simple
             $myclassname = self::supportedObjectTypes[$query]['class'];
 
+            // pull special config that may have got added by API subclasses
             $special_config = array();
             foreach( $myclassname::CONFIG_FIELDS as $current ) {
                 $special_config[$current] = $this->getSetting( $current );
