@@ -262,7 +262,8 @@ class VirtualMachinesInterfaces extends Api
                         'internalDomainNameSuffix'
                     ) ?
                     $current->properties->dnsSettings->internalDomainNameSuffix
-                    : NULL;
+                    : NULL
+                );
 
             }
 
