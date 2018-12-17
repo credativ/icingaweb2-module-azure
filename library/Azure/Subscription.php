@@ -11,8 +11,8 @@ use Icinga\Module\Azure\Api;
 /**
  * Class Api
  *
- * This is your main entry point when querying subscriptions from 
- * Azure API. 
+ * This is your main entry point when querying subscriptions from
+ * Azure API.
  *
  * This API implementation might not be too usefull in Icinga2 itself
  * but we need it for our dynamic configuration menu in ImportSource
@@ -23,8 +23,8 @@ use Icinga\Module\Azure\Api;
 class Subscription extends Api
 {
 
-    /** 
-     * Log Message for getAll 
+    /**
+     * Log Message for getAll
      *
      * @staticvar string MSG_LOG_GET_ALL
      */
@@ -52,34 +52,34 @@ class Subscription extends Api
     /** ***********************************************************************
      * Returns an array of subscription objects.
      *
-     * @param string $rgn 
+     * @param string $rgn
      * A space separated list of resoureceGroup names to query or '' for all.
      * This will be ignored as resource groups are bound to subscriptions,
      * so there is nothing to filter with this parameter.
      *
      * This code replaces the parental code, that is used normally for sake
-     * of this special case. 
+     * of this special case.
      *
      * @return array of objects
      *
      */
 
     public function getAll( $rgn )
-    {      
+    {
         Logger::info(static::MSG_LOG_GET_ALL);
 
         $objects = array();
 
         $objects = $this->scanResourceGroup( "" );
-       
+
         return $objects;
     }
 
 
-    
-        
+
+
     /** ***********************************************************************
-     * takes all information on application gateways from a resource group and 
+     * takes all information on application gateways from a resource group and
      * returns it in the format IcingaWeb2 Director expects
      *
      * @return array of objects
@@ -103,12 +103,14 @@ class Subscription extends Api
                 'id'                  => $subscr->id,
                 'type'                => 'subscription',
                 'state'               => $subscr->state,
-                'locationPlacementId' => $subscr->subscriptionPolicies->locationPlacementId,
+                'locationPlacementId' =>
+                $subscr->subscriptionPolicies->locationPlacementId,
                 'quotaId'             => $subscr->subscriptionPolicies->quotaId,
-                'spendingLimit'       => $subscr->subscriptionPolicies->spendingLimit,
+                'spendingLimit'       =>
+                $subscr->subscriptionPolicies->spendingLimit,
             ];
         }
 
         return $objects;
-    }   
+    }
 }

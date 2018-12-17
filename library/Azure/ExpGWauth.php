@@ -130,12 +130,11 @@ class ExpGWauth extends Api
 
     public function scanResourceGroup($group)
     {
-        // only items that have a valid provisioning state
+        // log if there are resource groups with surprising provisioning state
         if ($group->properties->provisioningState != "Succeeded")
         {
             Logger::info("Azure API: Resoure group ".$group->name.
                          " invalid provisioning state.");
-            return array();
         }
 
 

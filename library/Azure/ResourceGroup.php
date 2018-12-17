@@ -11,8 +11,8 @@ use Icinga\Module\Azure\Api;
 /**
  * Class Api
  *
- * This is your main entry point when querying Resource Groups from 
- * Azure API. 
+ * This is your main entry point when querying Resource Groups from
+ * Azure API.
  *
  * This API implementation might not be too usefull in Icinga2 itself
  * but we need it for our dynamic configuration menu in ImportSource
@@ -23,8 +23,8 @@ use Icinga\Module\Azure\Api;
 class ResourceGroup extends Api
 {
 
-    /** 
-     * Log Message for getAll 
+    /**
+     * Log Message for getAll
      *
      * @staticvar string MSG_LOG_GET_ALL
      */
@@ -46,9 +46,9 @@ class ResourceGroup extends Api
         'provisioningState',
     );
 
-        
+
     /** ***********************************************************************
-     * takes all information on application gateways from a resource group and 
+     * takes all information on application gateways from a resource group and
      * returns it in the format IcingaWeb2 Director expects
      *
      * @return array of objects
@@ -73,7 +73,7 @@ class ResourceGroup extends Api
         ];
 
         $objects[] = $object;
-        
+
         return $objects;
-    }   
+    }
 }

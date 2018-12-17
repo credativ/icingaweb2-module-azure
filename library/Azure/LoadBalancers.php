@@ -28,7 +28,8 @@ class LoadBalancers extends Api
      * @staticvar string MSG_LOG_GET_ALL
      */
     protected const
-        MSG_LOG_GET_ALL = "Azure API: querying any LoadBalancer in configured resource groups";
+        MSG_LOG_GET_ALL = "Azure API: querying any LoadBalancer in configured ".
+        "resource groups";
 
     /**
      * array of field names to be returned by implementation.
@@ -57,19 +58,18 @@ class LoadBalancers extends Api
 
     public function scanResourceGroup($group)
     {
-        // only items that have a valid provisioning state
+        // log if there are resource groups with surprising provisioning state
         if ($group->properties->provisioningState != "Succeeded")
         {
             Logger::info("Azure API: Resoure group ".$group->name.
                          " invalid provisioning state.");
-            return array();
         }
 
         // get data needed
         $load_balancers = $this->getLoadBalancers($group);
         $public_ip      = $this->getPublicIpAddresses($group);
 
-        
+
         $objects = array();
 
         foreach($load_balancers as $current)
@@ -87,7 +87,7 @@ class LoadBalancers extends Api
                 'metricDefinitions'=> $metrics,
             ];
 
-            // search for the public ip               
+            // search for the public ip
             foreach($public_ip as $pubip)
             {
                 if (($current->properties->frontendIPConfigurations[0]->
@@ -98,7 +98,7 @@ class LoadBalancers extends Api
                     $object->frontEndPublicIP = $pubip->properties->ipAddress;
                 }
             }
-   
+
             // add this VM to the list.
             $objects[] = $object;
         }

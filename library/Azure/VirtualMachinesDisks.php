@@ -11,17 +11,17 @@ use Icinga\Module\Azure\Api;
 /**
  * Class Virtual Machines Disks
  *
- * This is your main entry point when querying disks for virtual machines from 
- * Azure API. 
+ * This is your main entry point when querying disks for virtual machines from
+ * Azure API.
  *
  */
 
 
 class VirtualMachinesDisks extends Api
 {
-    /** 
-     * Log Message for getAll 
-     * should be redifined in subclass 
+    /**
+     * Log Message for getAll
+     * should be redifined in subclass
      *
      * @staticvar string MSG_LOG_GET_ALL
      */
@@ -60,9 +60,9 @@ class VirtualMachinesDisks extends Api
         'vmProvisioningState',
     );
 
-    
+
     /** ***********************************************************************
-     * takes all information on virtual machines disks from a resource group 
+     * takes all information on virtual machines disks from a resource group
      * and returns it in the format IcingaWeb2 Director expects
      *
      * @return array of objects
@@ -71,12 +71,11 @@ class VirtualMachinesDisks extends Api
 
     protected function scanResourceGroup($group)
     {
-        // only items that have a valid provisioning state
+        // log if there are resource groups with surprising provisioning state
         if ($group->properties->provisioningState != "Succeeded")
         {
             Logger::info("Azure API: Resoure group ".$group->name.
                          " invalid provisioning state.");
-            return array();
         }
 
         // get data needed
@@ -99,7 +98,7 @@ class VirtualMachinesDisks extends Api
                 'timeCreated'       => $current->properties->timeCreated,
                 'diskSizeGB'        => $current->properties->diskSizeGB,
                 'osType'            => $current->properties->osType,
-                
+
                 'createOption'      => (
                     property_exists($current->properties,'creationData') ?
                     (
@@ -109,7 +108,7 @@ class VirtualMachinesDisks extends Api
                         NULL ) :
                     NULL
                 ),
-                
+
                 'imageReferenceId'  => (
                     property_exists($current->properties,'creationData') ?
                     (
@@ -118,11 +117,12 @@ class VirtualMachinesDisks extends Api
                         (
                             property_exists($current->properties->creationData->
                                             imageReference, 'id') ?
-                            $current->properties->creationData->imageReference->id :
-                            NULL ) :
+                            $current->properties->creationData->
+                            imageReference->id : NULL
+                        ) :
                         NULL ) :
                     NULL ),
-                
+
                 'imageReferenceLun'  => (
                     property_exists($current->properties,'creationData') ?
                     (
@@ -131,11 +131,12 @@ class VirtualMachinesDisks extends Api
                         (
                             property_exists($current->properties->creationData->
                                             imageReference, 'lun') ?
-                            $current->properties->creationData->imageReference->lun :
-                            NULL ) :
+                            $current->properties->creationData->
+                            imageReference->lun : NULL
+                        ) :
                         NULL ) :
                     NULL ),
-                
+
                 'sourceUri'  => (
                     property_exists($current->properties,'creationData') ?
                     (
@@ -144,7 +145,7 @@ class VirtualMachinesDisks extends Api
                         $current->properties->creationData->sourceUri :
                         NULL ) :
                     NULL ),
-                
+
                 'sourceResourceId'  => (
                     property_exists($current->properties,'creationData') ?
                     (
@@ -157,8 +158,10 @@ class VirtualMachinesDisks extends Api
                 'encryptionEnabled' => (
                     property_exists($current->properties,'encryptionSettings') ?
                     (
-                        property_exists($current->properties->encryptionSettings,
-                                        'enabled') ?
+                        property_exists(
+                            $current->properties->encryptionSettings,
+                            'enabled'
+                        ) ?
                         $current->properties->encryptionSettings->enabled :
                         NULL ) :
                     NULL ),
@@ -168,12 +171,12 @@ class VirtualMachinesDisks extends Api
                 'vmLun'             => NULL,
                 'vmLocation'        => NULL,
                 'vmProvisioningState' => NULL,
-            ];                
+            ];
 
 
             // find the matching managing virtual machine and fill in some
             // data on this
-            
+
             foreach($virtual_machines as $vm)
             {
                 if ($vm->id == $current->managedBy)
@@ -182,36 +185,51 @@ class VirtualMachinesDisks extends Api
                     // and other usefull stuff
                     $object->vmName              = $vm->name;
                     $object->vmLocation          = $vm->location;
-                    $object->vmProvisioningState = $vm->properties->provisioningState;
+                    $object->vmProvisioningState =
+                                                 $vm->properties->
+                                                 provisioningState;
 
                     // determine if the usage type is 'osDisk', 'dataDisk'
                     // or 'none' if not found
-                    if ( $vm->properties->storageProfile->osDisk->managedDisk->id ==
-                         $current->id)
+                    if (
+                        $vm->properties->storageProfile->
+                        osDisk->managedDisk->id ==
+                        $current->id
+                    )
                     {
                         // yes, this one is the osDisk.
                         $object->vmUsageType = 'osDisk';
-                        
-                        if (property_exists($vm->properties->storageProfile->osDisk,
-                                            'caching'))
+
+                        if (property_exists(
+                            $vm->properties->storageProfile->osDisk,
+                            'caching'))
+                        {
                             $object->vmCaching =
-                                               $vm->properties->storageProfile->osDisk->caching;
+                                               $vm->properties->
+                                               storageProfile->osDisk->caching;
+                        }
 
                         if (property_exists(
                             $vm->properties->storageProfile->osDisk,
                             'lun'))
+                        {
                             $object->vmLun =
-                                           $vm->properties->storageProfile->osDisk->lun;
+                                           $vm->properties->storageProfile->
+                                           osDisk->lun;
+                        }
                     }
 
                     else
                         // no, we have to search the dataDisks
-                        foreach( $vm->properties->storageProfile->dataDisks as $data_disk)
+                        foreach(
+                            $vm->properties->storageProfile->dataDisks
+                            as $data_disk
+                        )
                         {
                             // Please note: by the time of writing this,
                             // the Azure API reports the resource group name
                             // in upper case for the dataDisk array :-(
-                            
+
                             if (strtolower($data_disk->managedDisk->id) ==
                                 strtolower($current->id))
                             {
@@ -228,7 +246,7 @@ class VirtualMachinesDisks extends Api
             // add this VM to the list.
             $objects[] = $object;
         }
-        
+
         return $objects;
-    }  
+    }
 }

@@ -11,8 +11,8 @@ use Icinga\Module\Azure\Api;
 /**
  * Class Virtual Machines
  *
- * This is your main entry point when querying virtual machines from 
- * Azure API. 
+ * This is your main entry point when querying virtual machines from
+ * Azure API.
  *
  */
 
@@ -54,7 +54,7 @@ class VirtualMachines extends Api
     );
 
     /** ***********************************************************************
-     * takes all information on virtual machines from a resource group and 
+     * takes all information on virtual machines from a resource group and
      * returns it in the format IcingaWeb2 Director expects
      *
      * @return array of objects
@@ -63,12 +63,11 @@ class VirtualMachines extends Api
 
     protected function scanResourceGroup($group)
     {
-        // only items that have a valid provisioning state
+        // log if there are resource groups with surprising provisioning state
         if ($group->properties->provisioningState != "Succeeded")
         {
             Logger::info("Azure API: Resoure group ".$group->name.
                          " invalid provisioning state.");
-            return array();
         }
 
         // get data needed
@@ -90,15 +89,19 @@ class VirtualMachines extends Api
                 'location'         => $current->location,
                 'type'             => $current->type,
                 'osType'           => (
-                    property_exists($current->properties->storageProfile->osDisk,
-                                    'osType')?
+                    property_exists(
+                        $current->properties->storageProfile->osDisk,
+                        'osType') ?
                     $current->properties->storageProfile->osDisk->osType : ""
                 ),
                 'osDiskName'       => (
-                    property_exists($current->properties->storageProfile->osDisk,'name')?
+                    property_exists(
+                        $current->properties->storageProfile->osDisk, 'name' ) ?
                     $current->properties->storageProfile->osDisk->name : ""
                 ),
-                'dataDisks'        => count($current->properties->storageProfile->dataDisks),
+                'dataDisks'        => count(
+                    $current->properties->storageProfile->dataDisks
+                ),
                 'privateIP'        => NULL,
                 'network_interfaces_count' => 0,
                 'publicIP'         => NULL,
@@ -134,11 +137,15 @@ class VirtualMachines extends Api
                     {
                         foreach($public_ip as $pubip)
                         {
-                            if (($interf->properties->ipConfigurations[0]->properties->publicIPAddress->id ==
-                                 $pubip->id) and
-                                (property_exists($pubip->properties,'ipAddress')))
+                            if (
+                                ( $interf->properties->ipConfigurations[0]->
+                                  properties->publicIPAddress->id ==
+                                  $pubip->id) and
+                                ( property_exists(
+                                    $pubip->properties,'ipAddress')))
                             {
-                                $object->publicIP = $pubip->properties->ipAddress;
+                                $object->publicIP =
+                                                  $pubip->properties->ipAddress;
                             }
                         }
                     }
@@ -157,9 +164,9 @@ class VirtualMachines extends Api
             }
 
             // add this VM to the list.
-            $objects[] = $object;   
+            $objects[] = $object;
         }
-        
+
         return $objects;
-    }  
+    }
 }

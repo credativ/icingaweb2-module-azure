@@ -25,10 +25,10 @@ class Token {
 
     const API_LOGIN = "https://login.microsoftonline.com";
     const API_TOKEN_TYPE = "Bearer";
-        
+
     /** var restc  stores rest client api handling object */
     private $restc;
-    
+
     /** var string bearer */
     private $bearer;
 
@@ -55,29 +55,29 @@ class Token {
      * constructor for Token object
 
      */
-    
-    public function __construct( $tenant_id, 
+
+    public function __construct( $tenant_id,
                                  $client_id, $client_secret,
                                  $endpoint, $proxy = '',
                                  $con_timeout = 0, $timeout = 0 )
-    {       
+    {
         $this->tenant_id       = $tenant_id;
         $this->client_id       = $client_id;
         $this->client_secret   = $client_secret;
         $this->endpoint        = $endpoint;
-        $this->proxy	       = $proxy;      
+        $this->proxy           = $proxy;
 
         $this->bearer  = NULL;
         $this->expires = NULL;
-        
-        $this->restc = new RestClient([ 
+
+        $this->restc = new RestClient([
             'base_url' => self::API_LOGIN,
             'curl_options' => [
                 CURLOPT_PROXY          => $proxy,
                 CURLOPT_TIMEOUT        => $timeout,
                 CURLOPT_CONNECTTIMEOUT => $con_timeout,
             ],
-            
+
             'format'   => "json",
             'parameters'  => [
                 'grant_type'    => 'client_credentials',
@@ -86,14 +86,14 @@ class Token {
                 'resource'      => $endpoint,
             ],
         ]);
-        
+
         // no need for assertions as the RestClient constructor
-        // cannot fail. 
+        // cannot fail.
 
         $this->requestToken();
     }
 
-    
+
     /** ***********************************************************************
      * call the login api and generate a new bearer token
      * may throw exceptions if login api is unwilling.
@@ -110,24 +110,26 @@ class Token {
         // check if there was a curl error
         if ($result->errno != CURLE_OK)
         {
-            $msg = sprintf("Azure API: Got CURL error '%s' while %s token generation",
-                           $result->error, self::API_TOKEN_TYPE);
+            $msg = sprintf(
+                "Azure API: Got CURL error '%s' while %s token generation",
+                $result->error, self::API_TOKEN_TYPE
+            );
             Logger::error( $msg );
             throw new QueryException($msg);
         }
-        
+
         // check if HTTP result code was 200 - OK
         if ($result->info->http_code != 200)
         {
             Logger::error("Azure Token: Could not get bearer token. HTTP: ".
-                          $result->info->http_code." CURL: ".$result->error);           
+                          $result->info->http_code." CURL: ".$result->error);
             throw new QueryException("Could not get bearer token. HTTP: ".
                                      $result->info->http_code);
         }
 
         // get result data from JSON into object $decoded
-        $decoded = $result->decode_response();      
-        
+        $decoded = $result->decode_response();
+
         // check some assertions on the returned API data
         // i.e. do we have every property and are these resulst plausible?
         if (
@@ -141,7 +143,7 @@ class Token {
             ) or
             ( strcmp($decoded->token_type, self::API_TOKEN_TYPE) != 0 ) or
             ( strcmp($decoded->resource, $this->endpoint) != 0 )
-        )            
+        )
         {
             // if assertion fails, report an error and bail out
             Logger::error("Azure Token: Malformed result on token access ".
@@ -157,7 +159,7 @@ class Token {
         return;
     }
 
-    
+
     /****************************************************
      * tests if token has expired, true if invalid
      *
@@ -168,9 +170,9 @@ class Token {
         return (($this->expires === NULL) or ($this->expires <= time()));
     }
 
-    
+
     /****************************************************
-     * Returns the current bearer token string 
+     * Returns the current bearer token string
      *
      * @return string
      */

@@ -28,7 +28,8 @@ class MsPgSQL extends Api
      */
     protected const
         MSG_LOG_GET_ALL =
-        "Azure API: querying any 'DB for PostgreSQL' services in configured resource groups.";
+        "Azure API: querying any 'DB for PostgreSQL' services in configured ".
+        "resource groups.";
 
     /**
      * array of field names to be returned by implementation.
@@ -56,8 +57,8 @@ class MsPgSQL extends Api
 
 
     /** ***********************************************************************
-     * takes all information on Microsoft.DBforPostgreSQL from a resource group and 
-     * returns it in the format IcingaWeb2 Director expects
+     * takes all information on Microsoft.DBforPostgreSQL from a resource group
+     * and returns it in the format IcingaWeb2 Director expects
      *
      * @return array of objects
      *
@@ -65,12 +66,11 @@ class MsPgSQL extends Api
 
     public function scanResourceGroup($group)
     {
-        // only items that have a valid provisioning state
+        // log if there are resource groups with surprising provisioning state
         if ($group->properties->provisioningState != "Succeeded")
         {
             Logger::info("Azure API: Resoure group ".$group->name.
                          " invalid provisioning state.");
-            return array();
         }
 
         // get data needed
@@ -78,7 +78,7 @@ class MsPgSQL extends Api
 
         $objects = array();
 
-        foreach($dbservers as $current) 
+        foreach($dbservers as $current)
         {
             // get metric definitions list
             $metrics = $this->getMetricDefinitionsList($current->id);
@@ -94,11 +94,16 @@ class MsPgSQL extends Api
                 'capacity'            => $current->sku->capacity,
                 'sslEnforcement'      => $current->properties->sslEnforcement,
                 'userVisibleState'    => $current->properties->userVisibleState,
-                'fqdn'                => $current->properties->fullyQualifiedDomainName,
-                'earliestRestoreDate' => $current->properties->earliestRestoreDate,
-                'storageMB'           => $current->properties->storageProfile->storageMB,
-                'backupRetentionDays' => $current->properties->storageProfile->backupRetentionDays,
-                'geoRedundantBackup'  => $current->properties->storageProfile->geoRedundantBackup,
+                'fqdn'                =>
+                $current->properties->fullyQualifiedDomainName,
+                'earliestRestoreDate' =>
+                $current->properties->earliestRestoreDate,
+                'storageMB'           =>
+                $current->properties->storageProfile->storageMB,
+                'backupRetentionDays' =>
+                $current->properties->storageProfile->backupRetentionDays,
+                'geoRedundantBackup'  =>
+                $current->properties->storageProfile->geoRedundantBackup,
                 'metricDefinitions'   => $metrics,
             ];
 

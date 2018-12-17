@@ -50,10 +50,10 @@ class AppGW extends Api
         'metricDefinitions',
     );
 
-        
+
     /** ***********************************************************************
-     * takes all information on application gateways from a resource group and 
-     * returns it in the format IcingaWeb2 Director expects
+     * takes all information on application gateways from a resource group
+     * and returns it in the format IcingaWeb2 Director expects
      *
      * @return array of objects
      *
@@ -61,26 +61,25 @@ class AppGW extends Api
 
     public function scanResourceGroup($group)
     {
-        // only items that have a valid provisioning state
+        // log if there are resource groups with surprising provisioning state
         if ($group->properties->provisioningState != "Succeeded")
         {
             Logger::info("Azure API: Resoure group ".$group->name.
                          " invalid provisioning state.");
-            return array();
         }
 
         // get data needed
         $app_gateways = $this->getApplicationGateways($group);
         $public_ip    = $this->getPublicIpAddresses($group);
 
-        
+
         $objects = array();
 
         foreach($app_gateways as $current)
         {
             // get metric definitions list
             $metrics = $this->getMetricDefinitionsList($current->id);
-  
+
             $object = (object) [
                 'name'              => $current->name,
                 'id'                => $current->id,
@@ -101,22 +100,33 @@ class AppGW extends Api
                 'operationalState'  => $current->properties->operationalState,
                 'frontEndPort'      => (
                     property_exists($current->properties, 'frontendPorts') ?
-                    $current->properties->frontendPorts[0]->properties->port : NULL
+                    $current->properties->frontendPorts[0]->properties->port :
+                    NULL
                 ),
                 'enabledHTTP2'      => $current->properties->enableHttp2,
                 'enabledWAF'        => (
-                    (property_exists($current, 'webApplicationFirewallConfiguration') and
-                     property_exists($current->properties->webApplicationFirewallConfiguration,'enabled'))?
-                    $current->properties->webApplicationFirewallConfiguration->enabled : FALSE
+                    ( property_exists(
+                        $current, 'webApplicationFirewallConfiguration') and
+                      property_exists(
+                          $current->properties->
+                          webApplicationFirewallConfiguration,'enabled')
+                    ) ?
+                    $current->properties->
+                    webApplicationFirewallConfiguration->enabled : FALSE
                 ),
                 'metricDefinitions'=> $metrics,
             ];
 
-            // search for the public ip, but only if there is one configured. 
-            if (property_exists($current->properties,'frontendIPConfigurations')
+            // search for the public ip, but only if there is one configured.
+            if (
+                property_exists(
+                    $current->properties,'frontendIPConfigurations')
                 and
-                property_exists($current->properties->frontendIPConfigurations[0]->properties,
-                                'publicIPAddress'))
+                property_exists(
+                    $current->properties->
+                    frontendIPConfigurations[0]->properties,
+                    'publicIPAddress')
+            )
             {
                 foreach($public_ip as $pubip)
                 {
@@ -125,7 +135,8 @@ class AppGW extends Api
                         and
                         (property_exists($pubip->properties,'ipAddress')))
                     {
-                        $object->frontEndPublicIP = $pubip->properties->ipAddress;
+                        $object->frontEndPublicIP = $pubip->properties->
+                                                  ipAddress;
                     }
                 }
             }
@@ -133,5 +144,5 @@ class AppGW extends Api
             $objects[] = $object;
         }
         return $objects;
-    }   
+    }
 }

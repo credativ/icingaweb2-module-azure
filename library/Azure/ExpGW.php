@@ -74,12 +74,11 @@ class ExpGW extends Api
 
     public function scanResourceGroup($group)
     {
-        // only items that have a valid provisioning state
+        // log if there are resource groups with surprising provisioning state
         if ($group->properties->provisioningState != "Succeeded")
         {
             Logger::info("Azure API: Resoure group ".$group->name.
                          " invalid provisioning state.");
-            return array();
         }
 
         // get data needed
@@ -125,7 +124,8 @@ class ExpGW extends Api
                     $current->properties->expressRoutePort : NULL
                 ),
                 'gatewayManagerEtag'       => (
-                    property_exists($current->properties, 'gatewayManagerEtag') ?
+                    property_exists(
+                        $current->properties, 'gatewayManagerEtag') ?
                     $current->properties->gatewayManagerEtag : NULL
                 ),
                 'serviceKey'               => (

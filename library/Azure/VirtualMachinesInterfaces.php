@@ -11,14 +11,14 @@ use Icinga\Module\Azure\Api;
 /**
  * Class Virtual Machines Interfaces
  *
- * This is your main entry point when querying interfaces atteched to virtual 
- * machines from Azure API. 
+ * This is your main entry point when querying interfaces atteched to virtual
+ * machines from Azure API.
  *
  * Please note, the interfaces will show only one ip configuration on the VM
- * query class VirtualMachines. IN opposition, this class 
- * "VirtualMachinesInterfaces" will create an interface object for each 
- * ip configuration found on the network interface. Therefore the object id 
- * man not be unique and I introduced a second field uniqueId, which is 
+ * query class VirtualMachines. IN opposition, this class
+ * "VirtualMachinesInterfaces" will create an interface object for each
+ * ip configuration found on the network interface. Therefore the object id
+ * man not be unique and I introduced a second field uniqueId, which is
  * assembled from the interface id as well as the ip configuration id.
  *
  */
@@ -26,15 +26,16 @@ use Icinga\Module\Azure\Api;
 
 class VirtualMachinesInterfaces extends Api
 {
-    /** 
+    /**
      * Log Message for getAll
      *
      * @staticvar string MSG_LOG_GET_ALL
      */
     protected const
         MSG_LOG_GET_ALL =
-        "Azure API: querying interfaces available in configured resource groups ".
-        "and in correlation to virtual machines if there is a vm attached";
+        "Azure API: querying interfaces available in configured ".
+        "resource groups and in correlation to virtual machines ".
+        "if there is a vm attached";
 
     /**
      * array of field names to be returned by implementation.
@@ -86,7 +87,7 @@ class VirtualMachinesInterfaces extends Api
 
 
     /** ***********************************************************************
-     * takes all information on virtual machine interfaces from a resource 
+     * takes all information on virtual machine interfaces from a resource
      * group and returns it in the format IcingaWeb2 Director expects
      *
      * @return array of objects
@@ -95,12 +96,11 @@ class VirtualMachinesInterfaces extends Api
 
     protected function scanResourceGroup($group)
     {
-        // only items that have a valid provisioning state
+        // log if there are resource groups with surprising provisioning state
         if ($group->properties->provisioningState != "Succeeded")
         {
             Logger::info("Azure API: Resoure group ".$group->name.
                          " invalid provisioning state.");
-            return array();
         }
 
         // get data needed
@@ -123,7 +123,8 @@ class VirtualMachinesInterfaces extends Api
                 'location'                    => $current->location,
                 'type'                        => $current->type,
                 'etag'                        => $current->etag,
-                'provisioningState'           => $current->properties->provisioningState,
+                'provisioningState'           =>
+                $current->properties->provisioningState,
                 'macAddress'                  => (
                     property_exists($current->properties, 'macAddress') ?
                     $current->properties->macAddress : NULL ),
@@ -141,8 +142,10 @@ class VirtualMachinesInterfaces extends Api
                     property_exists($current->properties,
                                     'networkSecurityGroup') ?
                     (
-                        property_exists($current->properties->networkSecurityGroup,
-                                        'id ') ?
+                        property_exists(
+                            $current->properties->networkSecurityGroup,
+                            'id '
+                        ) ?
                         $current->properties->networkSecurityGroup->id :
                         NULL) :
                     NULL ),
@@ -155,7 +158,9 @@ class VirtualMachinesInterfaces extends Api
                     property_exists($current->properties,
                                     'virtualMachine') ?
                     (
-                        property_exists($current->properties->virtualMachine,'id') ?
+                        property_exists(
+                            $current->properties->virtualMachine,'id'
+                        ) ?
                         $current->properties->virtualMachine->id : NULL) :
                     NULL ),
                 'vmName'                      => NULL,
@@ -190,9 +195,11 @@ class VirtualMachinesInterfaces extends Api
                     {
                         $object->vmName              = $vm->name;
                         $object->vmLocation          = $vm->location;
-                        $object->vmProvisioningState = $vm->properties->provisioningState;
-                    }          
-   
+                        $object->vmProvisioningState =
+                                                     $vm->properties->
+                                                     provisioningState;
+                    }
+
 
             // handle DNS settings if available
             if (property_exists($current->properties, 'dnsSettings'))
@@ -206,36 +213,56 @@ class VirtualMachinesInterfaces extends Api
                         $object->dnsServers .= $server.", ";
                     // chop last comma-space
                     if ($object->dnsServers != '')
-                        $object->dnsServers = substr($object->dnsServers,
-                                                     0, 
-                                                     strlen($object->dnsServers)-2);
+                        $object->dnsServers = substr(
+                            $object->dnsServers,
+                            0,
+                            strlen( $object->dnsServers ) -2 );
                 }
-                
+
                 if (property_exists($current->properties->dnsSettings,
                                     'appliedDnsServers'))
                 {
                     // concat all server ip intersected by a ", " (comma-space)
-                    foreach($current->properties->dnsSettings->appliedDnsServers as
-                            $server)
+                    foreach(
+                        $current->properties->dnsSettings->appliedDnsServers
+                        as $server
+                    )
+                    {
                         $object->appliedDnsServers .= $server.", ";
+                    }
+
                     // chop last comma-space
                     if ($object->appliedDnsServers != '')
-                        $object->appliedDnsServers = substr($object->appliedDnsServers,
-                                                     0, 
-                                                     strlen($object->appliedDnsServers)-2);
+                    {
+                        $object->
+                            appliedDnsServers = substr(
+                                $object->appliedDnsServers,
+                                0,
+                                strlen( $object->appliedDnsServers ) -2
+                            );
+                    }
                 }
+                $object->internalDnsNameLabel = (
+                    property_exists(
+                        $current->properties->dnsSettings,
+                        'internalDnsNameLabel'
+                    ) ?
+                    $current->properties->dnsSettings->internalDnsNameLabel :
+                    NULL
+                );
 
-                $object->internalDnsNameLabel = property_exists(
-                    $current->properties->dnsSettings, 'internalDnsNameLabel') ?
-                    $current->properties->dnsSettings->internalDnsNameLabel : NULL;
 
                 $object->internalFqdn = property_exists(
                     $current->properties->dnsSettings, 'internalFqdn') ?
                     $current->properties->dnsSettings->internalFqdn : NULL;
 
-                $object->internalDomainNameSuffix = property_exists(
-                    $current->properties->dnsSettings, 'internalDomainNameSuffix') ?
-                    $current->properties->dnsSettings->internalDomainNameSuffix : NULL;
+                $object->internalDomainNameSuffix = (
+                    property_exists(
+                        $current->properties->dnsSettings,
+                        'internalDomainNameSuffix'
+                    ) ?
+                    $current->properties->dnsSettings->internalDomainNameSuffix
+                    : NULL;
 
             }
 
@@ -257,39 +284,60 @@ class VirtualMachinesInterfaces extends Api
                     $w->ipConfId                = $ipConf->id;
                     $w->uniqueId               .= "-&&&-".$ipConf->id;
                     $w->ipConfEtag              = $ipConf->etag;
-                    $w->ipConfProvisioningState = $ipConf->properties->provisioningState;
+                    $w->ipConfProvisioningState =
+                                                $ipConf->properties->
+                                                provisioningState;
 
-                    $w->ipConfPrivateIPAddress
-                        = property_exists($ipConf->properties,'privateIPAddress') ?
-                        $ipConf->properties->privateIPAddress : NULL;
+                    $w->ipConfPrivateIPAddress  = (
+                        property_exists(
+                            $ipConf->properties, 'privateIPAddress'
+                        ) ?
+                        $ipConf->properties->privateIPAddress :
+                        NULL
+                    );
 
-                    $w->ipConfPrivateIPAllocationMethod
-                        = property_exists($ipConf->properties,'privateIPAllocationMethod') ?
-                        $ipConf->properties->privateIPAllocationMethod : NULL;
+                    $w->ipConfPrivateIPAllocationMethod = (
+                        property_exists(
+                            $ipConf->properties, 'privateIPAllocationMethod'
+                        ) ?
+                        $ipConf->properties->privateIPAllocationMethod :
+                        NULL
+                    );
 
-                    $w->ipConfSubnetId
-                        = property_exists($ipConf->properties, 'subnet') ?
+                    $w->ipConfSubnetId = (
+                        property_exists($ipConf->properties, 'subnet') ?
                         (
                             property_exists($ipConf->properties->subnet, 'id') ?
                             $ipConf->properties->subnet->id : NULL
-                        ) : NULL;
+                        ) : NULL
+                    );
 
-                    $w->ipConfPrimary
-                        = property_exists($ipConf->properties, 'primary') ?
-                        $ipConf->properties->primary : NULL;
+                    $w->ipConfPrimary = (
+                        property_exists($ipConf->properties, 'primary') ?
+                        $ipConf->properties->primary : NULL
+                    );
 
-                    $w->ipConfPrivateIPAddressVersion
-                        = property_exists($ipConf->properties, 'privateIPAddressVersion') ?
-                        $ipConf->properties->privateIPAddressVersion : NULL;
+                    $w->ipConfPrivateIPAddressVersion = (
+                        property_exists(
+                            $ipConf->properties, 'privateIPAddressVersion'
+                        ) ?
+                        $ipConf->properties->privateIPAddressVersion : NULL
+                    );
 
-                    $w->ipConfInUseWithService
-                        = property_exists($ipConf->properties, 'isInUseWithService') ?
-                        $ipConf->properties->isInUseWithService : NULL;
+                    $w->ipConfInUseWithService = (
+                        property_exists(
+                            $ipConf->properties, 'isInUseWithService'
+                        ) ?
+                        $ipConf->properties->isInUseWithService : NULL
+                    );
 
                     // now deal with the linked public IP part
                     if (property_exists($ipConf->properties, 'publicIPAddress'))
                     {
-                        $w->ipConfPublicIPAddressId = $ipConf->properties->publicIPAddress->id;
+                        $w->ipConfPublicIPAddressId =
+                                                    $ipConf->properties->
+                                                    publicIPAddress->id;
+
                         // find matching public IP address
                         foreach($public_ip as $pubIp)
                             if ($pubIp->id ==  $w->ipConfPublicIPAddressId)
@@ -307,22 +355,26 @@ class VirtualMachinesInterfaces extends Api
                                     = property_exists($pubIp->properties,
                                                       'ipAddress') ?
                                     $pubIp->properties->ipAddress : NULL;
-                                
-                                $w->ipConfPublicIPAddressVersion
-                                    = property_exists($pubIp->properties,
-                                                      'publicIPAddressVersion') ?
+
+                                $w->ipConfPublicIPAddressVersion = (
+                                    property_exists(
+                                        $pubIp->properties,
+                                        'publicIPAddressVersion') ?
                                     $pubIp->properties->publicIPAddressVersion :
-                                    NULL;
-                                
-                                $w->ipConfPublicIPAllocationMethod
-                                    = property_exists($pubIp->properties,
-                                                      'publicIPAllocationMethod') ?
-                                    $pubIp->properties->publicIPAllocationMethod :
-                                    NULL;
-                                    
+                                    NULL
+                                );
+
+                                $w->ipConfPublicIPAllocationMethod = (
+                                    property_exists(
+                                        $pubIp->properties,
+                                        'publicIPAllocationMethod') ?
+                                    $pubIp->properties->
+                                    publicIPAllocationMethod : NULL
+                                );
+
                                 $w->ipConfPublicIPAddressIdleTimeoutInMinutes
-                                    = property_exists($pubIp->properties,
-                                                      'idleTimeoutInMinutes') ?
+                                    = property_exists( $pubIp->properties,
+                                                       'idleTimeoutInMinutes') ?
                                     $pubIp->properties->idleTimeoutInMinutes :
                                     NULL;
 
@@ -334,5 +386,5 @@ class VirtualMachinesInterfaces extends Api
                 }
         }
         return $objects;
-    }  
+    }
 }
