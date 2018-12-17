@@ -45,15 +45,15 @@ class ExpGWauth extends Api
      */
     public const FIELDS_RETURNED = array(
         'name',
-        'subscriptionId',
-        'expressRouteCircuitName',
         'id',
-        'type',
         'etags',
         'metricDefinitions',
+        'type',
+        'subscriptionId',
+        'provisioningState',
+        'expressRouteCircuitName',
         'authorizationKey',
         'authorizationUseStatus',
-        'provisioningState',
     );
 
 

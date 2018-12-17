@@ -56,6 +56,9 @@ class ExpGW extends Api
         'serviceKey',
         'serviceProviderNotes',
         'stag',
+        'skuName',
+        'skuTier',
+        'skuFamily',
 
         'authorizations',
         'peerings',
@@ -141,6 +144,10 @@ class ExpGW extends Api
                     property_exists($current->properties, 'stag') ?
                     $current->properties->stag : NULL
                 ),
+                'skuName'                  => NULL,
+                'skuTier'                  => NULL,
+                'skuFamily'                => NULL,
+
                 // TODO
                 'authorizations'           => NULL,
                 'peerings'                 => NULL,
@@ -171,8 +178,26 @@ class ExpGW extends Api
                         'bandwidthInMbps'))
                     $object->
                         serviceProviderBandwidthInMbps =
-                        $current-> properties-> serviceProviderProperties->
+                        $current->properties->serviceProviderProperties->
                         bandwidthInMbps;
+            }
+
+            if ( property_exists( $current, 'sku' ) )
+            {
+                $object->skuName = (
+                    property_exists( $current->sku, 'name') ?
+                    $current->sku->name : NULL;
+                );
+
+                $object->skuTier = (
+                    property_exists( $current->sku, 'tier') ?
+                    $current->sku->tier : NULL;
+                );
+
+                $object->skuFamily = (
+                    property_exists( $current->sku, 'family') ?
+                    $current->sku->family : NULL;
+                );
             }
 
             // add this VM to the list.
