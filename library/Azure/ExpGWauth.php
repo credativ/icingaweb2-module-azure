@@ -84,6 +84,9 @@ class ExpGWauth extends Api
             }
         }
 
+        Logger::debug( "Azure API: Dump of available Express Route Circuits: ".
+                       print_r($retval, true));
+
         return $retval;
     }
 
@@ -130,10 +133,12 @@ class ExpGWauth extends Api
         // log if there are resource groups with surprising provisioning state
         if ($group->properties->provisioningState != "Succeeded")
         {
-            Logger::info("Azure API: Resoure group ".$group->name.
-                         " invalid provisioning state.");
+            Logger::info( "Azure API: Resoure group ".$group->name.
+                          " invalid provisioning state.");
         }
 
+        Logger::debug( "Azure API: dump of additional config data: ".
+                       print_r($this->config, true));
 
         // prepare storage for return values
         $objects = array();
@@ -141,10 +146,21 @@ class ExpGWauth extends Api
         // load express route circuits in this res group
         $exp_circuits = $this->getExpressRouteCircuits( $group );
 
+        Logger::debug(
+            "Azure API: looking for configured Express Route Circuit with id '".
+            $this->config['express_route_circuits']."'."
+        );
+
         // search for the right one...
         foreach($exp_circuits as $circuit)
         {
-            if ($circuit->id == $this->config['express_route_circuits'])
+            Logger::debug(
+                "Azure API: testing Express Route Circuit id '".
+                $circuit->id."' named '".$circuit->name
+            );
+
+            if ( strcasecmp( $circuit->id,
+                             $this->config['express_route_circuits'] ) == 0 )
             {
                 // get data needed
                 $exp_routes_auth =
