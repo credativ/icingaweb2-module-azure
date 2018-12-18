@@ -196,6 +196,13 @@ Express Route Circuits
 * serviceKey
 * serviceProviderNotes
 * stag
+* skuName
+* skuTier
+* skuFamily
+* tags
+* authorizations
+* peerings
+
 
 1) was renamed from bandwithInMbps
 

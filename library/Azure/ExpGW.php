@@ -59,11 +59,9 @@ class ExpGW extends Api
         'skuName',
         'skuTier',
         'skuFamily',
-
+        'tags',
         'authorizations',
         'peerings',
-        'tags',
-
     );
 
 
@@ -147,12 +145,35 @@ class ExpGW extends Api
                 'skuName'                  => NULL,
                 'skuTier'                  => NULL,
                 'skuFamily'                => NULL,
-
-                // TODO
+                'tags'                     => "{}",
                 'authorizations'           => NULL,
                 'peerings'                 => NULL,
-                'tags'                     => NULL,
             ];
+
+            if ( property_exists( $current->properties, 'authorizations' ))
+            {
+                $authstr = "";
+
+                foreach( $current->properties->authorizations as $auth )
+                {
+                    $authstr = $authstr + $auth->name;
+                }
+            }
+
+            if ( property_exists( $current->properties, 'peerings' ))
+            {
+                $peerstr = "";
+
+                foreach( $current->properties->peerings as $peering )
+                {
+                    $peerstr = $peerstr + $peering->name;
+                }
+            }
+
+            if ( property_exists( $current, 'tags' ) )
+            {
+                $object->tags = json_encode( $current->tags );
+            }
 
             if (
                 property_exists(
