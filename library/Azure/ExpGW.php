@@ -156,8 +156,9 @@ class ExpGW extends Api
 
                 foreach( $current->properties->authorizations as $auth )
                 {
-                    $authstr = $authstr + $auth->name;
+                    $authstr = $authstr.','.$auth->name;
                 }
+                $object->authorizations = ltrim($authstr, ',');
             }
 
             if ( property_exists( $current->properties, 'peerings' ))
@@ -166,8 +167,9 @@ class ExpGW extends Api
 
                 foreach( $current->properties->peerings as $peering )
                 {
-                    $peerstr = $peerstr + $peering->name;
+                    $peerstr = $peerstr.','.$peering->name;
                 }
+                $object->peerings = ltrim($peerstr, ',');
             }
 
             if ( property_exists( $current, 'tags' ) )
@@ -180,23 +182,29 @@ class ExpGW extends Api
                     $current->properties,'serviceProviderProperties')
             )
             {
-                if (property_exists(
+                if (
+                    property_exists(
                         $current->properties->serviceProviderProperties,
-                        'peeringLocation'))
+                        'peeringLocation')
+                )
                     $object->peeringLocation = $current->properties->
                                              serviceProviderProperties->
                                              peeringLocation;
 
-                if (property_exists(
+                if (
+                    property_exists(
                         $current->properties->serviceProviderProperties,
-                        'serviceProviderName'))
+                        'serviceProviderName')
+                )
                     $object->serviceProviderName = $current->properties->
                                                  serviceProviderProperties->
                                                  serviceProviderName;
 
-                if (property_exists(
+                if (
+                    property_exists(
                         $current->properties->serviceProviderProperties,
-                        'bandwidthInMbps'))
+                        'bandwidthInMbps')
+                )
                     $object->
                         serviceProviderBandwidthInMbps =
                         $current->properties->serviceProviderProperties->
