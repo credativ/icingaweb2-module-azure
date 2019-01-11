@@ -986,6 +986,19 @@ abstract class Api
             $this->raiseCurlError( $result->error,
                             "querying Azure Metric Definitions list");
 
+        // special case: http code 400 ("bad request") indicates that
+        // the item queried has no defined insights metrics available.
+        // sow e just log this and return an empty string
+        if ($result->info->http_code == 400)
+        {
+            $error = sprintf(
+                "Azure API: There are no Azure Metric Definitions on '%s'. ".
+                "HTTP: %d", $id, $result->info->http_code
+            );
+            Logger::info( $error );
+            return "";
+        }
+
         if ($result->info->http_code != 200)
         {
             $error = sprintf(
