@@ -221,6 +221,34 @@ Express Route Circuits (Authorizations)
 * authorizationUseStatus
 
 
+Express Route Circuits (Peerings)
+---------------------------------
+* name
+* id
+* etag
+* metricDefinitions
+* type
+* subscriptionId
+* expressRouteCircuitName
+* provisioningState
+* peeringType
+* azureASN
+* peerASN
+* primaryPeerAddressPrefix
+* primaryAzurePort
+* secondaryPeerAddressPrefix
+* secondaryAzurePort
+* state
+* statsPrimaryBytesIn
+* statsPrimaryBytesOut
+* statsSecondaryBytesIn
+* statsSecondaryBytesOut
+* vlanId
+* lastModifiedBy
+* gatewayManagerEtag
+* sharedKey
+
+
 Microsoft DB for PosgreSQL (server)
 -----------------------------------
 

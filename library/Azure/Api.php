@@ -906,6 +906,64 @@ abstract class Api
 
 
     /** ***********************************************************************
+     * queries all express route circuits peerings for a given express
+     * route circuit from a resource group  and returns a list
+     *
+     * @param object $group
+     * resoureceGroup object to work on
+     *
+     * @param string
+     * name of express route circuit
+     *
+     * @return array of objects
+     *
+     */
+
+    protected function getExpressRouteCircuitsPeerings($group, $expr_gw)
+    {
+        $resource_group = $group->name;
+
+        Logger::info(
+            "Azure API: querying express route circuits peerings from ".
+            "resource group '". $resource_group."'"
+        );
+
+        $result = $this->call_get(
+            'subscriptions/'.
+            $this->subscription_id.
+            '/resourceGroups/'.
+            $resource_group.
+            '/providers/Microsoft.Network/expressRouteCircuits/'.
+            $expr_gw.
+            '/peerings',
+            "2018-08-01"
+        );
+
+        // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError(
+                $result->error,
+                "querying express route circuits peerings"
+            );
+
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get express route circuits ".
+                "peerings for express route circuit %s in resource ".
+                "group '%s'. HTTP: %d",
+                $expr_gw, $resource_group, $result->info->http_code
+            );
+            Logger::error( $error );
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;
+    }
+
+
+    /** ***********************************************************************
      * queries all DB for PostgreSQL from a resource group and returns a list
      *
      * @param object $group

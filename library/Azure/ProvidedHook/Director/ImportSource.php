@@ -24,6 +24,7 @@ use Icinga\Module\Azure\LoadBalancers;
 use Icinga\Module\Azure\AppGW;
 use Icinga\Module\Azure\ExpGW;
 use Icinga\Module\Azure\ExpGWauth;
+use Icinga\Module\Azure\ExpGWpeerings;
 use Icinga\Module\Azure\MsPgSQL;
 use Icinga\Module\Azure\ResourceGroup;
 use Icinga\Module\Azure\Subscription;
@@ -81,6 +82,12 @@ class ImportSource extends ImportSourceHook
             'name'   => 'Express Route Circuits (Authorization)',
             'class'  => 'Icinga\Module\Azure\ExpGWauth',
             'fields' => ExpGWauth::FIELDS_RETURNED,
+        ),
+
+        'expgwpeer'  => array(
+            'name'   => 'Express Route Circuits (Peerings)',
+            'class'  => 'Icinga\Module\Azure\ExpGWpeerings',
+            'fields' => ExpGWpeerings::FIELDS_RETURNED,
         ),
 
         'mspgsql' => array(
