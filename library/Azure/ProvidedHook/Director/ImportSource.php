@@ -37,7 +37,7 @@ class ImportSource extends ImportSourceHook
     private $api;   // stores API object
 
 
-    private const RESOURCE_GROUP_JOKER = "<*all*>";
+    public const RESOURCE_GROUP_JOKER = "<*all*>";
 
     /** names, fields and shortcut codes for objects */
 

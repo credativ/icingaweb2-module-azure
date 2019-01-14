@@ -16,6 +16,7 @@ use Icinga\Application\Logger;
 
 use Icinga\Module\Azure\Token;
 use Icinga\Module\Azure\restclient\RestClient;
+use Icinga\Module\Azure\ProvidedHook\Director\ImportSource;
 
 
 /** ***************************************************************************
@@ -267,6 +268,10 @@ abstract class Api
 
     protected function getResourceGroups( $rgn )
     {
+        // if the form joker drops in here, make it global
+        if ($rgn == ImportSource::RESOURCE_GROUP_JOKER)
+            $rgn = '';
+
         if ($rgn == '')
             Logger::info("Azure API: querying all resource groups");
         else
