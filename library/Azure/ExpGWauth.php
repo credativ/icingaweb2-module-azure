@@ -12,7 +12,7 @@ use Icinga\Module\Azure\Api;
 /**
  * Class Api
  *
- * This is your main entry point when querying Express Route Circuit 
+ * This is your main entry point when querying Express Route Circuit
  * Authorization from Azure API.
  *
  */

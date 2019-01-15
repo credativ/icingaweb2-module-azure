@@ -97,7 +97,11 @@ class VirtualMachinesDisks extends Api
                 'provisioningState' => $current->properties->provisioningState,
                 'timeCreated'       => $current->properties->timeCreated,
                 'diskSizeGB'        => $current->properties->diskSizeGB,
-                'osType'            => $current->properties->osType,
+
+                'osType'            => (
+                    property_exists($current->properties, "osType") ?
+                    $current->properties->osType : NULL
+                ),
 
                 'createOption'      => (
                     property_exists($current->properties,'creationData') ?
