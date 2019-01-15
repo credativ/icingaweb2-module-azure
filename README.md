@@ -49,6 +49,7 @@ Currently, we have some resources implemented in this importer module:
 * Application Gateways
 * Microsoft.DBforPostgreSQL servers (SAAS)
 * Express Route Circuits
+* Peerings for Express Route Circuits
 * Authorizations for Express Route Circuits
 * Resource Groups
 * Subscriptions
