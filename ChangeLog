@@ -1,10 +1,23 @@
+2019-01-15  Peter Dreuw  <peter.dreuw@credativ.de>
+
+	* Changed version to v0.6.2
+
+	- added support for Express Route Circuits Authorizations
+	- added support for Express Route Circuits Peerings
+	- added some property fields returned
+	- bugfix for missing osType on VM disks
+	- bugfix for creating dynamically configured importer classes
+	- bug fix on sttring concat for authorizations and peer names
+	- bug fix to return an empty string if there are no metrics definitions
+	- renamed 'provider' to 'type' to reflect Azure API naming
+
 2018-12-11  Peter Dreuw  <peter.dreuw@credativ.de>
 
 	* Changed version to v0.6.1
 
 	- bugfix for express gateway endpoint, returned data was scrambled
-	- added field "provider" in all query types 
-	
+	- added field "provider" in all query types
+
 
 2018-11-28  Peter Dreuw  <peter.dreuw@credativ.de>
 
@@ -12,7 +25,7 @@
 
 	- added support for metrics
 	- improved documentation
-	
+
 
 2018-11-05  Peter Dreuw  <peter.dreuw@credativ.de>
 
@@ -67,9 +80,8 @@
 	This is the initial alpha state release which can
 	query an Azure API account, gathering all resourceGroups and
 	any VM inside all these resourceGroups.
-	No other objects and no distinction between resourceGroups. 
+	No other objects and no distinction between resourceGroups.
 
 2018-09-04  Peter Dreuw  <peter.dreuw@credativ.de>
 
         * Initial version  v0.0.1
-
