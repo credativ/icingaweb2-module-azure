@@ -1,7 +1,7 @@
 <?php
 /** ***************************************************************************
  * @author Peter Dreuw <peter.dreuw@credativ.de>
- * @copyright Copyright (c) 2018 creadtiv GmbH
+ * @copyright Copyright (c) 2018, 2019 credativ GmbH
  * @license https://github.com/credativ/icingaweb2-module-azure/blob/master/LICENSE MIT License
  *
  *
@@ -1014,6 +1014,184 @@ abstract class Api
 
         // get result data from JSON into object $decoded
         return $result->decode_response()->value;
+    }
+
+    /** ***********************************************************************
+     * queries all Container Registries and returns a list
+     *
+     * @param object $group
+     * resoureceGroup object to work on
+     *
+     * @return array of objects
+     *
+     */
+
+    protected function getAllContainerRegistries()
+    {
+        Logger::info( "Azure API: querying all Container Registries");
+
+        $result = $this->call_get(
+            'subscriptions/'.
+            $this->subscription_id.
+            '/providers/Microsoft.ContainerRegistry/registries',
+            "2017-10-01"
+        );
+
+        // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError(
+                $result->error,
+                "querying Microsoft.ContainerRegistry"
+            );
+
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get Microsoft.ContainerRegistry: ".
+                "HTTP: %d", $result->info->http_code
+            );
+            Logger::error( $error );
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;
+    }
+
+
+    /** ***********************************************************************
+     * queries all Container Registries from a resource group and returns a 
+     * list
+     *
+     * @param object $group
+     * resoureceGroup object to work on
+     *
+     * @return array of objects
+     *
+     */
+
+    protected function getContainerRegistries($group)
+    {
+        $resource_group = $group->name;
+
+        Logger::info( "Azure API: querying Container Registries from ".
+                      "resource group '".$resource_group."'");
+
+        $result = $this->call_get(
+            'subscriptions/'.
+            $this->subscription_id.
+            '/resourceGroups/'.
+            $resource_group.
+            '/providers/Microsoft.ContainerRegistry/registries',
+            "2017-10-01"
+        );
+
+        // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError(
+                $result->error,
+                "querying Microsoft.ContainerRegistry"
+            );
+
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get Microsoft.ContainerRegistry for ".
+                "resource group '%s'. HTTP: %d",
+                $resource_group, $result->info->http_code
+            );
+            Logger::error( $error );
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;
+    }
+
+
+    /** ***********************************************************************
+     * queries the policies for a given Container Registry object id
+     * and returns a dictionary array
+     *
+     * @param string $registry_id
+     * id of the Container Registry object
+     *     *
+     * @return array
+     *
+     */
+
+    protected function getContainerRegistryPolicies( $registry_id )
+    {
+        Logger::info( "Azure API: querying policies for container registry '".
+                      $registry_id."'."
+        );
+
+        $result = $this->call_get( $registry_id.'/listPolicies', "2017-10-01" );
+
+        // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError(
+                $result->error,
+                "querying /Microsoft.ContainerRegistry/registries/listPolicies"
+            );
+
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get Policies for ".
+                "container registry '%s'. HTTP: %d",
+                $registry_id, $result->info->http_code
+            );
+            Logger::error( $error );
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;
+
+    }
+
+
+    /** ***********************************************************************
+     * queries the usages for a given Container Registry object id
+     * and returns a dictionary array
+     *
+     * @param string $registry_id
+     * id of the Container Registry object
+     *     *
+     * @return array
+     *
+     */
+
+    protected function getContainerRegistryUsages( $registry_id )
+    {
+        Logger::info( "Azure API: querying usages for container registry '".
+                      $registry_id."'."
+        );
+
+        $result = $this->call_get( $registry_id.'/listUsages', "2017-10-01");
+
+        // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError(
+                $result->error,
+                "querying /Microsoft.ContainerRegistry/registries/listUsages"
+            );
+
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get Usages for ".
+                "container registry '%s'. HTTP: %d",
+                $registry_id, $result->info->http_code
+            );
+            Logger::error( $error );
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;
+
     }
 
 
