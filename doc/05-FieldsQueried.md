@@ -12,6 +12,7 @@ Any query returns at least these fields by the time of writing:
 * id
 * location
 * provider
+* type
 
 The 'name' is the name chosen in Microsoft Azure for the returned object. The
 'subscriptionId' is just for convenience to group inventories if you have
@@ -304,3 +305,28 @@ on this Azure API director plugin.
 * locationPlacementId
 * quotaId
 * spendingLimit
+
+
+Container Registries
+-----------------------
+
+* name
+* id
+* subscriptionId
+* location
+* type
+* metricDefinitions
+* tags
+* skuName
+* skuTier
+* loginServer
+* creationDate
+* provisioningState
+* statusDisplayStatus
+* statusMessage
+* statusTimestamp
+* adminUserEnabled
+* storageAccountId
+* policiesQuarantinePolicyStatus
+* policiesTrustPolicyStatus
+* policiesTrustPolicyType

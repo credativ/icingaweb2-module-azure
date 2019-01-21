@@ -28,6 +28,7 @@ use Icinga\Module\Azure\ExpGWpeerings;
 use Icinga\Module\Azure\MsPgSQL;
 use Icinga\Module\Azure\ResourceGroup;
 use Icinga\Module\Azure\Subscription;
+use Icinga\Module\Azure\ContainerRegistries;
 
 
 class ImportSource extends ImportSourceHook
@@ -105,6 +106,12 @@ class ImportSource extends ImportSourceHook
             'class'  => 'Icinga\Module\Azure\Subscription',
             'fields' =>  Subscription::FIELDS_RETURNED,
         ),
+        'contreg' => array(
+            'name'   => 'Container Registries',
+            'class'  => 'Icinga\Module\Azure\ContainerRegistries',
+            'fields' =>  ContainerRegistries::FIELDS_RETURNED,
+        ),
+
 
     );
 

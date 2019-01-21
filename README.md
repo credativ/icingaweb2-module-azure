@@ -42,20 +42,21 @@ Implemented features
 
 Currently, we have some resources implemented in this importer module:
 
-* Virtual machines
-* Disks for virtual machines
-* Network Interfaces for virtual machines
-* Load balancers
 * Application Gateways
-* Microsoft.DBforPostgreSQL servers (SAAS)
+* Container Registries
 * Express Route Circuits
-* Peerings for Express Route Circuits
-* Authorizations for Express Route Circuits
+  * Peerings for Express Route Circuits
+  * Authorizations for Express Route Circuits
+* Load balancers
+* Microsoft.DBforPostgreSQL servers (SAAS)
 * Resource Groups
 * Subscriptions
+* Virtual machines
+  * Disks for virtual machines
+  * Network Interfaces for virtual machines
 
 While the majority of the classes  are tested and should be working smoothly,
-the Express Route Circuit object types are considered untested, currently.
+the Container Registries object types are considered untested, currently.
 
 This list will be enhanced with any release step by step. If you miss something,
 we would appreciate an open issue on this here on GitHub. The same applies for
