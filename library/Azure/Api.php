@@ -1239,8 +1239,7 @@ abstract class Api
         }
 
         // get result data from JSON into object $decoded
-        return $result->decode_response()->value;
-
+        return $result->decode_response();
     }
 
 
