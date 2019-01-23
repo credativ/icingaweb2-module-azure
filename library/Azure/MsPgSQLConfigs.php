@@ -18,12 +18,12 @@ use Icinga\Module\Azure\MsPgSQLabstract;
 /**
  * Class Api
  *
- * This is your main entry point when querying Databases from PostgreSQL
+ * This is your main entry point when querying Configurations from PostgreSQL
  * Servers on the Azure API.
  *
  */
 
-class MsPgSQLDatabases extends MsPgSQLabstract
+class MsPgSQLConfigs extends MsPgSQLabstract
 {
 
     /**
@@ -33,7 +33,7 @@ class MsPgSQLDatabases extends MsPgSQLabstract
      */
     protected const
         MSG_LOG_GET_ALL =
-        "Azure API: querying any PostgreSQL Databases on ".
+        "Azure API: querying any PostgreSQL Configurations on ".
         "configured servers and resource groups.";
 
     /**
@@ -45,12 +45,16 @@ class MsPgSQLDatabases extends MsPgSQLabstract
         'name',
         'subscriptionId',
         'id',
-        'location',
         'type',
         'metricDefinitions',
-        'charset',
-        'collation',
+        'allowedValues',
+        'dataType',
+        'defaultValue',
+        'description',
+        'source',
+        'value',
     );
+
 
     /** ***********************************************************************
      * takes all information on PostgreSQL Databases from a resource group
@@ -71,11 +75,11 @@ class MsPgSQLDatabases extends MsPgSQLabstract
 
         // get data needed
         $server = $this->config["postgresql_server"];
-        $databases = $this->getPostgreSQLDatabases($server);
+        $configs = $this->getPostgreSQLConfigs($server);
 
         $objects = array();
 
-        foreach($databases as $current)
+        foreach($configs as $current)
         {
             // get metric definitions list
             $metrics = $this->getMetricDefinitionsList($current->id);
@@ -85,15 +89,30 @@ class MsPgSQLDatabases extends MsPgSQLabstract
                 'subscriptionId'      => $this->subscription_id,
                 'id'                  => $current->id,
                 'type'                => $current->type,
-                'location'            => $current->location,
                 'metricDefinitions'   => $metrics,
-                'charset'             => (
-                    property_exists($current->properties, "charset") ?
-                    $current->properties->charset : NULL
+                'allowedValues'       => (
+                    property_exists($current->properties, "allowedValues") ?
+                    $current->properties->allowedValues : NULL
                 ),
-                'collation'           => (
-                    property_exists($current->properties, "collation") ?
-                    $current->properties->collation : NULL
+                'dataType'            => (
+                    property_exists($current->properties, "dataType") ?
+                    $current->properties->dataType : NULL
+                ),
+                'defaultValue'        => (
+                    property_exists($current->properties, "defaultValue") ?
+                    $current->properties->defaultValue : NULL
+                ),
+                'description'         => (
+                    property_exists($current->properties, "description") ?
+                    $current->properties->description : NULL
+                ),
+                'source'              => (
+                    property_exists($current->properties, "source") ?
+                    $current->properties->source : NULL
+                ),
+                'value'         => (
+                    property_exists($current->properties, "value") ?
+                    $current->properties->value : NULL
                 ),
             ];
 

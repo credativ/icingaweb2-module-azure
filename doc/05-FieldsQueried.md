@@ -145,6 +145,8 @@ The **Virtual machines (interfaces)** object type does return these fields:
 Load Balancers
 --------------
 
+https://docs.microsoft.com/en-us/rest/api/load-balancer/loadbalancers/list
+
 * name
 * subscriptionId
 * id
@@ -157,6 +159,8 @@ Load Balancers
 
 Application Gateways
 --------------------
+
+https://docs.microsoft.com/en-us/rest/api/application-gateway/applicationgateways/list
 
 * name
 * subscriptionId
@@ -175,6 +179,8 @@ Application Gateways
 
 Express Route Circuits
 ----------------------
+
+https://docs.microsoft.com/en-us/rest/api/expressroute/expressroutecircuits/list
 
 * name
 * subscriptionId
@@ -209,6 +215,9 @@ Express Route Circuits
 
 Express Route Circuits (Authorizations)
 ---------------------------------------
+
+https://docs.microsoft.com/en-us/rest/api/expressroute/expressroutecircuitauthorizations/list
+
 * name
 * id
 * etags
@@ -223,6 +232,9 @@ Express Route Circuits (Authorizations)
 
 Express Route Circuits (Peerings)
 ---------------------------------
+
+https://docs.microsoft.com/en-us/rest/api/expressroute/expressroutecircuitpeerings/list
+
 * name
 * id
 * etag
@@ -252,6 +264,8 @@ Express Route Circuits (Peerings)
 Microsoft DB for PostgreSQL (server)
 ------------------------------------
 
+https://docs.microsoft.com/en-us/rest/api/postgresql/servers/list
+
 * name
 * subscriptionId
 * id
@@ -269,8 +283,11 @@ Microsoft DB for PostgreSQL (server)
 * geoRedundantBackup
 * metricDefinitions
 
+
 Microsoft DB for PostgreSQL (databases)
 ---------------------------------------
+
+https://docs.microsoft.com/en-us/rest/api/postgresql/databases/listbyserver
 
 * name
 * subscriptionId
@@ -280,6 +297,25 @@ Microsoft DB for PostgreSQL (databases)
 * metricDefinitions - currently empty
 * charset
 * collation
+
+
+Microsoft DB for PostgreSQL (configurations)
+--------------------------------------------
+
+https://docs.microsoft.com/en-us/rest/api/postgresql/configurations/listbyserver
+
+* name
+* subscriptionId
+* id
+* location
+* type
+* metricDefinitions
+* allowedValues
+* dataType
+* defaultValue
+* description
+* source
+* value
 
 
 Resource Groups
@@ -319,7 +355,9 @@ on this Azure API director plugin.
 
 
 Container Registries
------------------------
+--------------------
+
+https://docs.microsoft.com/en-us/rest/api/containerregistry/registries/list
 
 * name
 * id
