@@ -1019,9 +1019,48 @@ abstract class Api
 
 
     /** ***********************************************************************
+     * queries one given PostgreSQL Database servers from an given id
+     * returns a list
+     *
+     * @param string $id
+     * server id to query
+     *
+     * @return array of objects
+     *
+     */
+
+    protected function getOneMsDbPostgreSQLServer($server)
+    {
+        Logger::info( "Azure API: querying PostgreSQL server '.".$server."'" );
+
+        $result = $this->call_get( $server, "2017-12-01" );
+
+        // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError(
+                $result->error,
+                "querying Microsoft.DbForPostgreSQL servers"
+            );
+
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get Microsoft.DbForPostgreSQL server ".
+                "'%s'. HTTP: %d",
+                $server, $result->info->http_code
+            );
+            Logger::error( $error );
+            throw new QueryException( $error );
+        }
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;
+    }
+
+
+    /** ***********************************************************************
      * queries all PostgreSQL databases on a server and returns a list
      *
-     * @param object $server
+     * @param string $server
      * server id to query
      *
      * @return array of objects
@@ -1030,8 +1069,8 @@ abstract class Api
 
     protected function getPostgreSQLDatabases($server)
     {
-        Logger::info( "Azure API: querying databases on PostgreSQL server ".
-                      "'.".$server."'" );
+        Logger::info( "Azure API: querying databases on PostgreSQL server '".
+                      $server."'" );
 
         $result = $this->call_get( $server.'/databases', "2017-12-01" );
 
@@ -1057,30 +1096,9 @@ abstract class Api
         $retval =  $result->decode_response()->value;
 
         // we need the location of the server, so query the server itself
-        Logger::info( "Azure API: querying PostgreSQL server '.".$server."'" );
+        $server_obj = getOneMsDbPostgreSQLServer($server);
 
-        $result = $this->call_get( $server, "2017-12-01" );
-
-        // check if things have gone wrong
-        if ($result->errno != CURLE_OK)
-            $this->raiseCurlError(
-                $result->error,
-                "querying Microsoft.DbForPostgreSQL servers"
-            );
-
-        if ($result->info->http_code != 200)
-        {
-            $error = sprintf(
-                "Azure API: Could not get Microsoft.DbForPostgreSQL server ".
-                "'%s'. HTTP: %d",
-                $server, $result->info->http_code
-            );
-            Logger::error( $error );
-            throw new QueryException( $error );
-        }
-
-        $retval->location = $result->decode_response()->value->location;
-        return $retval;
+        $retval->location = $server_obj->location;
     }
 
 
