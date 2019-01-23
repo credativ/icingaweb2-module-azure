@@ -1,5 +1,11 @@
 <?php
-
+/** ***************************************************************************
+ * @author Peter Dreuw <peter.dreuw@credativ.de>
+ * @copyright Copyright (c) 2018, 2019 credativ GmbH
+ * @license https://github.com/credativ/icingaweb2-module-azure/blob/master/LICENSE MIT License
+ *
+ *
+ */
 namespace Icinga\Module\Azure;
 
 use Icinga\Exception\ConfigurationError;
@@ -11,8 +17,8 @@ use Icinga\Module\Azure\Api;
 /**
  * Class Api
  *
- * This is your main entry point when querying Application Gateways from 
- * Azure API. 
+ * This is your main entry point when querying Application Gateways from
+ * Azure API.
  *
  */
 
@@ -20,8 +26,8 @@ use Icinga\Module\Azure\Api;
 class AppGW extends Api
 {
 
-    /** 
-     * Log Message for getAll 
+    /**
+     * Log Message for getAll
      *
      * @staticvar string MSG_LOG_GET_ALL
      */

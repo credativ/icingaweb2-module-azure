@@ -1,5 +1,11 @@
 <?php
-
+/** ***************************************************************************
+ * @author Peter Dreuw <peter.dreuw@credativ.de>
+ * @copyright Copyright (c) 2018, 2019 credativ GmbH
+ * @license https://github.com/credativ/icingaweb2-module-azure/blob/master/LICENSE MIT License
+ *
+ *
+ */
 namespace Icinga\Module\Azure;
 
 use Icinga\Exception\ConfigurationError;
@@ -13,8 +19,8 @@ use Icinga\Module\Azure\Api;
 /**
  * Class Load Balancers
  *
- * This is your main entry point when querying virtual machines from 
- * Azure API. 
+ * This is your main entry point when querying virtual machines from
+ * Azure API.
  *
  */
 
@@ -49,7 +55,7 @@ class LoadBalancers extends Api
 
 
     /** ***********************************************************************
-     * takes all information on load balancers from a resource group and 
+     * takes all information on load balancers from a resource group and
      * returns it in the format IcingaWeb2 Director expects
      *
      * @return array of objects

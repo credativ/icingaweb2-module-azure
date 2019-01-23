@@ -56,7 +56,7 @@ Currently, we have some resources implemented in this importer module:
   * Disks for virtual machines
   * Network Interfaces for virtual machines
 
-While the majority of the classes  are tested and should be working smoothly,
+While the majority of the classes are tested and should be working smoothly,
 the Container Registries as well as the PostgreSQL subtypes are considered
 not intensively tested currently.
 
