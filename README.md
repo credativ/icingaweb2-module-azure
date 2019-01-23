@@ -50,6 +50,8 @@ Currently, we have some resources implemented in this importer module:
 * Load balancers
 * Microsoft.DBforPostgreSQL servers (SAAS)
   * PostgreSQL Databases
+  * PostgreSQL Configurations
+  * PostgreSQL Firewall rules
 * Resource Groups
 * Subscriptions
 * Virtual machines
