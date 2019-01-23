@@ -49,6 +49,7 @@ Currently, we have some resources implemented in this importer module:
   * Authorizations for Express Route Circuits
 * Load balancers
 * Microsoft.DBforPostgreSQL servers (SAAS)
+  * PostgreSQL Databases
 * Resource Groups
 * Subscriptions
 * Virtual machines
@@ -69,14 +70,14 @@ either query any of these or select one or more while configuring it.
 
 Troubleshooting should be easy as the **Azure Importer** does send log
 information through the IcingaWeb2 logging pipeline. Just have your IcingaWeb2
-logging configured and make shure that you get INFO level messages as well. 
+logging configured and make shure that you get INFO level messages as well.
 
 
 Dependencies
 ------------
 
 This module has no dependencies on any SDK or other external files except
-for the php-curl extension, which must be enabled. 
+for the php-curl extension, which must be enabled.
 
 
 Credits

@@ -190,7 +190,6 @@ Express Route Circuits
 * serviceProviderBandwitdthInMbps  1)
 * peeringlocation
 * metricDefinitions
-* allowGlobalReach
 * etag
 * expressRoutePort
 * gatewayManagerEtag
@@ -250,8 +249,8 @@ Express Route Circuits (Peerings)
 * sharedKey
 
 
-Microsoft DB for PosgreSQL (server)
------------------------------------
+Microsoft DB for PostgreSQL (server)
+------------------------------------
 
 * name
 * subscriptionId
@@ -269,6 +268,18 @@ Microsoft DB for PosgreSQL (server)
 * backupRetentionDays
 * geoRedundantBackup
 * metricDefinitions
+
+Microsoft DB for PostgreSQL (databases)
+---------------------------------------
+
+* name
+* subscriptionId
+* id
+* location          - the location of the server
+* type
+* metricDefinitions - currently empty
+* charset
+* collation
 
 
 Resource Groups

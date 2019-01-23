@@ -1052,8 +1052,9 @@ abstract class Api
             Logger::error( $error );
             throw new QueryException( $error );
         }
+
         // get result data from JSON into object $decoded
-        return $result->decode_response()->value;
+        return $result->decode_response();
     }
 
 
@@ -1096,9 +1097,14 @@ abstract class Api
         $retval =  $result->decode_response()->value;
 
         // we need the location of the server, so query the server itself
-        $server_obj = getOneMsDbPostgreSQLServer($server);
+        $server_obj = $this->getOneMsDbPostgreSQLServer($server);
 
-        $retval->location = $server_obj->location;
+        foreach( $retval as $db )
+        {
+            $db->location = $server_obj->location;
+        }
+
+        return $retval;
     }
 
 

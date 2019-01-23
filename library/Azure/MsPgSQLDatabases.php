@@ -42,7 +42,7 @@ class MsPgSQLDatabases extends Api
      *
      * @staticvar string CONFIG_FIELDS
      */
-    public const CONFIG_FIELDS = [ 'postgresql_servers' ];
+    public const CONFIG_FIELDS = [ 'postgresql_server' ];
 
     /**
      * array of field names to be returned by implementation.
@@ -84,7 +84,7 @@ class MsPgSQLDatabases extends Api
             $pgsql = $this->getMsDbPostgreSQLServers( $group );
             foreach($pgsql as $server)
             {
-                $retval[$server->id] = $circuit->server;
+                $retval[$server->id] = $server->name;
             }
         }
 
@@ -111,7 +111,7 @@ class MsPgSQLDatabases extends Api
     {
         $rgn = $form->getSentOrObjectSetting('resource_group_names');
 
-        $form->addElement('select', 'postgresql_servers', array(
+        $form->addElement('select', 'postgresql_server', array(
             'label'        => $form->translate('PostgreSQL server'),
             'description'  => $form->translate(
                 'Select the PostgreSQL server you want to query. '),
@@ -142,11 +142,12 @@ class MsPgSQLDatabases extends Api
         }
 
         // get data needed
-        $dbservers = $this->getPostgreSQLDatabases($group);
+        $server = $this->config["postgresql_server"];
+        $databases = $this->getPostgreSQLDatabases($server);
 
         $objects = array();
 
-        foreach($dbservers as $current)
+        foreach($databases as $current)
         {
             // get metric definitions list
             $metrics = $this->getMetricDefinitionsList($current->id);
@@ -156,13 +157,14 @@ class MsPgSQLDatabases extends Api
                 'subscriptionId'      => $this->subscription_id,
                 'id'                  => $current->id,
                 'type'                => $current->type,
+                'location'            => $current->location,
                 'metricDefinitions'   => $metrics,
                 'charset'             => (
-                    proerty_exists($current->properties, "charset") ?
+                    property_exists($current->properties, "charset") ?
                     $current->properties->charset : NULL
                 ),
                 'collation'           => (
-                    proerty_exists($current->properties, "collation") ?
+                    property_exists($current->properties, "collation") ?
                     $current->properties->collation : NULL
                 ),
             ];
