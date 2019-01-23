@@ -118,8 +118,8 @@ class ExpGWpeerings extends Api
      *
      */
 
-    public function extendForm( QuickForm $form ) {
-
+    public function extendForm( QuickForm $form )
+    {
         $rgn = $form->getSentOrObjectSetting('resource_group_names');
 
         $form->addElement('select', 'express_route_circuits', array(

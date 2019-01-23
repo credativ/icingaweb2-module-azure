@@ -1,5 +1,11 @@
 <?php
-
+/** ***************************************************************************
+ * @author Peter Dreuw <peter.dreuw@credativ.de>
+ * @copyright Copyright (c) 2018, 2019 credativ GmbH
+ * @license https://github.com/credativ/icingaweb2-module-azure/blob/master/LICENSE MIT License
+ *
+ *
+ */
 namespace Icinga\Module\Azure;
 
 use Icinga\Exception\ConfigurationError;
@@ -11,12 +17,10 @@ use Icinga\Module\Azure\Api;
 /**
  * Class Api
  *
- * This is your main entry point when querying Application Gateways from 
- * Azure API. 
+ * This is your main entry point when querying PostgreSQL Servers from
+ * Azure API.
  *
  */
-
-
 
 class MsPgSQL extends Api
 {
@@ -74,7 +78,7 @@ class MsPgSQL extends Api
         }
 
         // get data needed
-        $dbservers = $this->getDbForPostgreSQL($group);
+        $dbservers = $this->getMsDbPostgreSQLServers($group);
 
         $objects = array();
 

@@ -254,7 +254,7 @@ abstract class Api
     /** ***********************************************************************
      * reads all or one resource group from Azure API and returns an array of
      * resource group objects. If parameter $rgn is empty, all resource groups
-     * shall be returned. If its not empty, $rgn is considered a space 
+     * shall be returned. If its not empty, $rgn is considered a space
      * separated list of names.
      *
      * may throw QueryException on HTTP error
@@ -969,7 +969,8 @@ abstract class Api
 
 
     /** ***********************************************************************
-     * queries all DB for PostgreSQL from a resource group and returns a list
+     * queries all PostgreSQL Database servers from a resource group and
+     * returns a list
      *
      * @param object $group
      * resoureceGroup object to work on
@@ -978,12 +979,12 @@ abstract class Api
      *
      */
 
-    protected function getDbForPostgreSQL($group)
+    protected function getMsDbPostgreSQLServers($group)
     {
         $resource_group = $group->name;
 
-        Logger::info( "Azure API: querying Microsoft.DbForPostgreSQL from ".
-                      "resource group '".$resource_group."'");
+        Logger::info( "Azure API: querying Microsoft.DbForPostgreSQL servers ".
+                      "from resource group '".$resource_group."'");
 
         $result = $this->call_get(
             'subscriptions/'.
@@ -998,14 +999,14 @@ abstract class Api
         if ($result->errno != CURLE_OK)
             $this->raiseCurlError(
                 $result->error,
-                "querying Microsoft.DbForPostgreSQL"
+                "querying Microsoft.DbForPostgreSQL servers"
             );
 
         if ($result->info->http_code != 200)
         {
             $error = sprintf(
-                "Azure API: Could not get Microsoft.DbForPostgreSQL for ".
-                "resource group '%s'. HTTP: %d",
+                "Azure API: Could not get Microsoft.DbForPostgreSQL servers ".
+                "for resource group '%s'. HTTP: %d",
                 $resource_group, $result->info->http_code
             );
             Logger::error( $error );
@@ -1015,6 +1016,73 @@ abstract class Api
         // get result data from JSON into object $decoded
         return $result->decode_response()->value;
     }
+
+
+    /** ***********************************************************************
+     * queries all PostgreSQL databases on a server and returns a list
+     *
+     * @param object $server
+     * server id to query
+     *
+     * @return array of objects
+     *
+     */
+
+    protected function getPostgreSQLDatabases($server)
+    {
+        Logger::info( "Azure API: querying databases on PostgreSQL server ".
+                      "'.".$server."'" );
+
+        $result = $this->call_get( $server.'/databases', "2017-12-01" );
+
+        // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError(
+                $result->error,
+                "querying Microsoft.DbForPostgreSQL server databases"
+            );
+
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get Microsoft.DbForPostgreSQL server ".
+                "databases for '%s'. HTTP: %d",
+                $server, $result->info->http_code
+            );
+            Logger::error( $error );
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        $retval =  $result->decode_response()->value;
+
+        // we need the location of the server, so query the server itself
+        Logger::info( "Azure API: querying PostgreSQL server '.".$server."'" );
+
+        $result = $this->call_get( $server, "2017-12-01" );
+
+        // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError(
+                $result->error,
+                "querying Microsoft.DbForPostgreSQL servers"
+            );
+
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get Microsoft.DbForPostgreSQL server ".
+                "'%s'. HTTP: %d",
+                $server, $result->info->http_code
+            );
+            Logger::error( $error );
+            throw new QueryException( $error );
+        }
+
+        $retval->location = $result->decode_response()->value->location;
+        return $retval;
+    }
+
 
     /** ***********************************************************************
      * queries all Container Registries and returns a list
@@ -1060,7 +1128,7 @@ abstract class Api
 
 
     /** ***********************************************************************
-     * queries all Container Registries from a resource group and returns a 
+     * queries all Container Registries from a resource group and returns a
      * list
      *
      * @param object $group
