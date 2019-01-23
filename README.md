@@ -57,7 +57,8 @@ Currently, we have some resources implemented in this importer module:
   * Network Interfaces for virtual machines
 
 While the majority of the classes  are tested and should be working smoothly,
-the Container Registries object types are considered untested, currently.
+the Container Registries as well as the PostgreSQL subtypes are considered
+not intensively tested currently.
 
 This list will be enhanced with any release step by step. If you miss something,
 we would appreciate an open issue on this here on GitHub. The same applies for
