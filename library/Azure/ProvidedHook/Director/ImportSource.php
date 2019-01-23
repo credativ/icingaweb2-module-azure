@@ -28,6 +28,7 @@ use Icinga\Module\Azure\ExpGWpeerings;
 use Icinga\Module\Azure\MsPgSQL;
 use Icinga\Module\Azure\MsPgSQLDatabases;
 use Icinga\Module\Azure\MsPgSQLConfigs;
+use Icinga\Module\Azure\MsPgSQLFirewall;
 use Icinga\Module\Azure\ResourceGroup;
 use Icinga\Module\Azure\Subscription;
 use Icinga\Module\Azure\ContainerRegistries;
@@ -107,6 +108,11 @@ class ImportSource extends ImportSourceHook
             'name'   => 'PostgreSQL servers (Configurations)',
             'class'  => 'Icinga\Module\Azure\MsPgSQLConfigs',
             'fields' =>  MsPgSQLConfigs::FIELDS_RETURNED,
+        ),
+        'mspgsqlcfg' => array(
+            'name'   => 'PostgreSQL servers (Firewall rules)',
+            'class'  => 'Icinga\Module\Azure\MsPgSQLFirewall',
+            'fields' =>  MsPgSQLFirewall::FIELDS_RETURNED,
         ),
 
         'resgrp'  => array(

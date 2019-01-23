@@ -1149,6 +1149,46 @@ abstract class Api
 
 
     /** ***********************************************************************
+     * queries all PostgreSQL firewall rules on a server and returns a list
+     *
+     * @param string $server
+     * server id to query
+     *
+     * @return array of objects
+     *
+     */
+
+    protected function getPostgreSQLFirewallRules($server)
+    {
+        Logger::info("Azure API: querying firewall rules on PostgreSQL server".
+                     " '".$server."'" );
+
+        $result = $this->call_get( $server.'/firewallRules', "2017-12-01" );
+
+        // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError(
+                $result->error,
+                "querying Microsoft.DbForPostgreSQL server firewall rules"
+            );
+
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get Microsoft.DbForPostgreSQL server ".
+                "firewall rules for '%s'. HTTP: %d",
+                $server, $result->info->http_code
+            );
+            Logger::error( $error );
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response()->value;
+    }
+
+
+    /** ***********************************************************************
      * queries all Container Registries and returns a list
      *
      * @param object $group

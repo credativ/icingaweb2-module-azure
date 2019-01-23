@@ -317,6 +317,19 @@ https://docs.microsoft.com/en-us/rest/api/postgresql/configurations/listbyserver
 * source
 * value
 
+Microsoft DB for PostgreSQL (firewall rules)
+--------------------------------------------
+
+https://docs.microsoft.com/en-us/rest/api/postgresql/firewallrules/listbyserver
+
+* name
+* subscriptionId
+* id
+* type
+* metricDefinitions
+* endIpAddress
+* startIpAddress
+
 
 Resource Groups
 ---------------
