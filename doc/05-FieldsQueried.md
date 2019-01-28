@@ -330,6 +330,24 @@ https://docs.microsoft.com/en-us/rest/api/postgresql/firewallrules/listbyserver
 * endIpAddress
 * startIpAddress
 
+Microsoft DB for PostgreSQL (security alert policies)
+------------------------------------------------------
+
+https://docs.microsoft.com/en-us/rest/api/postgresql/serversecurityalertpolicies/get
+
+* name
+* subscriptionId
+* id
+* type
+* metricDefinitions
+* disabledAlerts
+* emailAccountAdmins
+* emailAddresses
+* retentionDays
+* state
+* storageAccountAccessKey
+* storageEndpoint
+
 
 Resource Groups
 ---------------

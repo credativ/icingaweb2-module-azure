@@ -29,6 +29,7 @@ use Icinga\Module\Azure\MsPgSQL;
 use Icinga\Module\Azure\MsPgSQLDatabases;
 use Icinga\Module\Azure\MsPgSQLConfigs;
 use Icinga\Module\Azure\MsPgSQLFirewall;
+use Icinga\Module\Azure\MsPgSQLSecAlertPolicy;
 use Icinga\Module\Azure\ResourceGroup;
 use Icinga\Module\Azure\Subscription;
 use Icinga\Module\Azure\ContainerRegistries;
@@ -114,6 +115,11 @@ class ImportSource extends ImportSourceHook
             'class'  => 'Icinga\Module\Azure\MsPgSQLFirewall',
             'fields' =>  MsPgSQLFirewall::FIELDS_RETURNED,
         ),
+        'mspgsqlsec' => array(
+            'name'   => 'PostgreSQL servers (Security alerting policies)',
+            'class'  => 'Icinga\Module\Azure\MsPgSQLSecAlertPolicy',
+            'fields' =>  MsPgSQLSecAlertPolicy::FIELDS_RETURNED,
+        ),
 
         'resgrp'  => array(
             'name'   => 'Resource Groups',
@@ -130,8 +136,6 @@ class ImportSource extends ImportSourceHook
             'class'  => 'Icinga\Module\Azure\ContainerRegistries',
             'fields' =>  ContainerRegistries::FIELDS_RETURNED,
         ),
-
-
     );
 
 

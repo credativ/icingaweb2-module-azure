@@ -52,6 +52,7 @@ Currently, we have some resources implemented in this importer module:
   * PostgreSQL Databases
   * PostgreSQL Configurations
   * PostgreSQL Firewall rules
+  * PostgreSQl Security Alert Policies *)
 * Resource Groups
 * Subscriptions
 * Virtual machines
@@ -62,9 +63,19 @@ While the majority of the classes are tested and should be working smoothly,
 the Container Registries as well as the PostgreSQL subtypes are considered
 not intensively tested currently.
 
-This list will be enhanced with any release step by step. If you miss something,
-we would appreciate an open issue on this here on GitHub. The same applies for
-missing fields on the import types.
+*) PostgreSQl Security Alert Policies are untested by the time of writing.
+Please note for PostgreSQl Security Alert Policies that there is no "list"
+function in the Azure API implemented. So the importer has to be set up with
+a white space separated list of names for the policies to query.
+
+
+The list of implemented features will be enhanced with any release step by step.
+If you miss something, we would appreciate an open issue on this here on GitHub.
+The same applies for missing fields on the import types. If you like to support
+the development, you are very welcome to send pull requests. As a non
+programmer, you can support this module to. For this, please contact our sales
+department. (cf. "Support" down this page)
+
 
 ![Query types](/doc/screenshot/azure_object_types.png)
 

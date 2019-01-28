@@ -71,7 +71,7 @@ abstract class MsPgSQLabstract extends Api
     /** ***********************************************************************
      * callback for the importer form manager to call for extensions of
      * the config form. This subclass needs the name of the dependent
-     * express route circuit. For uniqueness, we save the ID not the name.
+     * MS PostgreSQL server. For uniqueness, we save the ID not the name.
      *
      * @param QuickForm form
      * a form object to be extended

@@ -1020,7 +1020,7 @@ abstract class Api
 
     /** ***********************************************************************
      * queries one given PostgreSQL Database servers from an given id
-     * returns a list
+     * returns an object
      *
      * @param string $id
      * server id to query
@@ -1048,6 +1048,59 @@ abstract class Api
                 "Azure API: Could not get Microsoft.DbForPostgreSQL server ".
                 "'%s'. HTTP: %d",
                 $server, $result->info->http_code
+            );
+            Logger::error( $error );
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        return $result->decode_response();
+    }
+
+
+    /** ***********************************************************************
+     * queries a security alert policy for a  PostgreSQL Database server and
+     * returns an object
+     *
+     * @param string $server_id
+     * server id to work on
+     *
+     * @param string $policy_name
+     * policy name to work on
+     *
+     * @return array of objects
+     *
+     */
+
+    protected function getMsDbPostgreSQLServerSecurityPolicy(
+        $server_id, $policy_name
+    )
+    {
+        Logger::info(
+            "Azure API: querying Microsoft.DbForPostgreSQL server ".
+            "security policy '".$policy_name."' for server ID '".
+            $server_id."'"
+        );
+
+        $result = $this->call_get(
+            $server_id."/securityAlertPolicies/".$policy_name,
+            "2017-12-01"
+        );
+
+        // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError(
+                $result->error,
+                "querying security poluicies for Microsoft.DbForPostgreSQL ".
+                "servers"
+            );
+
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get Microsoft.DbForPostgreSQL servers ".
+                "security policy '%s' for server ID '%s'. HTTP: %d",
+                $policy_name, $server_if, $result->info->http_code
             );
             Logger::error( $error );
             throw new QueryException( $error );
