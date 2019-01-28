@@ -344,7 +344,6 @@ https://docs.microsoft.com/en-us/rest/api/postgresql/virtualnetworkrules/listbys
 * state
 * virtualNetworkSubnetId
 
-
 Microsoft DB for PostgreSQL (security alert policies)
 ------------------------------------------------------
 
@@ -362,6 +361,29 @@ https://docs.microsoft.com/en-us/rest/api/postgresql/serversecurityalertpolicies
 * state
 * storageAccountAccessKey
 * storageEndpoint
+
+Microsoft DB for PostgreSQL (location based performance tiers)
+----------------------------------------------------------------------
+
+https://docs.microsoft.com/en-us/rest/api/postgresql/locationbasedperformancetier/list
+
+This importer gets all locations from any MS PostgreSQL server (SAAS) available
+in the current subscription. On these locations, the location based performance
+tier API is queried and the result is presented here. "slo" stands for "service
+level objective".
+
+* name
+* subscriptionId
+* id
+* type
+* metricDefinitions
+* sloHardwareGeneration
+* sloId
+* sloMaxBackupRetentionDays
+* sloMaxStorageMB
+* sloMinBackupRetentionDays
+* sloMinStorageMB
+* sloVCore
 
 
 Resource Groups

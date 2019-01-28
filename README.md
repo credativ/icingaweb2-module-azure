@@ -54,6 +54,7 @@ Currently, we have some resources implemented in this importer module:
   * PostgreSQL Firewall rules
   * PostgreSQL Security Alert Policies *)
   * PostgreSQL Virtual network rules
+  * PostgreSQL Location based performance tiers
 * Resource Groups
 * Subscriptions
 * Virtual machines

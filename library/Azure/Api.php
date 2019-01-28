@@ -1242,7 +1242,8 @@ abstract class Api
 
 
     /** ***********************************************************************
-     * queries all PostgreSQL firewall rules on a server and returns a list
+     * queries all PostgreSQL virtual network rules on a server and returns a 
+     * list
      *
      * @param string $server
      * server id to query
@@ -1294,6 +1295,122 @@ abstract class Api
                 $result = $this->call_get( $response->nextLink, "2017-12-01");
 
         } while ($next);
+
+        return $objects;
+    }
+
+
+    /** ***********************************************************************
+     * queries all PostgreSQL location based performance tier on a subscription
+     * and returns a list
+     *
+     * @param string $rgn
+     * resource group name list (white space separated) to filter exclusively
+     *
+     * @return array of objects
+     *
+     */
+
+    protected function getPostgreSQLLocationBasedPerformanceTier( $rgn )
+    {
+        Logger::info("Azure API: querying location based performance tier for ".
+                     "PostgreSQL on current subscription.");
+
+        if ($rgn != "")
+            if (strpos($rgn, " ") !== false)
+                $groups = explode( " ", $rgn);
+            else
+                $groups[] = $rgn;
+        else
+            $groups = NULL;
+
+        // initially, we wil query API to get all MS PostgreSQl servers in the
+        // current subscription. Then we iterate over the servers to catch any
+        // location we find. Last step, we get the location based performance
+        // tiers per location. Voila.
+
+        $result = $this->call_get(
+            'subscriptions/'.
+            $this->subscription_id.
+            '/providers/Microsoft.DBforPostgreSQL/servers',
+            "2017-12-01"
+        );
+
+            // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError(
+                $result->error,
+                "querying Microsoft.DbForPostgreSQL servers "
+            );
+
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get Microsoft.DbForPostgreSQL ".
+                "servers for '%s'. HTTP: %d",
+                $server, $result->info->http_code
+            );
+            Logger::error( $error );
+            throw new QueryException( $error );
+        }
+
+        $all_servers = $result->decode_response()->value;
+        $locations = array();
+
+        // condensate unique locations.
+        // if there is one or many resource groups set up, ignore those
+        // servers outside these resource groups. 
+        if ($groups!= NULL)
+        {
+            foreach ($all_servers as $server)
+                foreach($groups as $group)
+                    if (stripos($server->id, "resourceGroups/".$group))
+                        if (!in_array($server->location, $locations, true))
+                            array_push($locations, $server->location);
+        }
+        else
+        {
+            foreach ($all_servers as $server)
+                if (!in_array($server->location, $locations, true))
+                    array_push($locations, $server->location);
+        }
+
+        $objects = array();
+
+        foreach($locations as $loc)
+        {
+
+            $result = $this->call_get(
+                'subscriptions/'.
+                $this->subscription_id.
+                '/providers/Microsoft.DBforPostgreSQL/locations/'.
+                $loc.
+                '/performanceTiers',
+                "2017-12-01"
+            );
+
+            // check if things have gone wrong
+            if ($result->errno != CURLE_OK)
+                $this->raiseCurlError(
+                    $result->error,
+                    "querying Microsoft.DbForPostgreSQL location based ".
+                    "performance tier for location '".$loc."'"
+                );
+
+            if ($result->info->http_code != 200)
+            {
+                $error = sprintf(
+                    "Azure API: Could not get Microsoft.DbForPostgreSQL ".
+                    "location based performance tier for location '%s'. ".
+                    "HTTP: %d",
+                    $loc, $result->info->http_code
+                );
+                Logger::error( $error );
+                throw new QueryException( $error );
+            }
+
+            $objects[$loc] = $result->decode_response()->value;
+        }
 
         return $objects;
     }

@@ -31,6 +31,7 @@ use Icinga\Module\Azure\MsPgSQLConfigs;
 use Icinga\Module\Azure\MsPgSQLFirewall;
 use Icinga\Module\Azure\MsPgSQLSecAlertPolicy;
 use Icinga\Module\Azure\MsPgSQLVirtNetRules;
+use Icinga\Module\Azure\MsPgSQLLocBasedPerfTier;
 use Icinga\Module\Azure\ResourceGroup;
 use Icinga\Module\Azure\Subscription;
 use Icinga\Module\Azure\ContainerRegistries;
@@ -125,6 +126,11 @@ class ImportSource extends ImportSourceHook
             'name'   => 'PostgreSQL servers (Virtual network rules)',
             'class'  => 'Icinga\Module\Azure\MsPgSQLVirtNetRules',
             'fields' =>  MsPgSQLVirtNetRules::FIELDS_RETURNED,
+        ),
+        'mspgsqllbpt' => array(
+            'name'   => 'PostgreSQL servers (Location based performance tiers)',
+            'class'  => 'Icinga\Module\Azure\MsPgSQLLocBasedPerfTier',
+            'fields' =>  MsPgSQLLocBasedPerfTier::FIELDS_RETURNED,
         ),
 
         'resgrp'  => array(

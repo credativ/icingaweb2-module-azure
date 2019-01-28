@@ -117,7 +117,10 @@ class MsPgSQLSecAlertPolicy extends MsPgSQLabstract
 
         // get data needed
         $server = $this->config["postgresql_server"];
-        $names = explode(" ", $this->config["pgsql_sec_alert_policies"]);
+        if (strpos($this->config["pgsql_sec_alert_policies"], " ") !== false)
+            $names = explode(" ", $this->config["pgsql_sec_alert_policies"]);
+        else
+            $names[] = $this->config["pgsql_sec_alert_policies"];
 
         $objects = array();
 
