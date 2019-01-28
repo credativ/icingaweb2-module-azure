@@ -52,7 +52,7 @@ Currently, we have some resources implemented in this importer module:
   * PostgreSQL Databases
   * PostgreSQL Configurations
   * PostgreSQL Firewall rules
-  * PostgreSQl Security Alert Policies *)
+  * PostgreSQL Security Alert Policies *)
 * Resource Groups
 * Subscriptions
 * Virtual machines
