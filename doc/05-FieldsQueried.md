@@ -330,6 +330,21 @@ https://docs.microsoft.com/en-us/rest/api/postgresql/firewallrules/listbyserver
 * endIpAddress
 * startIpAddress
 
+Microsoft DB for PostgreSQL (virtual network rules)
+------------------------------------------------
+
+https://docs.microsoft.com/en-us/rest/api/postgresql/virtualnetworkrules/listbyserver
+
+* name
+* subscriptionId
+* id
+* type
+* metricDefinitions
+* ignoreMissingVnetServiceEndpoint
+* state
+* virtualNetworkSubnetId
+
+
 Microsoft DB for PostgreSQL (security alert policies)
 ------------------------------------------------------
 

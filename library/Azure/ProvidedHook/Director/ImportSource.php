@@ -30,6 +30,7 @@ use Icinga\Module\Azure\MsPgSQLDatabases;
 use Icinga\Module\Azure\MsPgSQLConfigs;
 use Icinga\Module\Azure\MsPgSQLFirewall;
 use Icinga\Module\Azure\MsPgSQLSecAlertPolicy;
+use Icinga\Module\Azure\MsPgSQLVirtNetRules;
 use Icinga\Module\Azure\ResourceGroup;
 use Icinga\Module\Azure\Subscription;
 use Icinga\Module\Azure\ContainerRegistries;
@@ -119,6 +120,11 @@ class ImportSource extends ImportSourceHook
             'name'   => 'PostgreSQL servers (Security alerting policies)',
             'class'  => 'Icinga\Module\Azure\MsPgSQLSecAlertPolicy',
             'fields' =>  MsPgSQLSecAlertPolicy::FIELDS_RETURNED,
+        ),
+        'mspgsqlvnr' => array(
+            'name'   => 'PostgreSQL servers (Virtual network rules)',
+            'class'  => 'Icinga\Module\Azure\MsPgSQLVirtNetRules',
+            'fields' =>  MsPgSQLVirtNetRules::FIELDS_RETURNED,
         ),
 
         'resgrp'  => array(
