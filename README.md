@@ -64,7 +64,7 @@ the Container Registries as well as the PostgreSQL subtypes are considered
 not intensively tested currently.
 
 *) PostgreSQL Security Alert Policies are untested by the time of writing.
-Please note for PostgreSQl Security Alert Policies that there is no "list"
+Please note for PostgreSQL Security Alert Policies that there is no "list"
 function in the Azure API implemented. So the importer has to be set up with
 a white space separated list of names for the policies to query.
 
