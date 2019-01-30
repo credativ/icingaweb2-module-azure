@@ -1347,8 +1347,8 @@ abstract class Api
         {
             $error = sprintf(
                 "Azure API: Could not get Microsoft.DbForPostgreSQL ".
-                "servers for '%s'. HTTP: %d",
-                $server, $result->info->http_code
+                "for resource group '%s'. HTTP: %d",
+                $rgn, $result->info->http_code
             );
             Logger::error( $error );
             throw new QueryException( $error );
