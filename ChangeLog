@@ -1,3 +1,10 @@
+2019-10-24  Peter Dreuw <peter.dreuw@credativ.de>
+
+	* Changed version to v0.6.3
+
+	- added test for empty decoded response on token request, see
+	  https://github.com/credativ/icingaweb2-module-azure/issues/2
+
 2019-01-15  Peter Dreuw  <peter.dreuw@credativ.de>
 
 	* Changed version to v0.6.2

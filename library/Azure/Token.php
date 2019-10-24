@@ -133,6 +133,7 @@ class Token {
         // check some assertions on the returned API data
         // i.e. do we have every property and are these resulst plausible?
         if (
+            ( $decoded == NULL ) or
             (
                 !(
                     property_exists( $decoded, "token_type" ) and
