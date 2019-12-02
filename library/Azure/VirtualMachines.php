@@ -159,13 +159,18 @@ class VirtualMachines extends Api
                                                   $pubip->properties->ipAddress;
                             }
                         }
+                        if ($object->publicIP == NULL) {
+                            Logger::info( "Azure API: Public IP for \'".
+                                          $interf->id.
+                                          "\' not found." );
+                        }
                     }
                 }
                 else
                 {
-                    Logger::debug( "Azure API: Network interface  \'".
-                    $interf->id.
-                    "\' without configured VM id." );
+                    Logger::info( "Azure API: Network interface  \'".
+                                  $interf->id.
+                                  "\' without configured VM id." );
                 }
             }  // end foreach network interfaces
 
