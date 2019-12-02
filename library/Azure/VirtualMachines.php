@@ -129,6 +129,7 @@ class VirtualMachines extends Api
                 // and make shure, we match the current vm
                 if (
                     property_exists($interf->properties, 'virtualMachine') and
+                    property_exists($interf->properties->virtualMachine, 'id') and
                     $interf->properties->virtualMachine->id == $current->id )
                 {
                     $object->network_interfaces_count++;
@@ -159,6 +160,12 @@ class VirtualMachines extends Api
                             }
                         }
                     }
+                }
+                else
+                {
+                    Logger::debug( "Azure API: Network interface  \'".
+                    $interf->id.
+                    "\' without configured VM id." );
                 }
             }  // end foreach network interfaces
 
