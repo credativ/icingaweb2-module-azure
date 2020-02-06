@@ -123,7 +123,8 @@ class VirtualMachines extends Api
                 'maxdataDiscCount' => NULL,
                 'provisioningState'=> $current->properties->provisioningState,
                 'metricDefinitions'=> $metrics,
-                'tags'             => (property_exists($current, 'tags') ? $current->tags : ""),
+                'tags'             => (
+                    property_exists($current, 'tags') ? $current->tags : ""),
                 'state'            => $runtimestate,
             ];
 

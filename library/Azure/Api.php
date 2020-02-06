@@ -509,7 +509,7 @@ abstract class Api
             if (property_exists( $temp, 'nextLink'))
             {
                 $call = $temp->nextLink;
-                LoggerI:info("Azure API: querying next page virtual machines");
+                Logger::info("Azure API: querying next page virtual machines");
             }
             else
             {
