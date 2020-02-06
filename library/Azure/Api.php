@@ -479,7 +479,6 @@ abstract class Api
               '/resourceGroups/'. $resource_group.
               '/providers/Microsoft.Compute/virtualMachines';
 
-
         while( $call != NULL ) // iterate over all pages
         {
             Logger::debug( "Azure API: calling ".$call );
@@ -568,6 +567,53 @@ abstract class Api
             }
         }
         Logger::info("Azure API: querying virtual machine sizing for vm '".
+                     $vm->name."' was not successfull.");
+        return NULL;
+    }
+
+    /** ***********************************************************************
+     * queries the run-time-state for a given VM and returns a run-time-state object
+     *
+     * @param object $vm
+     * virtualMachine object to retrieve run-time-state data for
+     *
+     * @return array of objects
+     *
+     */
+
+    protected function getVirtualMachineRunTimeState($vm)
+    {
+        Logger::info("Azure API: querying virtual machine RunTimeState for vm '".
+                     $vm->name."'");
+
+        $result = $this->call_get($vm->id.'/instanceView',
+                                  "2018-06-01");
+        // check if things have gone wrong
+        if ($result->errno != CURLE_OK)
+            $this->raiseCurlError( $result->error,
+                            "querying virtual machine RunTimeState");
+
+        if ($result->info->http_code != 200)
+        {
+            $error = sprintf(
+                "Azure API: Could not get virtual machine RunTimeState for vm '%s'. ".
+                "HTTP: %d", $vm->name, $result->info->http_code);
+            Logger::error( $error );
+            throw new QueryException( $error );
+        }
+
+        // get result data from JSON into object $decoded
+        $vmstates =  $result->decode_response()->statuses;
+
+        foreach($vmstates as $vmstate)
+        {
+            if (preg_match('/^PowerState\//',$vmstate->code))
+            {
+                return $vmstate->code;
+            }
+        }
+
+        Logger::info("Azure API: querying virtual machine RunTimeState for vm '".
                      $vm->name."' was not successfull.");
         return NULL;
     }
