@@ -89,7 +89,7 @@ class VirtualMachines extends Api
         foreach($virtual_machines as $current)
         {
             // get Virtual Machine Run Time State
-            $runtimestate	    = $this->getVirtualMachineRunTimeState($current);
+            $runtimestate = $this->getVirtualMachineRunTimeState($current);
 
             // get metric definitions list
             $metrics = $this->getMetricDefinitionsList($current->id);
@@ -123,11 +123,11 @@ class VirtualMachines extends Api
                 'maxdataDiscCount' => NULL,
                 'provisioningState'=> $current->properties->provisioningState,
                 'metricDefinitions'=> $metrics,
-                'tags'		   => (property_exists($current, 'tags') ? $current->tags : ""),
+                'tags'             => (property_exists($current, 'tags') ? $current->tags : ""),
                 'state'            => $runtimestate,
             ];
 
-            // scan network interfaces and fint the ones belonging to
+            // scan network interfaces and find the ones belonging to
             // the current vm
 
             foreach($network_interfaces as $interf)

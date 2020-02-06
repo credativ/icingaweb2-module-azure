@@ -52,6 +52,8 @@ The **Virtual machines** object type does return these fields:
 * maxDataDiscCount
 * prosioningState
 * metricDefinitions
+* tags
+* state
 
 Please note that this reports the private and/or public IP of the first
 interface found.

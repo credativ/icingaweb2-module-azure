@@ -572,7 +572,8 @@ abstract class Api
     }
 
     /** ***********************************************************************
-     * queries the run-time-state for a given VM and returns a run-time-state object
+     * queries the run-time-state for a given VM and returns a run-time-state
+     * object
      *
      * @param object $vm
      * virtualMachine object to retrieve run-time-state data for
@@ -1288,7 +1289,7 @@ abstract class Api
 
 
     /** ***********************************************************************
-     * queries all PostgreSQL virtual network rules on a server and returns a 
+     * queries all PostgreSQL virtual network rules on a server and returns a
      * list
      *
      * @param string $server
@@ -1405,7 +1406,7 @@ abstract class Api
 
         // condensate unique locations.
         // if there is one or many resource groups set up, ignore those
-        // servers outside these resource groups. 
+        // servers outside these resource groups.
         if ($groups!= NULL)
         {
             foreach ($all_servers as $server)
